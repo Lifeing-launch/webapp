@@ -2,9 +2,9 @@ import { render, screen } from "@testing-library/react";
 import Home from "./Home";
 
 describe("Home Component", () => {
-  it("renders the Next.js logo", () => {
+  it("renders the page title", () => {
     render(<Home />);
-    const logo = screen.getByAltText("Next.js logo");
+    const logo = screen.getByText("Lifeing");
     expect(logo).toBeInTheDocument();
   });
 
