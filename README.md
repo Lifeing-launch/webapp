@@ -16,7 +16,7 @@ See all other available commands to run on this project by running `make help`
 $ make help
 Available commands:
   help             Display available commands and their descriptions
-  run-dev          Run the development server using docker-compose
+  run-dev          Run the development server using docker compose
   stop             Stop the running containers
   build            Build the Docker images
   run              Run a one-off command in the web container
