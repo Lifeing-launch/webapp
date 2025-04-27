@@ -1,5 +1,6 @@
-import Home from "@/components/templates/Home/Home";
+import { redirect } from "next/navigation";
 
-export default function HomePage() {
-  return <Home />;
+export default function Page() {
+  redirect("/login");
+  return null;
 }
