@@ -3,7 +3,9 @@ import { Card, CardContent } from "../ui/card";
 import React from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { SubmitButton } from "../form/submit-button";
+import { signUpAction } from "@/utils/supabase/actions";
+import Link from "next/link";
 
 export function SignupForm({
   className,
@@ -29,8 +31,8 @@ export function SignupForm({
                     type="firstname"
                     name="firstname"
                     placeholder="Lorem"
-                    required
                     className="text-sm"
+                    required
                   />
                 </div>
                 <div className="grid gap-2 w-full">
@@ -40,8 +42,8 @@ export function SignupForm({
                     type="lastname"
                     name="lastname"
                     placeholder="Ipsum"
-                    required
                     className="text-sm"
+                    required
                   />
                 </div>
               </div>
@@ -52,8 +54,8 @@ export function SignupForm({
                   type="email"
                   name="email"
                   placeholder="email@email.com"
-                  required
                   className="text-sm"
+                  required
                 />
               </div>
               <div className="grid gap-2">
@@ -61,12 +63,19 @@ export function SignupForm({
                 <Input
                   id="password"
                   type="password"
+                  name="password"
                   placeholder="********"
-                  required
                   className="text-sm"
+                  required
                 />
               </div>
-              <Button> Continue </Button>
+              <SubmitButton
+                className="w-full"
+                formAction={signUpAction}
+                pendingText="Signing up..."
+              >
+                Sign up
+              </SubmitButton>
               <p className="text-xs text-muted-foreground">
                 By clicking &quot;Create account&quot; above, you acknowledge
                 that you will receive updates from the Lifeing team and that you
@@ -80,9 +89,9 @@ export function SignupForm({
 
               <div className="text-center text-sm mb-2">
                 Already have an account?{" "}
-                <a href="#" className="underline">
-                  Log in
-                </a>
+                <Link href="/signup" className="underline">
+                  Login
+                </Link>
               </div>
             </div>
           </form>

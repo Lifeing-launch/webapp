@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { CircleCheck } from "lucide-react";
+import Link from "next/link";
 
 const plans = [
   {
@@ -61,7 +62,9 @@ const PlanCard = ({ plan }: { plan: (typeof plans)[number] }) => {
           ))}
         </ul>
 
-        <Button> Continue</Button>
+        <Button asChild>
+          <Link href="/dashboard">Continue</Link>
+        </Button>
       </CardContent>
     </Card>
   );

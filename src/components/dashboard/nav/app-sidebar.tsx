@@ -21,11 +21,6 @@ import NavGroup from "./nav-group";
 import { NavUser } from "./nav-user";
 
 const data = {
-  user: {
-    name: "Lorem Ipsum",
-    email: "lorem@lifeing.com",
-    avatar: "https://picsum.photos/200/300",
-  },
   navItems: {
     myLifeing: [
       {
@@ -89,7 +84,7 @@ const AppSidebar = () => {
         <NavGroup title="Resources" items={data.navItems.resources} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

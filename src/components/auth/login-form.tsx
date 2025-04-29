@@ -1,9 +1,12 @@
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "../ui/card";
 import React from "react";
+import Link from "next/link";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { SubmitButton } from "../form/submit-button";
+import { loginAction } from "@/utils/supabase/actions";
 
 export function LoginForm({
   className,
@@ -26,6 +29,7 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
+                  name="email"
                   placeholder="email@email.com"
                   className="text-sm"
                   required
@@ -41,14 +45,19 @@ export function LoginForm({
                 <Input
                   id="password"
                   type="password"
+                  name="password"
                   placeholder="*********"
                   className="text-sm"
                   required
                 />
               </div>
-              <Button type="submit" className="w-full">
+              <SubmitButton
+                className="w-full"
+                formAction={loginAction}
+                pendingText="Logging in..."
+              >
                 Login
-              </Button>
+              </SubmitButton>
               <div className="relative text-sm text-center after:absolute after:inset-0  after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                 <span className="text-muted-foreground relative z-10 bg-background px-2">
                   Or continue with
@@ -69,9 +78,9 @@ export function LoginForm({
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <a href="#" className="underline">
+                <Link href="/signup" className="underline">
                   Sign up
-                </a>
+                </Link>
               </div>
             </div>
           </form>
