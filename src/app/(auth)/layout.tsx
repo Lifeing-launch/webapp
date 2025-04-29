@@ -1,7 +1,7 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import Image from "next/image";
 
-const Layout = ({ children }: React.ComponentProps<"div">) => {
+const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex flex-col justify-center items-center gap-10 p-6 min-h-svh bg-lime-100">
       <a href="#" className="w-[120]">
