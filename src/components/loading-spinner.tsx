@@ -6,8 +6,13 @@ export const LoadingSpinner = ({
   className,
 }: React.ComponentPropsWithoutRef<"div">) => {
   return (
-    <div className="h-full w-full flex-1 flex justify-center items-center text-primary">
-      <Loader2 className={cn("animate-spin", className)} />
+    <div
+      className={cn(
+        "h-full w-full flex-1 flex justify-center items-center text-primary",
+        className
+      )}
+    >
+      <Loader2 className="animate-spin" />
     </div>
   );
 };
