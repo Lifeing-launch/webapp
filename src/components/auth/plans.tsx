@@ -3,12 +3,15 @@ import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { CircleCheck } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { Badge } from "../ui/badge";
 
 const plans = [
   {
     id: 1,
     name: "Lifeing Essentials",
     price: 75,
+    mostPopular: true,
     benefits: [
       "Full access to our 50+ meetings per month (That’s less than $2 per session!)",
       "Access to upcoming features including a resource library",
@@ -43,10 +46,13 @@ const plans = [
 
 const PlanCard = ({ plan }: { plan: (typeof plans)[number] }) => {
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-9 h-full">
+    <Card className={cn(plan.mostPopular && "bg-lime-100")}>
+      <CardContent className={"flex flex-col gap-9 h-full"}>
         <div className="flex flex-col gap-2">
-          <h1 className="font-medium">{plan.name}</h1>
+          <div className="flex justify-between items-start">
+            <h1 className="font-medium">{plan.name}</h1>
+            {plan.mostPopular && <Badge> Most popular</Badge>}
+          </div>
           <h2 className="text-2xl font-semibold">
             {"$"}
             {plan.price}/month
