@@ -37,6 +37,8 @@ export function getAuthErrorMessage(code?: string, error?: AuthError): string {
       return "This login provider is not supported.";
     case "session_expired":
       return "Your session has expired. Please log in again.";
+    case "otp_expired":
+      return "Your OTP has expired or is invalid.";
     case "server_error":
     case "unexpected_error":
     case "internal_server_error": {

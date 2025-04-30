@@ -35,7 +35,7 @@ const VerifyEmailForm = async ({ searchParams }: AuthFormProps) => {
               <Label htmlFor="otp" className="text-sm">
                 Enter 6-digit code
               </Label>
-              <InputOTP maxLength={6} id="otp" name="otp">
+              <InputOTP maxLength={6} id="otp" name="otp" pattern="\d+">
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />
