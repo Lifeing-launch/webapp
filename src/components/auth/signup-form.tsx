@@ -6,11 +6,14 @@ import { Input } from "../ui/input";
 import { SubmitButton } from "../form/submit-button";
 import { signUpAction } from "@/utils/supabase/actions";
 import Link from "next/link";
+import { FormMessage } from "./form-message";
+import { AuthFormProps } from "@/typing/interfaces";
 
 export function SignupForm({
   className,
+  searchParams,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: AuthFormProps) {
   return (
     <div className={cn("flex flex-col flex-1", className)} {...props}>
       <Card>
@@ -23,6 +26,7 @@ export function SignupForm({
                   Start Your 10-Day Free Trial
                 </p>
               </div>
+              <FormMessage message={searchParams} />
               <div className="flex gap-4">
                 <div className="grid gap-2 w-full">
                   <Label htmlFor="firstname">First Name</Label>
@@ -89,7 +93,7 @@ export function SignupForm({
 
               <div className="text-center text-sm mb-2">
                 Already have an account?{" "}
-                <Link href="/signup" className="underline">
+                <Link href="/login" className="underline">
                   Login
                 </Link>
               </div>

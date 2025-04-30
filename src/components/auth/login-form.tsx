@@ -7,11 +7,14 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { SubmitButton } from "../form/submit-button";
 import { loginAction } from "@/utils/supabase/actions";
+import { FormMessage } from "./form-message";
+import { AuthFormProps } from "@/typing/interfaces";
 
 export function LoginForm({
   className,
+  searchParams,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: AuthFormProps) {
   return (
     <div className={cn("flex flex-col flex-1", className)} {...props}>
       <Card>
@@ -24,6 +27,7 @@ export function LoginForm({
                   Login to your Lifeing account
                 </p>
               </div>
+              <FormMessage message={searchParams} />
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

@@ -32,7 +32,9 @@ export const loginAction = async (formData: FormData) => {
   }
 
   if (!user?.email_confirmed_at) {
-    await setSecureCookie(VERIFICATION_EMAIL_COOKIE, email);
+    await setSecureCookie(VERIFICATION_EMAIL_COOKIE, email, {
+      maxAge: VERIFICATION_EMAIL_COOKIE_AGE,
+    });
     redirect("/verify-email");
   }
 
