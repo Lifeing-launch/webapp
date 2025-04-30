@@ -10,6 +10,7 @@ import {
   VERIFICATION_EMAIL_COOKIE,
   VERIFICATION_EMAIL_COOKIE_AGE,
 } from "../cookies";
+import { getAuthErrorMessage } from "./errors";
 
 export const loginAction = async (formData: FormData) => {
   const email = formData.get("email") as string;
@@ -25,10 +26,8 @@ export const loginAction = async (formData: FormData) => {
   });
 
   if (error) {
-    // TODO: validate if this includes user readable errors
-    // TODO: Map error codes to user readable errors
-    console.error(error.message, error);
-    return encodedRedirect("error", "/login", error.message);
+    const message = getAuthErrorMessage(error.code, error);
+    return encodedRedirect("error", "/login", message);
   }
 
   if (!user?.email_confirmed_at) {
@@ -38,7 +37,7 @@ export const loginAction = async (formData: FormData) => {
     redirect("/verify-email");
   }
 
-  return redirect("/");
+  return redirect("/dashboard");
 };
 
 export const signUpAction = async (formData: FormData) => {
@@ -65,8 +64,8 @@ export const signUpAction = async (formData: FormData) => {
   });
 
   if (error) {
-    console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/signup", error.message);
+    const message = getAuthErrorMessage(error.code, error);
+    return encodedRedirect("error", "/signup", message);
   } else {
     await setSecureCookie(VERIFICATION_EMAIL_COOKIE, email, {
       maxAge: VERIFICATION_EMAIL_COOKIE_AGE,
@@ -96,8 +95,8 @@ export const verifyOtpAction = async (formData: FormData) => {
   });
 
   if (error) {
-    console.error(error.message);
-    return encodedRedirect("error", "/verify-email", error.message);
+    const message = getAuthErrorMessage(error.code, error);
+    return encodedRedirect("error", "/verify-email", message);
   }
 
   await deleteSecureCookie(VERIFICATION_EMAIL_COOKIE);
