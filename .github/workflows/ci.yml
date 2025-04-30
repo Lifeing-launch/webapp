@@ -19,28 +19,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Set up Docker
-      - name: Set up Docker
-        run: |
-          docker --version
-          docker compose --version
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      # Build the Docker images
-      - name: Build Docker images
-        run: make build
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
 
       # Run tests
       - name: Run tests
-        run: make test
+        run: npm test
 
       # Run linting
-      - name: Run linting
-        run: make lint
+      - name: Run ESLint
+        run: npm run lint
 
-      # Run formatting
-      - name: Run formatting
-        run: make format
-
-      # Clean up project-specific Docker resources
-      - name: Clean up project-specific Docker resources
-        run: make clean
+      # Check formatting
+      - name: Check Prettier formatting
+        run: npm run format:check
