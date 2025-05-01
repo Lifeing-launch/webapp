@@ -1,0 +1,108 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { encodedRedirect } from "../urls";
+import { createClient } from "./server";
+import {
+  deleteSecureCookie,
+  getSecureCookie,
+  setSecureCookie,
+  VERIFICATION_EMAIL_COOKIE,
+  VERIFICATION_EMAIL_COOKIE_AGE,
+} from "../cookies";
+import { getAuthErrorMessage } from "./errors";
+
+export const loginAction = async (formData: FormData) => {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    const message = getAuthErrorMessage(error.code, error);
+    return encodedRedirect("error", "/login", message);
+  }
+
+  if (!data?.user?.email_confirmed_at) {
+    await setSecureCookie(VERIFICATION_EMAIL_COOKIE, email, {
+      maxAge: VERIFICATION_EMAIL_COOKIE_AGE,
+    });
+    redirect("/verify-email");
+  }
+
+  return redirect("/dashboard");
+};
+
+export const signUpAction = async (formData: FormData) => {
+  const email = formData.get("email")?.toString();
+  const password = formData.get("password")?.toString();
+  const firstName = formData.get("firstname")?.toString();
+  const lastName = formData.get("lastname")?.toString();
+
+  const supabase = await createClient();
+
+  if (!email || !password || !firstName || !lastName) {
+    return encodedRedirect("error", "/signup", "All fields are required");
+  }
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        firstName,
+        lastName,
+      },
+    },
+  });
+
+  if (error) {
+    const message = getAuthErrorMessage(error.code, error);
+    return encodedRedirect("error", "/signup", message);
+  } else {
+    await setSecureCookie(VERIFICATION_EMAIL_COOKIE, email, {
+      maxAge: VERIFICATION_EMAIL_COOKIE_AGE,
+    });
+    redirect("/verify-email");
+  }
+};
+
+export const verifyOtpAction = async (formData: FormData) => {
+  const otp = formData.get("otp")?.toString();
+  if (!otp) {
+    return encodedRedirect("error", "/verify-email", "OTP is required");
+  }
+
+  const email = await getSecureCookie(VERIFICATION_EMAIL_COOKIE);
+  if (!email) {
+    // No verification email set in browser cookie.
+    // Redirect to login as this is required.
+    return redirect("/login");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.verifyOtp({
+    type: "signup",
+    token: otp,
+    email: email,
+  });
+
+  if (error) {
+    const message = getAuthErrorMessage(error.code, error);
+    return encodedRedirect("error", "/verify-email", message);
+  }
+
+  await deleteSecureCookie(VERIFICATION_EMAIL_COOKIE);
+  return redirect("/plans");
+};
+
+export const signOutAction = async () => {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  await deleteSecureCookie(VERIFICATION_EMAIL_COOKIE);
+  return redirect("/login");
+};
