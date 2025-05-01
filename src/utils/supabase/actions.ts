@@ -17,10 +17,7 @@ export const loginAction = async (formData: FormData) => {
   const password = formData.get("password") as string;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -30,7 +27,7 @@ export const loginAction = async (formData: FormData) => {
     return encodedRedirect("error", "/login", message);
   }
 
-  if (!user?.email_confirmed_at) {
+  if (!data?.user?.email_confirmed_at) {
     await setSecureCookie(VERIFICATION_EMAIL_COOKIE, email, {
       maxAge: VERIFICATION_EMAIL_COOKIE_AGE,
     });

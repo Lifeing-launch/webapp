@@ -75,7 +75,7 @@ export function NavUser() {
   const fallbackAvatar = `${user?.firstName?.[0]}${user?.lastName?.[0]}`;
 
   return (
-    <SidebarMenu>
+    <SidebarMenu data-testid="nav-user">
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

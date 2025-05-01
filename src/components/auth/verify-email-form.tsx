@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Card, CardContent } from "../ui/card";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
@@ -6,23 +8,23 @@ import { SubmitButton } from "../form/submit-button";
 import { verifyOtpAction } from "@/utils/supabase/actions";
 import { AuthFormProps } from "@/typing/interfaces";
 import { FormMessage } from "./form-message";
-import { redirect } from "next/navigation";
-import { getSecureCookie, VERIFICATION_EMAIL_COOKIE } from "@/utils/cookies";
 
-const VerifyEmailForm = async ({ searchParams }: AuthFormProps) => {
-  // Check if the verification email cookie is set
-  const email = await getSecureCookie(VERIFICATION_EMAIL_COOKIE);
+interface VerifyEmailFormProps extends AuthFormProps {
+  email: string;
+}
 
-  // Redirect to login if the cookie is missing
-  if (!email) {
-    redirect("/login");
-  }
+const VerifyEmailForm = ({ searchParams, email }: VerifyEmailFormProps) => {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault(); // Prevent default form submission
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    await verifyOtpAction(formData);
+  };
 
   return (
     <div className="w-full">
       <Card>
         <CardContent>
-          <form className="flex flex-col gap-9">
+          <form className="flex flex-col gap-9" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-2">
               <h1 className="text-2xl font-semibold">Verify your email</h1>
               <p className="text-sm">
@@ -35,7 +37,13 @@ const VerifyEmailForm = async ({ searchParams }: AuthFormProps) => {
               <Label htmlFor="otp" className="text-sm">
                 Enter 6-digit code
               </Label>
-              <InputOTP maxLength={6} id="otp" name="otp" pattern="\d+">
+              <InputOTP
+                maxLength={6}
+                id="otp"
+                name="otp"
+                pattern="\d+"
+                required
+              >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />
@@ -55,11 +63,7 @@ const VerifyEmailForm = async ({ searchParams }: AuthFormProps) => {
               .
             </div>
 
-            <SubmitButton
-              className="w-full"
-              formAction={verifyOtpAction}
-              pendingText="Verifying..."
-            >
+            <SubmitButton className="w-full" pendingText="Verifying...">
               {" "}
               Verify{" "}
             </SubmitButton>

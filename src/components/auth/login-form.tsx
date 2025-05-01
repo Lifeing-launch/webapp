@@ -1,11 +1,13 @@
+"use client";
+
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "../ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import React from "react";
 import Link from "next/link";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { SubmitButton } from "../form/submit-button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/form/submit-button";
 import { loginAction } from "@/utils/supabase/actions";
 import { FormMessage } from "./form-message";
 import { AuthFormProps } from "@/typing/interfaces";
@@ -15,11 +17,17 @@ export function LoginForm({
   searchParams,
   ...props
 }: AuthFormProps) {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault(); // Prevent default form submission
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    await loginAction(formData);
+  };
+
   return (
     <div className={cn("flex flex-col flex-1", className)} {...props}>
       <Card>
         <CardContent className="grid">
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center gap-1">
                 <h1 className="text-2xl font-semibold"> Welcome back </h1>
@@ -55,11 +63,7 @@ export function LoginForm({
                   required
                 />
               </div>
-              <SubmitButton
-                className="w-full"
-                formAction={loginAction}
-                pendingText="Logging in..."
-              >
+              <SubmitButton className="w-full" pendingText="Logging in...">
                 Login
               </SubmitButton>
               <div className="relative text-sm text-center after:absolute after:inset-0  after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">

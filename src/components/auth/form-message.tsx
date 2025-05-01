@@ -1,10 +1,13 @@
 import { AlertCircle, CircleCheck } from "lucide-react";
 import { Alert, AlertDescription } from "../ui/alert";
 
-export type Message = { success: string } | { error: string };
+export type Message = {
+  success?: string;
+  error?: string;
+};
 
-export function FormMessage({ message }: { message: Message }) {
-  if ("success" in message) {
+export function FormMessage({ message = {} }: { message?: Message }) {
+  if (message?.success) {
     return (
       <div className="grid gap-2">
         <Alert className="border-primary text-primary">
@@ -17,7 +20,7 @@ export function FormMessage({ message }: { message: Message }) {
     );
   }
 
-  if ("error" in message) {
+  if (message?.error) {
     return (
       <div className="grid gap-2">
         <Alert variant="destructive" className="border-destructive">

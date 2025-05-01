@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "../ui/card";
 import React from "react";
@@ -14,11 +16,17 @@ export function SignupForm({
   searchParams,
   ...props
 }: AuthFormProps) {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault(); // Prevent default form submission
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    await signUpAction(formData);
+  };
+
   return (
     <div className={cn("flex flex-col flex-1", className)} {...props}>
       <Card>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1 items-center">
                 <h1 className="text-2xl font-semibold">Create Your Account</h1>
@@ -73,11 +81,7 @@ export function SignupForm({
                   required
                 />
               </div>
-              <SubmitButton
-                className="w-full"
-                formAction={signUpAction}
-                pendingText="Signing up..."
-              >
+              <SubmitButton className="w-full" pendingText="Signing up...">
                 Sign up
               </SubmitButton>
               <p className="text-xs text-muted-foreground">

@@ -51,7 +51,7 @@ export async function updateSession(request: NextRequest) {
 
   if (user && matchesAuthPath) {
     // if user accesses any auth path, redirect to dashboard
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   //  user must be accessing a protected page at this point. Let them through
