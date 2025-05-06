@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { createClient as createJSClient } from "@supabase/supabase-js";
 
+// Regular client for user-specific operations
 export const createClient = async () => {
   const cookieStore = await cookies();
 
@@ -25,5 +27,13 @@ export const createClient = async () => {
         },
       },
     }
+  );
+};
+
+// Admin client for privileged operations
+export const createAdminClient = () => {
+  return createJSClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PRIVATE_SUPABASE_SERVICE_ROLE_KEY!
   );
 };
