@@ -39,6 +39,8 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  console.log("\n\nWAS A USER FOUND??", user, "\n\n");
+
   const matchesProtectedPath = AUTH_PATHS.every(
     (path) => !request.nextUrl.pathname.startsWith(path)
   );
