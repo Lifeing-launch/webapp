@@ -13,6 +13,8 @@ import {
 import { ERROR_CODE_EMAIL_NOT_CONFIRMED, getAuthErrorMessage } from "./errors";
 import { AuthError } from "@supabase/supabase-js";
 
+type UserExistence = "EXISTS" | "NOT_EXISTS" | "ERROR";
+
 export const loginAction = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -47,20 +49,20 @@ export const signUpAction = async (formData: FormData) => {
   }
 
   // Check if the user already exists
-  try {
-    const userExists = await checkUserExists(email);
-    if (userExists) {
+  const userExistence = await checkUserExists(email);
+  switch (userExistence) {
+    case "EXISTS":
       return encodedRedirect(
         errorRedirectPath,
         "An account with this email already exists. Please log in."
       );
-    }
-  } catch (e) {
-    console.error("Error checking user exists", e);
-    return encodedRedirect(
-      errorRedirectPath,
-      "An unknown error occurred. Please try again later."
-    );
+    case "ERROR":
+      return encodedRedirect(
+        errorRedirectPath,
+        "An unknown error occurred. Please try again later."
+      );
+    default:
+      break;
   }
 
   const supabase = await createClient();
@@ -138,7 +140,7 @@ const redirectToEmailVerification = async (
   redirect("/verify-email");
 };
 
-const checkUserExists = async (email: string): Promise<boolean> => {
+const checkUserExists = async (email: string): Promise<UserExistence> => {
   const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("user_profiles")
@@ -149,13 +151,13 @@ const checkUserExists = async (email: string): Promise<boolean> => {
   if (error) {
     if (error.code === "PGRST116") {
       // No rows found, user does not exist
-      return false;
+      return "NOT_EXISTS";
     }
 
     // Handle unexpected errors (e.g., network issues)
-    throw new Error(`Error checking user existence: ${error.message}`);
+    return "ERROR";
   }
 
   // If data is null, the user does not exist
-  return !!data;
+  return data ? "EXISTS" : "NOT_EXISTS";
 };
