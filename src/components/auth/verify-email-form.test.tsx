@@ -1,11 +1,11 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { verifyOtpAction } from "@/utils/supabase/actions";
+import { verifySignupOtpAction } from "@/utils/supabase/actions";
 import VerifyEmailForm from "./verify-email-form";
 
 // Mock dependencies
 jest.mock("@/utils/supabase/actions", () => ({
-  verifyOtpAction: jest.fn(),
+  verifySignupOtpAction: jest.fn(),
 }));
 
 describe("VerifyEmailForm", () => {
@@ -42,15 +42,15 @@ describe("VerifyEmailForm", () => {
     expect(submitButton).toBeInTheDocument();
   });
 
-  it("without required OTP verifyOtpAction is not called on form submission", () => {
+  it("without required OTP verifySignupOtpAction is not called on form submission", () => {
     render(<VerifyEmailForm email="test@example.com" />);
     const submitButton = screen.getByRole("button", { name: "Verify" });
 
     fireEvent.click(submitButton);
-    expect(verifyOtpAction).not.toHaveBeenCalled();
+    expect(verifySignupOtpAction).not.toHaveBeenCalled();
   });
 
-  it("with required OTP verifyOtpAction is called on form submission", () => {
+  it("with required OTP verifySignupOtpAction is called on form submission", () => {
     render(<VerifyEmailForm email="test@example.com" />);
     const otpInput = screen.getByRole("textbox");
 
@@ -59,6 +59,6 @@ describe("VerifyEmailForm", () => {
     const submitButton = screen.getByRole("button", { name: "Verify" });
     fireEvent.click(submitButton);
 
-    expect(verifyOtpAction).toHaveBeenCalled();
+    expect(verifySignupOtpAction).toHaveBeenCalled();
   });
 });

@@ -69,7 +69,15 @@ export function NavUser() {
     fetchUserProfile();
   }, []);
 
-  if (!user) return null;
+  if (!user)
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton onClick={signOutAction} className="cursor-pointer">
+          <LogOut />
+          Log out
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
 
   const fullName = `${user?.firstName} ${user?.lastName}`;
   const fallbackAvatar = `${user?.firstName?.[0]}${user?.lastName?.[0]}`;

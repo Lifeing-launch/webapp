@@ -5,7 +5,10 @@ import { Card, CardContent } from "../ui/card";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 import { Label } from "@radix-ui/react-label";
 import { SubmitButton } from "../form/submit-button";
-import { verifyOtpAction } from "@/utils/supabase/actions";
+import {
+  resendOTPAction,
+  verifySignupOtpAction,
+} from "@/utils/supabase/actions";
 import { AuthFormProps } from "@/typing/interfaces";
 import { FormMessage } from "./form-message";
 
@@ -17,7 +20,11 @@ const VerifyEmailForm = ({ searchParams, email }: VerifyEmailFormProps) => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // Prevent default form submission
     const formData = new FormData(event.currentTarget as HTMLFormElement);
-    await verifyOtpAction(formData);
+    await verifySignupOtpAction(formData);
+  };
+
+  const handleResend = async () => {
+    await resendOTPAction(email);
   };
 
   return (
@@ -57,9 +64,13 @@ const VerifyEmailForm = ({ searchParams, email }: VerifyEmailFormProps) => {
 
             <div className="text-sm">
               Didn&apos;t receive a code?{" "}
-              <a href="#" className="underline">
+              <button
+                className="underline cursor-pointer"
+                onClick={handleResend}
+                type="button"
+              >
                 Send code again
-              </a>
+              </button>
               .
             </div>
 
