@@ -1,7 +1,7 @@
 import {
   loginAction,
   signUpAction,
-  verifyOtpAction,
+  verifySignupOtpAction,
   signOutAction,
 } from "./actions";
 import { createAdminClient, createClient } from "./server";
@@ -287,7 +287,7 @@ describe("Supabase Actions", () => {
     );
   });
 
-  describe("verifyOtpAction", () => {
+  describe("verifySignupOtpAction", () => {
     it("should redirect to plans on successful OTP verification", async () => {
       const formData = new FormData();
       formData.set("otp", "123456");
@@ -295,7 +295,7 @@ describe("Supabase Actions", () => {
       (getSecureCookie as jest.Mock).mockResolvedValue("test@example.com");
       mockSupabase.auth.verifyOtp.mockResolvedValue({ error: null });
 
-      await verifyOtpAction(formData);
+      await verifySignupOtpAction(formData);
 
       expect(mockSupabase.auth.verifyOtp).toHaveBeenCalledWith({
         type: "signup",
@@ -323,7 +323,7 @@ describe("Supabase Actions", () => {
       (getAuthErrorMessage as jest.Mock).mockReturnValue(errorMsg);
       (encodedRedirect as jest.Mock).mockReturnValue(redirectUrl);
 
-      const result = await verifyOtpAction(formData);
+      const result = await verifySignupOtpAction(formData);
 
       expect(result).toEqual(redirectUrl);
       expect(encodedRedirect).toHaveBeenCalledWith("/verify-email", errorMsg);

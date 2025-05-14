@@ -50,9 +50,12 @@ export function LoginForm({
               <div className="grid gap-2">
                 <div className="flex justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <a href="#" className="text-sm hover-underline text-lime-700">
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm hover-underline text-lime-700"
+                  >
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
                 <Input
                   id="password"

@@ -1,1 +1,7 @@
-export const AUTH_PATHS: string[] = ["/login", "/signup", "/verify-email"];
+export const AUTH_PATHS: { path: string; exact?: boolean }[] = [
+  { path: "/login" },
+  { path: "/signup" },
+  { path: "/verify-email" },
+  { path: "/forgot-password" },
+  { path: "/reset-password/verify" },
+];
