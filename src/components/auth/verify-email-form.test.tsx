@@ -1,11 +1,15 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { verifySignupOtpAction } from "@/utils/supabase/actions";
+import {
+  verifySignupOtpAction,
+  resendOTPAction,
+} from "@/utils/supabase/actions";
 import VerifyEmailForm from "./verify-email-form";
 
 // Mock dependencies
 jest.mock("@/utils/supabase/actions", () => ({
   verifySignupOtpAction: jest.fn(),
+  resendOTPAction: jest.fn(),
 }));
 
 describe("VerifyEmailForm", () => {
@@ -60,5 +64,14 @@ describe("VerifyEmailForm", () => {
     fireEvent.click(submitButton);
 
     expect(verifySignupOtpAction).toHaveBeenCalled();
+  });
+
+  it("calls resendOTPAction when resend code is clicked", () => {
+    render(<VerifyEmailForm email="test@example.com" />);
+    const resendButton = screen.getByText("Send code again");
+
+    fireEvent.click(resendButton);
+
+    expect(resendOTPAction).toHaveBeenCalledWith("test@example.com");
   });
 });

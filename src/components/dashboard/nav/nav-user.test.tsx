@@ -1,11 +1,16 @@
 import React from "react";
-import { render, screen, waitFor } from "@/utils/tests";
+import { render, screen, waitFor, fireEvent } from "@/utils/tests";
 import { NavUser } from "./nav-user";
 import { createClient } from "@/utils/supabase/browser";
+import { signOutAction } from "@/utils/supabase/actions";
 
 // Mock supabase client
 jest.mock("@/utils/supabase/browser", () => ({
   createClient: jest.fn(),
+}));
+
+jest.mock("@/utils/supabase/actions", () => ({
+  signOutAction: jest.fn(),
 }));
 
 describe("NavUser", () => {
@@ -44,6 +49,12 @@ describe("NavUser", () => {
     render(<NavUser />);
 
     expect(screen.queryByTestId("nav-user")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("nav-user-partial")).toBeInTheDocument();
+
+    const signOutButton = screen.getByRole("button", { name: "Log out" });
+    fireEvent.click(signOutButton);
+
+    expect(signOutAction).toHaveBeenCalled();
   });
 
   it("fetches and displays user profile data", async () => {
@@ -74,6 +85,7 @@ describe("NavUser", () => {
     // Wait for the user profile to load
     await waitFor(() => {
       expect(screen.getByTestId("nav-user")).toBeInTheDocument();
+      expect(screen.queryByTestId("nav-user-partial")).not.toBeInTheDocument();
       expect(screen.getByText(profileData.email)).toBeInTheDocument();
       expect(screen.getByText("JD")).toBeInTheDocument();
     });

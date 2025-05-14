@@ -71,7 +71,7 @@ export function NavUser() {
 
   if (!user)
     return (
-      <SidebarMenuItem>
+      <SidebarMenuItem data-testid="nav-user-partial">
         <SidebarMenuButton onClick={signOutAction} className="cursor-pointer">
           <LogOut />
           Log out

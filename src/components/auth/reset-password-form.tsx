@@ -39,9 +39,9 @@ const ResetPasswordForm = ({ searchParams }: AuthFormProps) => {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="password">Confirm Password</Label>
+              <Label htmlFor="cPassword">Confirm Password</Label>
               <Input
-                id="password"
+                id="cPassword"
                 type="password"
                 name="cPassword"
                 placeholder="Re-enter new password"

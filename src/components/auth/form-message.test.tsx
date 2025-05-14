@@ -16,6 +16,35 @@ describe("FormMessage Component", () => {
     expect(screen.getByRole("alert")).toHaveClass("border-destructive");
   });
 
+  it("renders error message when message.error_description is provided", () => {
+    render(
+      <FormMessage
+        message={{ error_description: "Something went wrong with details!" }}
+      />
+    );
+
+    expect(
+      screen.getByText("Something went wrong with details!")
+    ).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveClass("border-destructive");
+  });
+
+  it("renders error message when message.error_description is provided", () => {
+    render(
+      <FormMessage
+        message={{
+          error_description: "Something went wrong with details!",
+          error: "Something went wrong!",
+        }}
+      />
+    );
+
+    expect(
+      screen.getByText("Something went wrong with details!")
+    ).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveClass("border-destructive");
+  });
+
   it("renders nothing when no message is provided", () => {
     const { container } = render(<FormMessage message={{}} />);
     expect(container.firstChild).toBeNull();
