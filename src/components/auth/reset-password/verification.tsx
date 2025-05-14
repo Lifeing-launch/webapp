@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent } from "../ui/card";
-import { FormMessage } from "./form-message";
+import { Card, CardContent } from "../../ui/card";
+import { FormMessage } from "../../form/message";
 import Link from "next/link";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 
 const ResetPasswordVerification = ({ error }: { error: string }) => {
   return (

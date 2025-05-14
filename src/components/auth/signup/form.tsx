@@ -1,14 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "../ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import React from "react";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { SubmitButton } from "../form/submit-button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { SubmitButton } from "@/components/form/submit-button";
 import { signUpAction } from "@/utils/supabase/actions";
 import Link from "next/link";
-import { FormMessage } from "./form-message";
+import { FormMessage } from "@/components/form/message";
 import { AuthFormProps } from "@/typing/interfaces";
 
 export function SignupForm({

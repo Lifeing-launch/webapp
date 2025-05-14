@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/form/submit-button";
 import { loginAction } from "@/utils/supabase/actions";
-import { FormMessage } from "./form-message";
+import { FormMessage } from "@/components/form/message";
 import { AuthFormProps } from "@/typing/interfaces";
 
 export function LoginForm({

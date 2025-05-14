@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import ForgotPasswordForm from "./forgot-password-form";
+import ForgotPasswordForm from "./form";
 import { sendPasswordResetEmailAction } from "@/utils/supabase/actions";
 
 // Mock dependencies

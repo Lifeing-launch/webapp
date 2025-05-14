@@ -5,7 +5,7 @@ import { redirect, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/browser";
 import { getAuthErrorMessage } from "@/utils/supabase/errors";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import ResetPasswordVerification from "@/components/auth/reset-password-verification";
+import ResetPasswordVerification from "@/components/auth/reset-password/verification";
 
 const Page = () => {
   const searchParams = useSearchParams();

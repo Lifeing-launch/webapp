@@ -1,5 +1,5 @@
 import React from "react";
-import ResetPasswordForm from "@/components/auth/reset-password-form";
+import ResetPasswordForm from "@/components/auth/reset-password/form";
 import { AuthPageProps } from "@/typing/interfaces";
 
 const Page = async (props: AuthPageProps) => {

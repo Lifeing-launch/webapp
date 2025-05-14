@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent } from "../ui/card";
-import { Label } from "../ui/label";
-import { SubmitButton } from "../form/submit-button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { SubmitButton } from "@/components/form/submit-button";
 import { AuthFormProps } from "@/typing/interfaces";
-import { FormMessage } from "./form-message";
-import { Input } from "../ui/input";
+import { FormMessage } from "@/components/form/message";
+import { Input } from "@/components/ui/input";
 import { updatePasswordAction } from "@/utils/supabase/actions";
 
 const ResetPasswordForm = ({ searchParams }: AuthFormProps) => {

@@ -1,16 +1,20 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent } from "../ui/card";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { Label } from "@radix-ui/react-label";
-import { SubmitButton } from "../form/submit-button";
+import { SubmitButton } from "@/components/form/submit-button";
 import {
   resendOTPAction,
   verifySignupOtpAction,
 } from "@/utils/supabase/actions";
 import { AuthFormProps } from "@/typing/interfaces";
-import { FormMessage } from "./form-message";
+import { FormMessage } from "@/components/form/message";
 
 interface VerifyEmailFormProps extends AuthFormProps {
   email: string;

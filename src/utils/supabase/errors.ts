@@ -60,6 +60,8 @@ export function getAuthErrorMessage(code?: string, error?: AuthError): string {
       return "Please confirm your phone number to continue.";
     case "provider_disabled":
       return "This provider is disabled. Please contact support.";
+    case "same_password":
+      return "New password should be different from the old password";
     case "session_expired":
       return "Your session has expired. Please log in again.";
     case "signup_disabled":

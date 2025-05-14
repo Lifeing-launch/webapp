@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import Page from "./page";
-import VerifyEmailForm from "@/components/auth/verify-email-form";
+import VerifyEmailForm from "@/components/auth/verify-email/form";
 import { getSecureCookie, VERIFICATION_EMAIL_COOKIE } from "@/utils/cookies";
 import { redirect } from "next/navigation";
 
-jest.mock("@/components/auth/verify-email-form", () =>
+jest.mock("@/components/auth/verify-email/form", () =>
   jest.fn(() => <div>Mocked VerifyEmailForm</div>)
 );
 

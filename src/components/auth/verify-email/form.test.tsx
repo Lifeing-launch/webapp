@@ -4,7 +4,7 @@ import {
   verifySignupOtpAction,
   resendOTPAction,
 } from "@/utils/supabase/actions";
-import VerifyEmailForm from "./verify-email-form";
+import VerifyEmailForm from "./form";
 
 // Mock dependencies
 jest.mock("@/utils/supabase/actions", () => ({

@@ -1,4 +1,4 @@
-import VerifyEmailForm from "@/components/auth/verify-email-form";
+import VerifyEmailForm from "@/components/auth/verify-email/form";
 import { AuthPageProps } from "@/typing/interfaces";
 import { getSecureCookie, VERIFICATION_EMAIL_COOKIE } from "@/utils/cookies";
 import { redirect } from "next/navigation";
