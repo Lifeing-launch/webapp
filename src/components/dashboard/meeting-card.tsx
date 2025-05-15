@@ -23,14 +23,16 @@ export interface Meeting {
 
 interface IMeetingCard {
   meeting: Meeting;
+  className?: string;
 }
 
-export function MeetingCard({ meeting }: IMeetingCard) {
+export function MeetingCard({ meeting, className }: IMeetingCard) {
   return (
     <Card
       className={cn(
         "w-full gap-3",
-        meeting.active ? "bg-lime-50 border-l-3 border-l-[#65A30D]" : undefined
+        meeting.active ? "bg-lime-50 border-l-3 border-l-[#65A30D]" : undefined,
+        className
       )}
     >
       <CardHeader>

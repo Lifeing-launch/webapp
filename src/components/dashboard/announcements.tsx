@@ -19,7 +19,7 @@ interface IAnnouncementsCard {
 
 export function AnnouncementsCard({ announcements }: IAnnouncementsCard) {
   return (
-    <Card className="max-w-sm gap-0 p-4 pt-0">
+    <Card className="w-full lg:max-w-sm gap-0 p-4 pt-0">
       <CardContent className="p-0">
         {announcements.map((announcement, i) => (
           <div className="flex border-b last:border-b-0 py-4" key={i}>

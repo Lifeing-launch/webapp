@@ -2,10 +2,13 @@ import {
   Announcement,
   AnnouncementsCard,
 } from "@/components/dashboard/announcements";
+import { Breadcrumb } from "@/components/dashboard/header";
 import { Meeting, MeetingCard } from "@/components/dashboard/meeting-card";
-import { PageHeader } from "@/components/dashboard/page-header";
+import PageTemplate from "@/components/dashboard/page-template";
 import DashboardSkeleton from "@/components/dashboard/skeleton";
 import React from "react";
+
+const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard" }];
 
 const meetings: Meeting[] = [
   {
@@ -98,7 +101,11 @@ const Page = () => {
     );
   }
 
-  return <PageHeader title="Dashboard">{content}</PageHeader>;
+  return (
+    <PageTemplate title="Dashboard" breadcrumbs={breadcrumbs}>
+      {content}
+    </PageTemplate>
+  );
 };
 
 export default Page;
