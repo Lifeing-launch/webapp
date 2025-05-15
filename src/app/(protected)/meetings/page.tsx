@@ -36,7 +36,7 @@ const meetings: Meeting[] = [
 const groupedMeetings = [
   {
     when: today,
-    meetings: [...meetings, meetings[0]],
+    meetings: [...meetings],
   },
   {
     when: new Date(today.setDate(today.getDate() + 1)),
@@ -66,7 +66,7 @@ const Page = () => {
                 {group.when.toLocaleDateString()}
               </h2>
               <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {meetings.map((meeting, i) => (
+                {group.meetings.map((meeting, i) => (
                   <MeetingCard key={i} meeting={meeting} />
                 ))}
               </div>

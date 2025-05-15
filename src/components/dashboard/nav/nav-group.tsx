@@ -8,6 +8,7 @@ import {
   SidebarMenuItem,
 } from "../../ui/sidebar";
 import { LucideIcon } from "lucide-react";
+import Link from "next/link";
 
 export type NavItem = {
   title: string;
@@ -30,10 +31,10 @@ const NavGroup = ({ title, items }: INavGroup) => {
           {items.map((item, index) => (
             <SidebarMenuItem key={index}>
               <SidebarMenuButton asChild isActive={item.active}>
-                <a href={item.url}>
+                <Link href={item.url}>
                   <item.icon />
                   <span> {item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

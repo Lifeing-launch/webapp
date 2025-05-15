@@ -25,12 +25,12 @@ const data = {
     myLifeing: [
       {
         title: "Dashboard",
-        url: "#",
+        url: "/dashboard",
         icon: HeartHandshake,
       },
       {
         title: "My Meetings",
-        url: "#",
+        url: "/meetings",
         icon: Calendar,
         active: true,
       },
