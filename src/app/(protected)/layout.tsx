@@ -6,10 +6,10 @@ import React from "react";
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <SidebarProvider style={{}}>
     <AppSidebar />
-    <main className="w-full">
+    <div className="w-full">
       <AppHeader />
-      {children}
-    </main>
+      <main>{children}</main>
+    </div>
   </SidebarProvider>
 );
 
