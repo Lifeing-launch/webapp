@@ -1,4 +1,4 @@
-import AppHeader, { Breadcrumb } from "@/components/dashboard/header";
+import AppHeader, { Breadcrumb } from "@/components/layout/header";
 import React from "react";
 import { PageHeader } from "./page-header";
 
