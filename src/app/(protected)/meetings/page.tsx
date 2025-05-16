@@ -18,81 +18,6 @@ type GroupedMessage = {
   noMeetingMessage?: string;
 };
 
-const groupMeetingsByDate = (meetings: EnrichedMeeting[]) => {
-  const meetingsByDate = meetings.reduce(
-    (acc, meeting) => {
-      const dateKey = formatDate(new Date(meeting.when));
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(meeting);
-      return acc;
-    },
-    {} as Record<string, EnrichedMeeting[]>
-  );
-
-  const grouped: GroupedMessage[] = [];
-
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-
-  const todayDateKey = formatDate(today);
-  const tomorrowDateKey = formatDate(tomorrow);
-
-  [todayDateKey, tomorrowDateKey].forEach((dateKey) => {
-    grouped.push({
-      when: dateKey,
-      meetings: meetingsByDate[dateKey] || [],
-      noMeetingMessage: meetingsByDate[dateKey]
-        ? undefined
-        : `No meetings scheduled for ${dateKey === todayDateKey ? "today" : "tomorrow"}`,
-    });
-  });
-
-  Object.keys(meetingsByDate).forEach((dateKey) => {
-    if (dateKey !== todayDateKey && dateKey !== tomorrowDateKey) {
-      grouped.push({
-        when: dateKey,
-        meetings: meetingsByDate[dateKey],
-      });
-    }
-  });
-
-  return grouped.sort(
-    (a, b) => new Date(a.when).getTime() - new Date(b.when).getTime()
-  );
-};
-
-// TODO: Remove - For preview purposes only
-const today = new Date().toString();
-const todayMeetings: Meeting[] = [
-  {
-    id: "0",
-    title: "Weekly Check-In: Emotional Balance",
-    when: today,
-    meeting_type: "group",
-    url: "/",
-    description: null,
-  },
-  {
-    id: "1",
-    title: "Creating Through Life",
-    when: today,
-    meeting_type: "webinar",
-    url: "/",
-    description: null,
-  },
-  {
-    id: "2",
-    title: "1:1 Coaching with Jamie",
-    when: today,
-    meeting_type: "oneToOne",
-    url: "/",
-    description: null,
-  },
-];
-
 const Page = () => {
   const [groupedMeetings, setGroupedMeetings] = useState<GroupedMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -126,9 +51,8 @@ const Page = () => {
         hasRsvped: rsvpedMeetingIds.has(meeting.id),
       }));
 
-      const displayedMeetings = [...todayMeetings, ...enrichedMeetings];
       setGroupedMeetings(
-        displayedMeetings?.length ? groupMeetingsByDate(displayedMeetings) : []
+        enrichedMeetings.length ? groupMeetingsByDate(enrichedMeetings) : []
       );
       setIsLoading(false);
     };
@@ -184,3 +108,49 @@ const Page = () => {
 };
 
 export default Page;
+
+const groupMeetingsByDate = (meetings: EnrichedMeeting[]) => {
+  const meetingsByDate = meetings.reduce(
+    (acc, meeting) => {
+      const dateKey = formatDate(new Date(meeting.when));
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(meeting);
+      return acc;
+    },
+    {} as Record<string, EnrichedMeeting[]>
+  );
+
+  const grouped: GroupedMessage[] = [];
+
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const todayDateKey = formatDate(today);
+  const tomorrowDateKey = formatDate(tomorrow);
+
+  [todayDateKey, tomorrowDateKey].forEach((dateKey) => {
+    grouped.push({
+      when: dateKey,
+      meetings: meetingsByDate[dateKey] || [],
+      noMeetingMessage: meetingsByDate[dateKey]
+        ? undefined
+        : `No meetings scheduled for ${dateKey === todayDateKey ? "today" : "tomorrow"}`,
+    });
+  });
+
+  Object.keys(meetingsByDate).forEach((dateKey) => {
+    if (dateKey !== todayDateKey && dateKey !== tomorrowDateKey) {
+      grouped.push({
+        when: dateKey,
+        meetings: meetingsByDate[dateKey],
+      });
+    }
+  });
+
+  return grouped.sort(
+    (a, b) => new Date(a.when).getTime() - new Date(b.when).getTime()
+  );
+};
