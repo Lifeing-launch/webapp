@@ -3,15 +3,10 @@ import { Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import Link from "next/link";
+import { Database } from "@/typing/supabase";
+import { formatDate } from "@/utils/datetime";
 
-export interface Announcement {
-  id: number;
-  title: string;
-  description?: string;
-  when: Date;
-  prompt: string;
-  url: string;
-}
+export type Announcement = Database["public"]["Tables"]["announcements"]["Row"];
 
 interface IAnnouncementsCard {
   announcements: Announcement[];
@@ -41,13 +36,20 @@ function AnnouncementItem({ announcement }: { announcement: Announcement }) {
   return (
     <article className="flex flex-1 flex-col gap-2 text-sm">
       <h3 className="font-semibold text-base"> {announcement.title} </h3>
-      <p className="text-xs font-medium">{announcement.when.toDateString()}</p>
+      <p className="text-xs font-medium">
+        {formatDate(new Date(announcement.created_at))}
+      </p>
       <p className="text-zinc-700">{announcement.description}</p>
-      <div>
-        <Link href={announcement.url} className="text-primary font-medium">
-          {announcement.prompt}
-        </Link>
-      </div>
+      {announcement.prompt && announcement.prompt_url && (
+        <div>
+          <Link
+            href={announcement.prompt_url}
+            className="text-primary font-medium"
+          >
+            {announcement.prompt}
+          </Link>
+        </div>
+      )}
     </article>
   );
 }

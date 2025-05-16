@@ -1,90 +1,175 @@
-import { Breadcrumb } from "@/components/dashboard/header";
-import { Meeting, MeetingCard } from "@/components/dashboard/meeting-card";
-import PageTemplate from "@/components/dashboard/page-template";
-import DashboardSkeleton from "@/components/dashboard/skeleton";
-import React from "react";
+"use client";
+
+import { Breadcrumb } from "@/components/layout/header";
+import { Meeting, MeetingCard } from "@/components/meetings/meeting-card";
+import PageTemplate from "@/components/layout/page-template";
+import { formatDate } from "@/utils/datetime";
+import { createClient } from "@/utils/supabase/browser";
+import React, { useEffect, useState } from "react";
+import MeetingsSkeleton from "@/components/meetings/skeleton";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "My Meetings" }];
 
-const today = new Date();
+type EnrichedMeeting = Meeting & { hasRsvped?: boolean };
 
-const meetings: Meeting[] = [
+type GroupedMessage = {
+  when: string;
+  meetings: EnrichedMeeting[];
+  noMeetingMessage?: string;
+};
+
+const groupMeetingsByDate = (meetings: EnrichedMeeting[]) => {
+  const meetingsByDate = meetings.reduce(
+    (acc, meeting) => {
+      const dateKey = formatDate(new Date(meeting.when));
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(meeting);
+      return acc;
+    },
+    {} as Record<string, EnrichedMeeting[]>
+  );
+
+  const grouped: GroupedMessage[] = [];
+
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const todayDateKey = formatDate(today);
+  const tomorrowDateKey = formatDate(tomorrow);
+
+  [todayDateKey, tomorrowDateKey].forEach((dateKey) => {
+    grouped.push({
+      when: dateKey,
+      meetings: meetingsByDate[dateKey] || [],
+      noMeetingMessage: meetingsByDate[dateKey]
+        ? undefined
+        : `No meetings scheduled for ${dateKey === todayDateKey ? "today" : "tomorrow"}`,
+    });
+  });
+
+  Object.keys(meetingsByDate).forEach((dateKey) => {
+    if (dateKey !== todayDateKey && dateKey !== tomorrowDateKey) {
+      grouped.push({
+        when: dateKey,
+        meetings: meetingsByDate[dateKey],
+      });
+    }
+  });
+
+  return grouped.sort(
+    (a, b) => new Date(a.when).getTime() - new Date(b.when).getTime()
+  );
+};
+
+// TODO: Remove - For preview purposes only
+const today = new Date().toString();
+const todayMeetings: Meeting[] = [
   {
-    id: 0,
+    id: "0",
     title: "Weekly Check-In: Emotional Balance",
     when: today,
-    type: "group",
-    active: true,
+    meeting_type: "group",
     url: "/",
+    description: null,
   },
   {
-    id: 1,
+    id: "1",
     title: "Creating Through Life",
     when: today,
-    type: "webinar",
+    meeting_type: "webinar",
     url: "/",
+    description: null,
   },
   {
-    id: 2,
+    id: "2",
     title: "1:1 Coaching with Jamie",
     when: today,
-    type: "oneToOne",
+    meeting_type: "oneToOne",
     url: "/",
-  },
-];
-
-const groupedMeetings = [
-  {
-    when: today,
-    meetings: [...meetings],
-  },
-  {
-    when: new Date(today.setDate(today.getDate() + 1)),
-    meetings: [],
-    noMeetingMessage: "No meetings scheduled for tomorrow",
-  },
-  {
-    when: new Date(new Date().setMonth(today.getMonth() + 1)),
-    meetings: [...meetings, ...meetings],
+    description: null,
   },
 ];
 
 const Page = () => {
-  const isLoading = false;
+  const [groupedMeetings, setGroupedMeetings] = useState<GroupedMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    const fetchData = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch all future meetings
+      const { data: meetings } = await supabase
+        .from("meetings")
+        .select("*")
+        .gt("when", new Date().toISOString())
+        .order("when", { ascending: false });
+
+      // Fetch RSVPs for the current user
+      const { data: rsvps } = await supabase
+        .from("rsvps")
+        .select("meeting_id")
+        .eq("user_id", user.id);
+
+      // Map RSVP data to meetings
+      const rsvpedMeetingIds = new Set(rsvps?.map((rsvp) => rsvp.meeting_id));
+      const enrichedMeetings = (meetings || []).map((meeting) => ({
+        ...meeting,
+        hasRsvped: rsvpedMeetingIds.has(meeting.id),
+      }));
+
+      const displayedMeetings = [...todayMeetings, ...enrichedMeetings];
+      setGroupedMeetings(
+        displayedMeetings?.length ? groupMeetingsByDate(displayedMeetings) : []
+      );
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
 
   let content = <></>;
 
   if (isLoading) {
-    content = <DashboardSkeleton />;
+    content = <MeetingsSkeleton />;
+  } else if (!groupedMeetings.length) {
+    content = <p className="text-sm"> There are no meetings to display.</p>;
   } else {
     content = (
       <>
         {groupedMeetings.map((group, groupId) =>
           group.meetings.length ? (
             <section key={groupId} className="mb-5">
-              <h2 className="text-xl font-normal mb-2">
-                {group.when.toLocaleDateString()}
-              </h2>
+              <h2 className="text-xl font-normal mb-2">{group.when}</h2>
               <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {group.meetings.map((meeting, i) => (
-                  <MeetingCard key={i} meeting={meeting} />
+                  <MeetingCard
+                    key={i}
+                    meeting={meeting}
+                    hasRsvped={meeting.hasRsvped}
+                  />
                 ))}
               </div>
             </section>
           ) : (
-            <div
-              key={groupId}
-              className="relative text-sm text-center after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border py-3"
-            >
-              <span className="text-muted-foreground relative z-10 bg-background px-2">
-                {group.noMeetingMessage || (
-                  <>
-                    No meetings scheduled for{" "}
-                    {group.when.toLocaleDateString()}{" "}
-                  </>
-                )}
-              </span>
-            </div>
+            group.noMeetingMessage && (
+              <div
+                key={groupId}
+                className="relative text-sm text-center after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border py-3"
+              >
+                <span className="text-muted-foreground relative z-10 bg-background px-2">
+                  {group.noMeetingMessage}
+                </span>
+              </div>
+            )
           )
         )}
       </>

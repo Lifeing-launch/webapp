@@ -1,72 +1,58 @@
+"use client";
+
 import {
   Announcement,
   AnnouncementsCard,
 } from "@/components/dashboard/announcements";
-import { Breadcrumb } from "@/components/dashboard/header";
-import { Meeting, MeetingCard } from "@/components/dashboard/meeting-card";
-import PageTemplate from "@/components/dashboard/page-template";
+import { Breadcrumb } from "@/components/layout/header";
+import { Meeting, MeetingCard } from "@/components/meetings/meeting-card";
+import PageTemplate from "@/components/layout/page-template";
 import DashboardSkeleton from "@/components/dashboard/skeleton";
-import React from "react";
+import { createClient } from "@/utils/supabase/browser";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard" }];
 
-const meetings: Meeting[] = [
-  {
-    id: 0,
-    title: "Weekly Check-In: Emotional Balance",
-    when: new Date(),
-    type: "group",
-    active: true,
-    url: "/",
-  },
-  {
-    id: 1,
-    title: "Creating Through Life",
-    when: new Date(),
-    type: "webinar",
-    url: "/",
-  },
-  {
-    id: 2,
-    title: "1:1 Coaching with Jamie",
-    when: new Date(),
-    type: "oneToOne",
-    url: "/",
-  },
-];
-
-const announcements: Announcement[] = [
-  {
-    id: 0,
-    title: "New 1:1 Coaching Sessions Available",
-    when: new Date(),
-    description:
-      "Premium members can now schedule 1:1 coaching sessions with our mental wellness guides.",
-    prompt: "Learn more",
-    url: "/",
-  },
-  {
-    id: 1,
-    title: "Sun Up, Sun Down Program Launch",
-    when: new Date(),
-    description:
-      "A new daily mindfulness routine is now available to all Lifeing users. Start your day right.",
-    prompt: "Explore the program",
-    url: "/",
-  },
-  {
-    id: 2,
-    title: "New Articles in the Resource Library",
-    when: new Date(),
-    description:
-      "We've added 10+ expert-written articles on topics like burnout, emotional sobriety, and more.",
-    prompt: "Read now",
-    url: "/",
-  },
-];
-
 const Page = () => {
-  const isLoading = false;
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    const fetchData = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch future RSVPed meetings
+      const { data: rsvps } = await supabase
+        .from("rsvps")
+        .select("meeting:meeting_id(*)")
+        .eq("user_id", user.id)
+        .gt("meeting.when", new Date().toISOString());
+
+      const meetings = rsvps
+        ?.map((m) => m.meeting)
+        .filter((meeting): meeting is Meeting => !!meeting);
+      setMeetings(meetings || []);
+
+      // Fetch announcements
+      const { data: announcements } = await supabase
+        .from("announcements")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      setAnnouncements(announcements || []);
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
 
   let content = <></>;
 
@@ -80,10 +66,15 @@ const Page = () => {
             <h2 className="text-xl font-normal mb-2"> Upcoming meetings</h2>
             <div className="flex flex-col gap-4">
               {!meetings.length && (
-                <p className="text-sm"> You have no upcoming meetings.</p>
+                <p className="text-sm">
+                  You have no upcoming meetings.{" "}
+                  <Link href="/meetings" className="text-primary">
+                    Explore and RSVP to upcoming meetings here.{" "}
+                  </Link>{" "}
+                </p>
               )}
               {meetings.map((meeting, i) => (
-                <MeetingCard key={i} meeting={meeting} />
+                <MeetingCard key={i} meeting={meeting} showRsvp={false} />
               ))}
             </div>
           </section>
