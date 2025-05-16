@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { FormMessage } from "./form-message";
+import { FormMessage } from "./message";
 
 describe("FormMessage Component", () => {
   it("renders success message when message.success is provided", () => {

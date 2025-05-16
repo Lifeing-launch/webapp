@@ -1,4 +1,4 @@
-import { SignupForm } from "@/components/auth/signup-form";
+import { SignupForm } from "@/components/auth/signup/form";
 import Testimonials from "@/components/auth/testimonials";
 import { AuthPageProps } from "@/typing/interfaces";
 import React from "react";

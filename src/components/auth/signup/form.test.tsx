@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { SignupForm } from "./signup-form";
+import { SignupForm } from "./form";
 import { signUpAction } from "@/utils/supabase/actions";
 
 // Mock dependencies

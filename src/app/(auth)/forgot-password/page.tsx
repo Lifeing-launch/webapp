@@ -1,4 +1,4 @@
-import ForgotPasswordForm from "@/components/auth/forgot-password-form";
+import ForgotPasswordForm from "@/components/auth/forgot-password/form";
 import { AuthPageProps } from "@/typing/interfaces";
 import React from "react";
 

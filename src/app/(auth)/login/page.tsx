@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/auth/login-form";
+import { LoginForm } from "@/components/auth/login/form";
 import Testimonials from "@/components/auth/testimonials";
 import { AuthPageProps } from "@/typing/interfaces";
 import React from "react";
