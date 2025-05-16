@@ -22,10 +22,10 @@ import { createClient } from "@/utils/supabase/browser";
 import { useEffect, useState } from "react";
 
 export type UserMetadata = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  avatar: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  avatar: string | null;
 };
 
 export function NavUser() {
@@ -92,7 +92,7 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-full">
-                <AvatarImage src={user.avatar} alt={fullName} />
+                <AvatarImage src={user.avatar || undefined} alt={fullName} />
                 <AvatarFallback className="rounded-full">
                   {fallbackAvatar}
                 </AvatarFallback>
@@ -113,7 +113,7 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-full">
-                  <AvatarImage src={user.avatar} alt={fullName} />
+                  <AvatarImage src={user.avatar || undefined} alt={fullName} />
                   <AvatarFallback className="rounded-full">
                     {fallbackAvatar}
                   </AvatarFallback>
