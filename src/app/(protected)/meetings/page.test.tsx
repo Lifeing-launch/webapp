@@ -2,9 +2,18 @@ import { render, screen, waitFor } from "@/utils/tests";
 import MeetingsPage from "./page";
 import React from "react";
 import { createClient } from "@/utils/supabase/browser";
+import { toast } from "sonner";
+
+global.fetch = jest.fn();
 
 jest.mock("@/utils/supabase/browser", () => ({
   createClient: jest.fn(),
+}));
+
+jest.mock("sonner", () => ({
+  toast: {
+    error: jest.fn(),
+  },
 }));
 
 jest.mock("@/components/meetings/skeleton", () => {
@@ -16,6 +25,8 @@ jest.mock("@/components/meetings/skeleton", () => {
 });
 
 describe("Meetings Page", () => {
+  let mockMeetings: any = [];
+
   const mockSupabase = {
     auth: {
       getUser: jest.fn(),
@@ -31,6 +42,16 @@ describe("Meetings Page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (createClient as jest.Mock).mockReturnValue(mockSupabase);
+
+    // Override the fetch mock to return meeting data
+    (global.fetch as jest.Mock).mockImplementation((url: RequestInfo) => {
+      const urlStr = url.toString();
+      if (urlStr.includes("/api/user/meetings")) {
+        return Promise.resolve(getMockFetchResponse({ data: mockMeetings }));
+      }
+
+      return Promise.resolve(getMockFetchResponse({}));
+    });
   });
 
   it("renders the loading skeleton while data is being fetched", async () => {
@@ -62,7 +83,6 @@ describe("Meetings Page", () => {
     mockSupabase.auth.getUser.mockResolvedValueOnce({
       data: { user: { id: "USER_ID" } },
     });
-    mockSupabase.order.mockResolvedValueOnce({ data: [] }); // Mock meetings
     mockSupabase.eq.mockResolvedValueOnce({ data: [] }); // Mock RSVPs
 
     render(<MeetingsPage />);
@@ -75,15 +95,15 @@ describe("Meetings Page", () => {
   });
 
   it("renders upcoming meetings when data is available", async () => {
-    const mockMeetings = [
+    mockMeetings = [
       {
-        id: "1",
+        id: 1,
         title: "Meeting 1",
         when: "2028-04-01T10:00:00Z",
         meeting_type: "webinar",
       },
       {
-        id: "2",
+        id: 2,
         title: "Meeting 2",
         when: "2028-10-02T14:00:00Z",
         meeting_type: "webinar",
@@ -94,10 +114,6 @@ describe("Meetings Page", () => {
     mockSupabase.auth.getUser.mockResolvedValueOnce({
       data: { user: { id: "USER_ID" } },
     });
-
-    mockSupabase.order.mockResolvedValueOnce({
-      data: mockMeetings,
-    }); // Mock meetings
 
     mockSupabase.eq.mockResolvedValueOnce({
       data: mockRsvpMeetingIds.map((meeting_id) => ({
@@ -115,22 +131,16 @@ describe("Meetings Page", () => {
     });
   });
 
-  // Test the number of rsvped vs rsvp buttons
-  // Test when no tomorrow event is added
-  // Test when tomorrow event is added
-  // Test when no today event is added
-  // Tes when today
-
   it("renders the correct number of RSVP and RSVPed buttons", async () => {
-    const mockMeetings = [
+    mockMeetings = [
       {
-        id: "1",
+        id: 1,
         title: "Meeting 1",
         when: "2028-04-01T10:00:00Z",
         meeting_type: "webinar",
       },
       {
-        id: "2",
+        id: 2,
         title: "Meeting 2",
         when: "2028-10-02T14:00:00Z",
         meeting_type: "webinar",
@@ -141,10 +151,6 @@ describe("Meetings Page", () => {
     mockSupabase.auth.getUser.mockResolvedValueOnce({
       data: { user: { id: "USER_ID" } },
     });
-
-    mockSupabase.order.mockResolvedValueOnce({
-      data: mockMeetings,
-    }); // Mock meetings
 
     mockSupabase.eq.mockResolvedValueOnce({
       data: mockRsvpMeetingIds.map((meeting_id) => ({
@@ -163,15 +169,15 @@ describe("Meetings Page", () => {
   });
 
   it("renders no today or tomorrow event message if not included", async () => {
-    const mockMeetings = [
+    mockMeetings = [
       {
-        id: "1",
+        id: 1,
         title: "Meeting 1",
         when: "2028-04-01T10:00:00Z",
         meeting_type: "webinar",
       },
       {
-        id: "2",
+        id: 2,
         title: "Meeting 2",
         when: "2028-10-02T14:00:00Z",
         meeting_type: "webinar",
@@ -181,10 +187,6 @@ describe("Meetings Page", () => {
     mockSupabase.auth.getUser.mockResolvedValueOnce({
       data: { user: { id: "USER_ID" } },
     });
-
-    mockSupabase.order.mockResolvedValueOnce({
-      data: mockMeetings,
-    }); // Mock meetings
 
     mockSupabase.eq.mockResolvedValueOnce({
       data: [],
@@ -208,27 +210,27 @@ describe("Meetings Page", () => {
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
 
-    const mockMeetings = [
+    mockMeetings = [
       {
-        id: "1",
+        id: 1,
         title: "Meeting 1",
         when: "2028-04-01T10:00:00Z",
         meeting_type: "webinar",
       },
       {
-        id: "2",
+        id: 2,
         title: "Meeting 2",
         when: "2028-10-02T14:00:00Z",
         meeting_type: "webinar",
       },
       {
-        id: "1",
+        id: 1,
         title: "Meeting 3",
         when: today.toISOString(),
         meeting_type: "webinar",
       },
       {
-        id: "2",
+        id: 2,
         title: "Meeting 4",
         when: tomorrow.toISOString(),
         meeting_type: "webinar",
@@ -238,9 +240,7 @@ describe("Meetings Page", () => {
     mockSupabase.auth.getUser.mockResolvedValueOnce({
       data: { user: { id: "USER_ID" } },
     });
-    mockSupabase.order.mockResolvedValueOnce({
-      data: mockMeetings,
-    }); // Mock meetings
+
     mockSupabase.eq.mockResolvedValueOnce({
       data: [],
     }); // Mock RSVPs
@@ -262,4 +262,38 @@ describe("Meetings Page", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  it("renders toast if error occurs while fetching meeting data", async () => {
+    const meetingsError = "Error fetching meetings";
+
+    (global.fetch as jest.Mock).mockImplementation((url: RequestInfo) => {
+      const urlStr = url.toString();
+      if (urlStr.includes("/api/user/meetings")) {
+        return Promise.resolve(getMockFetchResponse({ error: meetingsError }));
+      }
+      return Promise.resolve(getMockFetchResponse({ error: "Unknown error" }));
+    });
+
+    mockSupabase.auth.getUser.mockResolvedValueOnce({
+      data: { user: { id: "USER_ID" } },
+    });
+
+    render(<MeetingsPage />);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith(meetingsError);
+
+      expect(
+        screen.getByText("There are no meetings to display.")
+      ).toBeInTheDocument();
+      expect(mockSupabase.eq).not.toHaveBeenCalled();
+    });
+  });
 });
+
+function getMockFetchResponse(response: any) {
+  return new Response(JSON.stringify(response), {
+    status: 200,
+    headers: { "Content-type": "application/json" },
+  });
+}

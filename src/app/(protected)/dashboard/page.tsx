@@ -8,9 +8,9 @@ import { Breadcrumb } from "@/components/layout/header";
 import { Meeting, MeetingCard } from "@/components/meetings/meeting-card";
 import PageTemplate from "@/components/layout/page-template";
 import DashboardSkeleton from "@/components/dashboard/skeleton";
-import { createClient } from "@/utils/supabase/browser";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard" }];
 
@@ -20,34 +20,29 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
+    const fetchMeetings = async () => {
+      const res = await fetch("/api/user/meetings?rsvpOnly=1");
+      const data: { data?: Meeting[]; error?: string } = await res.json();
+      if (data.error) {
+        toast.error(data.error);
+      }
+
+      setMeetings(data?.data || []);
+    };
+
+    const fetchAnnouncements = async () => {
+      const res = await fetch("/api/user/announcements");
+      const data: { data?: Announcement[]; error?: string } = await res.json();
+      if (data.error) {
+        toast.error(data.error);
+      }
+
+      setAnnouncements(data?.data || []);
+    };
 
     const fetchData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Fetch future RSVPed meetings
-      const { data: rsvps } = await supabase
-        .from("rsvps")
-        .select("meeting:meeting_id(*)")
-        .eq("user_id", user.id)
-        .gt("meeting.when", new Date().toISOString());
-
-      const meetings = rsvps
-        ?.map((m) => m.meeting)
-        .filter((meeting): meeting is Meeting => !!meeting);
-      setMeetings(meetings || []);
-
-      // Fetch announcements
-      const { data: announcements } = await supabase
-        .from("announcements")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-      setAnnouncements(announcements || []);
+      await fetchMeetings();
+      await fetchAnnouncements();
       setIsLoading(false);
     };
 
