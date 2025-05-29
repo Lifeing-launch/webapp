@@ -4,9 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Clock } from "lucide-react";
 import { createClient } from "@/utils/supabase/browser";
+import { toast } from "sonner";
 
 interface RsvpButtonProps {
-  meetingId: string;
+  meetingId: number;
   hasRsvped?: boolean;
 }
 
@@ -25,7 +26,7 @@ export default function RsvpButton({ meetingId, hasRsvped }: RsvpButtonProps) {
       if (!user) return;
 
       const { error } = await supabase.from("rsvps").insert({
-        meeting_id: meetingId,
+        meeting_id: String(meetingId),
         user_id: user.id,
       });
 
@@ -35,7 +36,7 @@ export default function RsvpButton({ meetingId, hasRsvped }: RsvpButtonProps) {
 
       setIsRsvped(true);
     } catch (err) {
-      //  TODO: Integrate toast here
+      toast.error("Failed to RSVP to meeting");
       console.error("Unexpected error:", err);
     } finally {
       setIsLoading(false);

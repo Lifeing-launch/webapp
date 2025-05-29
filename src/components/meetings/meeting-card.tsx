@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Database } from "@/typing/supabase";
 import {
   datetimeIsWithinInterval,
   formatDate,
@@ -17,8 +16,17 @@ import {
 } from "@/utils/datetime";
 import RsvpButton from "./rsvp-button";
 
-export type Meeting = Database["public"]["Tables"]["meetings"]["Row"];
-type MeetingType = "group" | "webinar" | "oneToOne";
+export type MeetingType = "group" | "webinar" | "oneToOne";
+
+export type Meeting = {
+  id: number;
+  title: string;
+  description: string | null;
+  meeting_type: MeetingType;
+  url: string | null;
+  when: string;
+};
+
 interface IMeetingCard {
   meeting: Meeting;
   className?: string;

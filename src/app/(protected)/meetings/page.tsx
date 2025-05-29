@@ -7,6 +7,7 @@ import { formatDate } from "@/utils/datetime";
 import { createClient } from "@/utils/supabase/browser";
 import React, { useEffect, useState } from "react";
 import MeetingsSkeleton from "@/components/meetings/skeleton";
+import { toast } from "sonner";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "My Meetings" }];
 
@@ -32,28 +33,34 @@ const Page = () => {
       if (!user) return;
 
       // Fetch all future meetings
-      const { data: meetings } = await supabase
-        .from("meetings")
-        .select("*")
-        .gt("when", new Date().toISOString())
-        .order("when", { ascending: false });
+      const res = await fetch("/api/user/meetings");
+      const data: { data?: Meeting[]; error?: string } = await res.json();
 
-      // Fetch RSVPs for the current user
-      const { data: rsvps } = await supabase
-        .from("rsvps")
-        .select("meeting_id")
-        .eq("user_id", user.id);
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        const meetings = data.data;
 
-      // Map RSVP data to meetings
-      const rsvpedMeetingIds = new Set(rsvps?.map((rsvp) => rsvp.meeting_id));
-      const enrichedMeetings = (meetings || []).map((meeting) => ({
-        ...meeting,
-        hasRsvped: rsvpedMeetingIds.has(meeting.id),
-      }));
+        // Fetch RSVPs for the current user
+        const { data: rsvps } = await supabase
+          .from("rsvps")
+          .select("meeting_id")
+          .eq("user_id", user.id);
 
-      setGroupedMeetings(
-        enrichedMeetings.length ? groupMeetingsByDate(enrichedMeetings) : []
-      );
+        // Map RSVP data to meetings
+        const rsvpedMeetingIds = new Set(
+          rsvps?.map((rsvp) => Number(rsvp.meeting_id))
+        );
+        const enrichedMeetings = (meetings || []).map((meeting) => ({
+          ...meeting,
+          hasRsvped: rsvpedMeetingIds.has(meeting.id),
+        }));
+
+        setGroupedMeetings(
+          enrichedMeetings.length ? groupMeetingsByDate(enrichedMeetings) : []
+        );
+      }
+
       setIsLoading(false);
     };
 

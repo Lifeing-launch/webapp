@@ -1,13 +1,13 @@
 import { render, screen } from "@testing-library/react";
-import { MeetingCard } from "./meeting-card";
+import { MeetingCard, MeetingType } from "./meeting-card";
 import { formatDate, formatTime } from "@/utils/datetime";
 
 describe("MeetingCard", () => {
   const mockMeeting = {
-    id: "1",
+    id: 1,
     title: "Team Sync",
     when: new Date().toISOString(),
-    meeting_type: "group",
+    meeting_type: "group" as MeetingType,
     url: null,
     description: "Meeting description",
   };
@@ -30,7 +30,7 @@ describe("MeetingCard", () => {
     ).toBeInTheDocument();
   });
 
-  it.only("renders the meeting type with the correct label and icons", () => {
+  it("renders the meeting type with the correct label and icons", () => {
     render(<MeetingCard meeting={mockMeeting} />);
     expect(screen.getByText("Group Session")).toBeInTheDocument();
 
