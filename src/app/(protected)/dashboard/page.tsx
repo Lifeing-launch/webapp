@@ -11,6 +11,7 @@ import DashboardSkeleton from "@/components/dashboard/skeleton";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard" }];
 
@@ -88,7 +89,11 @@ const Page = () => {
   }
 
   return (
-    <PageTemplate title="Dashboard" breadcrumbs={breadcrumbs}>
+    <PageTemplate
+      title="Dashboard"
+      breadcrumbs={breadcrumbs}
+      headerIcon={sidebarIcons.dashboard}
+    >
       {content}
     </PageTemplate>
   );

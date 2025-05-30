@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/browser";
 import React, { useEffect, useState } from "react";
 import MeetingsSkeleton from "@/components/meetings/skeleton";
 import { toast } from "sonner";
+import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "My Meetings" }];
 
@@ -108,7 +109,11 @@ const Page = () => {
   }
 
   return (
-    <PageTemplate title="My Meetings" breadcrumbs={breadcrumbs}>
+    <PageTemplate
+      title="My Meetings"
+      breadcrumbs={breadcrumbs}
+      headerIcon={sidebarIcons.meetings}
+    >
       {content}
     </PageTemplate>
   );

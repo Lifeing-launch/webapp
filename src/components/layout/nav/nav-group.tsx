@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { ReactNode } from "react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -7,13 +9,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../../ui/sidebar";
-import { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export type NavItem = {
   title: string;
   url: string;
-  icon: LucideIcon;
+  icon: ReactNode;
   active?: boolean;
 };
 
@@ -23,6 +25,8 @@ interface INavGroup {
 }
 
 const NavGroup = ({ title, items }: INavGroup) => {
+  const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel> {title}</SidebarGroupLabel>
@@ -30,9 +34,12 @@ const NavGroup = ({ title, items }: INavGroup) => {
         <SidebarMenu>
           {items.map((item, index) => (
             <SidebarMenuItem key={index}>
-              <SidebarMenuButton asChild isActive={item.active}>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname.startsWith(item.url)}
+              >
                 <Link href={item.url}>
-                  <item.icon />
+                  {item.icon}
                   <span> {item.title}</span>
                 </Link>
               </SidebarMenuButton>

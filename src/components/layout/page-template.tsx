@@ -6,11 +6,17 @@ interface IPageTemplate {
   title: string;
   children: React.ReactNode;
   breadcrumbs: Breadcrumb[];
+  headerIcon?: React.ReactNode;
 }
 
-const PageTemplate = ({ children, title, breadcrumbs }: IPageTemplate) => (
+const PageTemplate = ({
+  children,
+  title,
+  breadcrumbs,
+  headerIcon,
+}: IPageTemplate) => (
   <div className="w-full">
-    <AppHeader breadcrumbs={breadcrumbs} />
+    <AppHeader breadcrumbs={breadcrumbs} icon={headerIcon} />
     <main>
       <PageHeader title={title}>
         <div className="px-4">{children}</div>
