@@ -39,25 +39,24 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const matchesProtectedPath = AUTH_PATHS.every((path) => {
-    if (path.exact) {
-      return !(request.nextUrl.pathname === path.path);
-    }
+  const pathname = request.nextUrl.pathname;
+  const isAuthenticated = !!user;
+  const isAuthPage = isAuthPath(pathname);
 
-    return !request.nextUrl.pathname.startsWith(path.path);
-  });
-  const matchesAuthPath = !matchesProtectedPath;
-
-  if (!user && matchesProtectedPath) {
-    // no user, respond by redirecting the user to the login page
+  if (!isAuthenticated && !isAuthPage) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (user && matchesAuthPath) {
-    // if user accesses any auth path, redirect to dashboard
+  if (isAuthenticated && isAuthPage) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   //  user must be accessing a protected page at this point. Let them through
   return supabaseResponse;
+}
+
+function isAuthPath(pathname: string): boolean {
+  return AUTH_PATHS.some(({ path, exact }) =>
+    exact ? pathname === path : pathname.startsWith(path)
+  );
 }
