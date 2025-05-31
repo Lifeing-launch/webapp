@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { CustomInput } from "../ui/custom/input";
 import { Search } from "lucide-react";

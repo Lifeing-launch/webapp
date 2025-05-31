@@ -7,7 +7,7 @@ const ResourcesSkeleton = () => {
         {[...Array(10)].map((_, index) => (
           <div
             key={index}
-            className="flex flex-row items-stretch gap-3 p-4 border shadow-sm rounded animate-pulse"
+            className="flex flex-row items-stretch gap-3 p-4 border shadow-sm rounded-xl animate-pulse"
           >
             {/* Preview Image Skeleton */}
             <div className="bg-muted/50 rounded h-35 flex-1" />

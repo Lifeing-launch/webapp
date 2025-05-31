@@ -9,6 +9,7 @@ import Image from "next/image";
 import BookmarkButton from "./bookmark-button";
 
 export type ResourceType = "article" | "document" | "video";
+export type ResourceGroup = "visual" | "audio";
 
 export type Resource = {
   id: number;
@@ -16,12 +17,14 @@ export type Resource = {
   description: string;
   type: ResourceType;
   createdAt: string;
+  duration?: number;
 };
 
 interface IResourceCard {
   resource: Resource;
   className?: string;
   hasBookmarked?: boolean;
+  resourceGroup?: ResourceGroup;
 }
 
 const TYPE_TO_LABEL_MAPPING = {
@@ -34,7 +37,49 @@ export function ResourceCard({
   resource,
   className,
   hasBookmarked = false,
+  resourceGroup,
 }: IResourceCard) {
+  if (resourceGroup === "audio") {
+    return (
+      <Card
+        className={cn("items-stretch gap-2 p-4 w-full h-full", className)}
+        data-testid="resource-card"
+      >
+        <div className="flex flex-1">
+          <div className="flex-1">
+            <CardHeader className="p-2">
+              <CardTitle>{resource.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3 text-xs px-2">
+              <div className="flex gap-2 items-center">
+                <Badge variant="secondary">
+                  {TYPE_TO_LABEL_MAPPING[resource.type] || resource.type}
+                </Badge>
+                <span className="text-muted-foreground font-medium">
+                  Duration: 10 minutes
+                </span>
+              </div>
+              <p> {resource.description} </p>
+            </CardContent>
+          </div>
+          <div>
+            <BookmarkButton
+              resourceId={resource.id}
+              hasBookmarked={hasBookmarked}
+            />
+          </div>
+        </div>
+
+        <audio controls className="w-full" controlsList="nodownload">
+          <source
+            src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"
+            type="audio/mpeg"
+          ></source>
+        </audio>
+      </Card>
+    );
+  }
+
   return (
     <Link href={`/resources/${resource.id}`} className="h-full">
       <Card

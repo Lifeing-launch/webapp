@@ -60,8 +60,8 @@ const data = {
         icon: sidebarIcons.resources,
       },
       {
-        title: "The Podcast",
-        url: "#",
+        title: "Audio Resources",
+        url: "/audio-resources",
         icon: sidebarIcons.podcast,
       },
     ],

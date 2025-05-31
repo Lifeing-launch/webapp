@@ -3,31 +3,37 @@ import PageTemplate from "@/components/layout/page-template";
 import React from "react";
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import ResourcesContent from "@/components/resources/content";
+import "../../globals.css";
 
-const breadcrumbs: Breadcrumb[] = [{ label: "Resources" }];
+const breadcrumbs: Breadcrumb[] = [{ label: "Audio Resources" }];
 
-type TabKey = "all" | "articles" | "videos" | "documents" | "bookmarks";
+type TabKey = "all" | "meditation" | "podcast" | "relaxation" | "bookmarks";
+
 const tabs: { key: TabKey; label: string }[] = [
-  { key: "all", label: "All Resources" },
-  { key: "articles", label: "Articles" },
-  { key: "videos", label: "Videos" },
-  { key: "documents", label: "Documents" },
+  { key: "all", label: "All" },
+  { key: "meditation", label: "Meditation" },
+  { key: "podcast", label: "Podcast" },
+  { key: "relaxation", label: "Relaxation" },
   { key: "bookmarks", label: "Bookmarked" },
 ];
 
-const ResourcesPage = () => {
+const AudioResourcesPage = () => {
   return (
     <PageTemplate
-      title="Resources"
+      title="Audio Resources"
       breadcrumbs={breadcrumbs}
       headerIcon={sidebarIcons.podcast}
       searchProps={{
         label: "Search resources",
       }}
     >
-      <ResourcesContent<TabKey> fetchUrl="/api/resources" tabs={tabs} />
+      <ResourcesContent<TabKey>
+        fetchUrl="/api/resources"
+        tabs={tabs}
+        resourceGroup="audio"
+      />
     </PageTemplate>
   );
 };
 
-export default ResourcesPage;
+export default AudioResourcesPage;

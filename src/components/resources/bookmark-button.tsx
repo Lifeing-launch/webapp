@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, Loader2 } from "lucide-react";
-import { createClient } from "@/utils/supabase/browser";
+// import { createClient } from "@/utils/supabase/browser";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -13,39 +13,40 @@ interface BookmarkButtonProps {
 }
 
 export default function BookmarkButton({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   resourceId,
   hasBookmarked,
 }: BookmarkButtonProps) {
   const [isBookmarked, setIsBookmarked] = useState(hasBookmarked);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleClick = async () => {
-    setIsLoading(true);
-    const supabase = createClient();
+  // const handleClick = async () => {
+  //   setIsLoading(true);
+  //   const supabase = createClient();
 
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+  //   try {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser();
+  //     if (!user) return;
 
-      const { error } = await supabase.from("rsvps").insert({
-        resource_id: String(resourceId),
-        user_id: user.id,
-      });
+  //     const { error } = await supabase.from("rsvps").insert({
+  //       resource_id: String(resourceId),
+  //       user_id: user.id,
+  //     });
 
-      if (error) {
-        throw new Error(error?.message);
-      }
+  //     if (error) {
+  //       throw new Error(error?.message);
+  //     }
 
-      setIsBookmarked(true);
-    } catch (err) {
-      toast.error("Failed to bookmark this resource");
-      console.error("Unexpected error:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     setIsBookmarked(true);
+  //   } catch (err) {
+  //     toast.error("Failed to bookmark this resource");
+  //     console.error("Unexpected error:", err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleClickMock = async (e: React.MouseEvent) => {
     e.preventDefault();

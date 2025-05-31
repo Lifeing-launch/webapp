@@ -1,4 +1,3 @@
-import { strapiFetch } from "@/utils/fetch";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 
@@ -97,13 +96,15 @@ const meta = {
 const DEFAULT_PAGE_SIZE = 10;
 
 export async function GET(request: NextRequest) {
-  const strapiUrl = new URL(`${process.env.STRAPI_BASE_URL}/resources`);
+  // const strapiUrl = new URL(`${process.env.STRAPI_BASE_URL}/resources`);
 
   const queryParams = qs.parse(new URL(request.url).search, {
     ignoreQueryPrefix: true,
   });
   const { page, searchQuery, showError, type } = queryParams;
 
+  // TODO: Type this correctly
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const strapiQueryObj: any = {
     filters: {
       $or: [],
@@ -146,8 +147,8 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
-  console.log(`${strapiUrl}?${strapiQuery}`);
+  // const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
+  // console.log(`${strapiUrl}?${strapiQuery}`);
 
   try {
     // const data = await strapiFetch(strapiUrl);
