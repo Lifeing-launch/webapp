@@ -15,7 +15,7 @@ import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard" }];
 
-const Page = () => {
+const DashboardPage = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,4 +99,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default DashboardPage;

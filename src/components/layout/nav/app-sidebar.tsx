@@ -56,7 +56,7 @@ const data = {
     resources: [
       {
         title: "Resources",
-        url: "#",
+        url: "/resources",
         icon: sidebarIcons.resources,
       },
       {

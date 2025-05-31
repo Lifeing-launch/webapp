@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
   // Fetch future meetings in bulk from Strapi
   try {
-    const data = await strapiFetch(strapiUrl);
+    const { data } = await strapiFetch(strapiUrl);
     return NextResponse.json({ data });
   } catch (err) {
     console.error("An error occurred while fetching strapi meetings", err);

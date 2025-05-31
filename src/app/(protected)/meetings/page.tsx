@@ -20,7 +20,7 @@ type GroupedMessage = {
   noMeetingMessage?: string;
 };
 
-const Page = () => {
+const MeetingsPage = () => {
   const [groupedMeetings, setGroupedMeetings] = useState<GroupedMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -119,7 +119,7 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default MeetingsPage;
 
 const groupMeetingsByDate = (meetings: EnrichedMeeting[]) => {
   const meetingsByDate = meetings.reduce(
