@@ -9,5 +9,5 @@ export const strapiFetch = async (strapiUrl: URL) => {
   if (!strapiResp.ok) {
     throw new Error(strapiData?.error?.message);
   }
-  return strapiData.data;
+  return strapiData;
 };

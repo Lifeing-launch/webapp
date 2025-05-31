@@ -20,41 +20,49 @@ import Image from "next/image";
 import NavGroup from "./nav-group";
 import { NavUser } from "./nav-user";
 
+export const sidebarIcons = {
+  dashboard: <HeartHandshake />,
+  meetings: <Calendar />,
+  coachingProgram: <BookOpen />,
+  communityForum: <UsersRound />,
+  resources: <BookMarked />,
+  podcast: <Podcast />,
+};
+
 const data = {
   navItems: {
     myLifeing: [
       {
         title: "Dashboard",
         url: "/dashboard",
-        icon: HeartHandshake,
+        icon: sidebarIcons.dashboard,
       },
       {
         title: "My Meetings",
         url: "/meetings",
-        icon: Calendar,
-        active: true,
+        icon: sidebarIcons.meetings,
       },
       {
         title: "Coaching Program",
         url: "#",
-        icon: BookOpen,
+        icon: sidebarIcons.coachingProgram,
       },
       {
         title: "Community Forum",
         url: "#",
-        icon: UsersRound,
+        icon: sidebarIcons.communityForum,
       },
     ],
     resources: [
       {
         title: "Resources",
-        url: "#",
-        icon: BookMarked,
+        url: "/resources",
+        icon: sidebarIcons.resources,
       },
       {
-        title: "The Podcast",
-        url: "#",
-        icon: Podcast,
+        title: "Audio Resources",
+        url: "/audio-resources",
+        icon: sidebarIcons.podcast,
       },
     ],
   },

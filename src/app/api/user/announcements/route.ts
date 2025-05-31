@@ -10,15 +10,15 @@ export async function GET(request: NextRequest) {
   const limit = searchParams.get("limit");
 
   if (limit) {
-    strapiUrl.searchParams.append("_limits", limit);
+    strapiUrl.searchParams.append("pagination[pageSize]", limit);
   }
 
   // Add query param to order announcements in descending order
-  strapiUrl.searchParams.append("_sort", "createdAt:desc");
+  strapiUrl.searchParams.append("sort", "createdAt:desc");
 
   // Fetch announcements in bulk from Strapi
   try {
-    const data = await strapiFetch(strapiUrl);
+    const { data } = await strapiFetch(strapiUrl);
     return NextResponse.json({ data });
   } catch (err) {
     console.error("An error occurred while fetching strapi announcements", err);

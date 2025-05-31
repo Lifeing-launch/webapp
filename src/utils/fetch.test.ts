@@ -17,7 +17,7 @@ describe("strapiFetch", () => {
     const dummyData = { id: 1, name: "Test" };
     const mockResponse = {
       ok: true,
-      json: jest.fn().mockResolvedValue({ data: dummyData }),
+      json: jest.fn().mockResolvedValue(dummyData),
     };
     (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
