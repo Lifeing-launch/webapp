@@ -96,8 +96,6 @@ const meta = {
 const DEFAULT_PAGE_SIZE = 10;
 
 export async function GET(request: NextRequest) {
-  // const strapiUrl = new URL(`${process.env.STRAPI_BASE_URL}/resources`);
-
   const queryParams = qs.parse(new URL(request.url).search, {
     ignoreQueryPrefix: true,
   });
@@ -147,6 +145,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  // const strapiUrl = `${process.env.STRAPI_BASE_URL}/resources`;
   // const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
   // console.log(`${strapiUrl}?${strapiQuery}`);
 
