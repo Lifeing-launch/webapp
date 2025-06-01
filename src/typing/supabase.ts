@@ -27,13 +27,6 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "announcement_audiences_announcement_id_fkey";
-            columns: ["announcement_id"];
-            isOneToOne: false;
-            referencedRelation: "announcements";
-            referencedColumns: ["id"];
-          },
-          {
             foreignKeyName: "announcement_audiences_audience_plan_fkey";
             columns: ["audience_plan"];
             isOneToOne: false;
@@ -69,6 +62,35 @@ export type Database = {
         };
         Relationships: [];
       };
+      bookmarks: {
+        Row: {
+          created_at: string;
+          id: string;
+          resource_id: number | null;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          resource_id?: number | null;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          resource_id?: number | null;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "bookmarks_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "user_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       meetings: {
         Row: {
           description: string | null;
@@ -99,30 +121,23 @@ export type Database = {
       rsvps: {
         Row: {
           id: string;
-          meeting_id: string | null;
-          rsvp_at: string | null;
-          user_id: string | null;
+          meeting_id: number;
+          rsvp_at: string;
+          user_id: string;
         };
         Insert: {
           id?: string;
-          meeting_id?: string | null;
-          rsvp_at?: string | null;
-          user_id?: string | null;
+          meeting_id: number;
+          rsvp_at?: string;
+          user_id: string;
         };
         Update: {
           id?: string;
-          meeting_id?: string | null;
-          rsvp_at?: string | null;
-          user_id?: string | null;
+          meeting_id?: number;
+          rsvp_at?: string;
+          user_id?: string;
         };
         Relationships: [
-          {
-            foreignKeyName: "rsvps_meeting_id_fkey";
-            columns: ["meeting_id"];
-            isOneToOne: false;
-            referencedRelation: "meetings";
-            referencedColumns: ["id"];
-          },
           {
             foreignKeyName: "rsvps_user_id_fkey";
             columns: ["user_id"];

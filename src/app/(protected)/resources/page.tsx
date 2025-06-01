@@ -25,7 +25,7 @@ const ResourcesPage = () => {
         label: "Search resources",
       }}
     >
-      <ResourcesContent<TabKey> fetchUrl="/api/resources" tabs={tabs} />
+      <ResourcesContent<TabKey> tabs={tabs} />
     </PageTemplate>
   );
 };

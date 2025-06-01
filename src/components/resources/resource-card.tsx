@@ -1,87 +1,141 @@
 import React from "react";
-import { FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { formatDate } from "@/utils/datetime";
 import Link from "next/link";
-import Image from "next/image";
 import BookmarkButton from "./bookmark-button";
+import { PreviewImage } from "./preview-image";
 
-export type ResourceType = "article" | "document" | "video";
-export type ResourceGroup = "visual" | "audio";
+export type ResourceCategory = "visual" | "audio";
+export type ResourceType =
+  | "article"
+  | "document"
+  | "video"
+  | "meditation"
+  | "podcast"
+  | "relaxation";
 
 export type Resource = {
   id: number;
+  documentId: string;
   title: string;
   description: string;
+  category: ResourceCategory;
   type: ResourceType;
+  slug: string;
   createdAt: string;
-  duration?: number;
+  updatedAt: string;
+  publishedAt: string;
+  is_published: boolean;
+  duration?: string | null;
+  url?: string | null;
+  cover_img?: CoverImage | null;
+};
+
+export type CoverImage = {
+  id: number;
+  documentId: string;
+  name: string;
+  alternativeText?: string | null;
+  caption?: string | null;
+  width: number;
+  height: number;
+  formats: Record<string, never>;
+  hash: string;
+  ext: string;
+  mime: string;
+  size: number;
+  url: string;
+  previewUrl?: string | null;
+  provider: string;
+  provider_metadata: Record<string, never>;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 };
 
 interface IResourceCard {
   resource: Resource;
   className?: string;
   hasBookmarked?: boolean;
-  resourceGroup?: ResourceGroup;
+  category?: ResourceCategory;
 }
 
-const TYPE_TO_LABEL_MAPPING = {
+const TYPE_TO_LABEL_MAPPING: Record<ResourceType, string> = {
   article: "Article",
   document: "Document",
   video: "Video",
+  meditation: "Meditation",
+  podcast: "Podcast",
+  relaxation: "Relaxation",
 };
 
-export function ResourceCard({
+export function ResourceCard({ category, ...props }: IResourceCard) {
+  if (category === "audio") return <AudioResourceCard {...props} />;
+  if (category === "visual") return <VisualResourceCard {...props} />;
+}
+
+function AudioResourceCard({
   resource,
   className,
   hasBookmarked = false,
-  resourceGroup,
 }: IResourceCard) {
-  if (resourceGroup === "audio") {
-    return (
-      <Card
-        className={cn("items-stretch gap-2 p-4 w-full h-full", className)}
-        data-testid="resource-card"
-      >
-        <div className="flex flex-1">
-          <div className="flex-1">
-            <CardHeader className="p-2">
-              <CardTitle>{resource.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3 text-xs px-2">
-              <div className="flex gap-2 items-center">
-                <Badge variant="secondary">
-                  {TYPE_TO_LABEL_MAPPING[resource.type] || resource.type}
-                </Badge>
+  return (
+    <Card
+      className={cn("items-stretch gap-2 p-4 w-full h-full", className)}
+      data-testid="resource-card"
+    >
+      <div className="flex flex-1">
+        <div className="flex-1">
+          <CardHeader className="p-2">
+            <CardTitle>{resource.title}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 text-xs px-2">
+            <div className="flex gap-2 items-center">
+              <Badge variant="secondary">
+                {TYPE_TO_LABEL_MAPPING[resource.type] || resource.type}
+              </Badge>
+              {resource.duration && (
                 <span className="text-muted-foreground font-medium">
-                  Duration: 10 minutes
+                  Duration: {resource.duration}
                 </span>
-              </div>
-              <p> {resource.description} </p>
-            </CardContent>
-          </div>
-          <div>
-            <BookmarkButton
-              resourceId={resource.id}
-              hasBookmarked={hasBookmarked}
-            />
-          </div>
+              )}
+            </div>
+            <p> {resource.description} </p>
+          </CardContent>
         </div>
+        <div>
+          <BookmarkButton
+            resourceId={resource.id}
+            hasBookmarked={hasBookmarked}
+          />
+        </div>
+      </div>
 
+      {resource.url && (
         <audio controls className="w-full" controlsList="nodownload">
-          <source
-            src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"
-            type="audio/mpeg"
-          ></source>
+          <source src={resource.url} type="audio/mpeg"></source>
         </audio>
-      </Card>
-    );
-  }
+      )}
+    </Card>
+  );
+}
+
+function VisualResourceCard({
+  resource,
+  className,
+  hasBookmarked = false,
+}: IResourceCard) {
+  const getResourceHref = () => {
+    if (resource.type === "article") {
+      return resource.url || `/resources/${resource.id}`;
+    }
+    return resource.url || undefined;
+  };
 
   return (
-    <Link href={`/resources/${resource.id}`} className="h-full">
+    <Link href={getResourceHref() || ""} className="h-full">
       <Card
         className={cn(
           "flex-row items-stretch gap-2 p-4 w-full h-full",
@@ -108,7 +162,6 @@ export function ResourceCard({
             </CardContent>
           </div>
         </div>
-
         <div>
           <BookmarkButton
             resourceId={resource.id}
@@ -117,46 +170,5 @@ export function ResourceCard({
         </div>
       </Card>
     </Link>
-  );
-}
-
-function PreviewImage({ resource }: { resource: Resource }) {
-  if (resource.type === "video" || resource.type === "article") {
-    return <ArticleImage resource={resource} />;
-  }
-
-  return <PlaceholderImage />;
-}
-
-function PlaceholderImage() {
-  return (
-    <div className="flex flex-1 items-center justify-center bg-lime-100 text-lime-700 h-35 rounded-xs">
-      <FileText className="size-12 font-bold" />
-    </div>
-  );
-}
-
-function ArticleImage({ resource }: { resource: Resource }) {
-  return (
-    <div className="flex-1 rounded-xs overflow-hidden h-35 relative">
-      <Image
-        src="https://images.unsplash.com/photo-1542353436-312f0e1f67ff?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        alt="Resource Image"
-        width={600}
-        height={300}
-        className="object-cover"
-      />
-      {resource.type === "video" && (
-        <div className="flex absolute inset-0 items-center justify-center">
-          <Image
-            src="/play-button.svg"
-            alt=""
-            width={40}
-            height={40}
-            className="size-15"
-          />
-        </div>
-      )}
-    </div>
   );
 }

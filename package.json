@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "supabase": "supabase",
+    "supabase:types": "npm run supabase gen types typescript --local",
     "ci": "npm run format && npm run lint && npm run test"
   },
   "dependencies": {

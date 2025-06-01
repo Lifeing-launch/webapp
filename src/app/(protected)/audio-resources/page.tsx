@@ -27,11 +27,7 @@ const AudioResourcesPage = () => {
         label: "Search resources",
       }}
     >
-      <ResourcesContent<TabKey>
-        fetchUrl="/api/resources"
-        tabs={tabs}
-        resourceGroup="audio"
-      />
+      <ResourcesContent<TabKey> tabs={tabs} category="audio" />
     </PageTemplate>
   );
 };
