@@ -14,7 +14,7 @@ const tabs: { key: TabKey; label: string }[] = [
   { key: "meditation", label: "Meditation" },
   { key: "podcast", label: "Podcast" },
   { key: "relaxation", label: "Relaxation" },
-  { key: "bookmarks", label: "Bookmarked" },
+  { key: "bookmark", label: "Bookmarked" },
 ];
 
 const AudioResourcesPage = () => {

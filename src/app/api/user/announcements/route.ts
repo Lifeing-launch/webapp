@@ -21,12 +21,12 @@ export async function GET(request: NextRequest) {
     strapiQueryObj.pagination.pageSize = limit;
   }
 
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/announcements`;
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
+  const strapiUrl = `${process.env.STRAPI_BASE_URL}/announcements?${strapiQuery}`;
 
   // Fetch announcements in bulk from Strapi
   try {
-    const { data } = await strapiFetch(`${strapiUrl}?${strapiQuery}`);
+    const { data } = await strapiFetch(strapiUrl);
     return NextResponse.json({ data });
   } catch (err) {
     console.error("An error occurred while fetching strapi announcements", err);

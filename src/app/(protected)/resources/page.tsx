@@ -6,13 +6,13 @@ import ResourcesContent from "@/components/resources/content";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Resources" }];
 
-type TabKey = "all" | "articles" | "videos" | "documents" | "bookmarks";
+type TabKey = "all" | "article" | "video" | "document" | "bookmark";
 const tabs: { key: TabKey; label: string }[] = [
   { key: "all", label: "All Resources" },
-  { key: "articles", label: "Articles" },
-  { key: "videos", label: "Videos" },
-  { key: "documents", label: "Documents" },
-  { key: "bookmarks", label: "Bookmarked" },
+  { key: "article", label: "Articles" },
+  { key: "video", label: "Videos" },
+  { key: "document", label: "Documents" },
+  { key: "bookmark", label: "Bookmarked" },
 ];
 
 const ResourcesPage = () => {

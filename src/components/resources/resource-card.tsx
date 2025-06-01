@@ -129,7 +129,7 @@ function VisualResourceCard({
 }: IResourceCard) {
   const getResourceHref = () => {
     if (resource.type === "article") {
-      return resource.url || `/resources/${resource.id}`;
+      return resource.url || `/resources/${resource.slug}`;
     }
     return resource.url || undefined;
   };

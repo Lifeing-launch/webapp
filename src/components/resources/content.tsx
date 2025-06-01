@@ -51,46 +51,55 @@ const ResourcesContent = <TabType extends string>({
     const supabase = createClient();
 
     const fetchData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      const query = qs.stringify({
-        page,
-        q: searchQuery,
-        type: tab === "all" ? undefined : tab,
-        category,
-      });
-      const res = await fetch(`/api/resources?${query}`);
-      const data: { data?: Resource[]; error?: string; meta: StrapiMeta } =
-        await res.json();
+        if (!user) {
+          throw new Error("Unauthorized");
+        }
 
-      if (data.error) {
-        toast.error(data.error);
-      } else {
-        const resources = data.data;
+        const query = qs.stringify({
+          page,
+          q: searchQuery,
+          type: tab === "all" ? undefined : tab,
+          category,
+        });
+        const res = await fetch(`/api/resources?${query}`);
+        const data: { data?: Resource[]; error?: string; meta: StrapiMeta } =
+          await res.json();
 
-        // Fetch bookmarks for the current user
-        const { data: bookmarks } = await supabase
-          .from("bookmarks")
-          .select("resource_id")
-          .eq("user_id", user.id);
+        if (data.error) {
+          throw new Error(data.error);
+        } else {
+          const resources = data.data;
 
-        // Map bookmark data to resources
-        const bookmarkedResourceIds = new Set(
-          bookmarks?.map((bookmark) => Number(bookmark.resource_id))
-        );
-        const enrichedResources = (resources || []).map((resource) => ({
-          ...resource,
-          hasBookmarked: bookmarkedResourceIds.has(resource.id),
-        }));
+          // Fetch bookmarks for the current user
+          const { data: bookmarks } = await supabase
+            .from("bookmarks")
+            .select("resource_id")
+            .eq("user_id", user.id);
 
-        setResources(enrichedResources || []);
-        setTotalCount(data?.meta?.pagination.total || 0);
+          // Map bookmark data to resources
+          const bookmarkedResourceIds = new Set(
+            bookmarks?.map((bookmark) => Number(bookmark.resource_id))
+          );
+          const enrichedResources = (resources || []).map((resource) => ({
+            ...resource,
+            hasBookmarked: bookmarkedResourceIds.has(resource.id),
+          }));
+
+          setResources(enrichedResources || []);
+          setTotalCount(data?.meta?.pagination.total || 0);
+        }
+      } catch (err) {
+        console.error("Error fetching resources: ", err);
+        toast.error("Error fetching resources");
+        setResources([]);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
     fetchData();

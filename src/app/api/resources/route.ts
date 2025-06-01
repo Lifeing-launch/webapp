@@ -1,15 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
+import { createClient } from "@/utils/supabase/server";
 
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_CATEGORY = "visual";
 
 export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const queryParams = qs.parse(new URL(request.url).search, {
     ignoreQueryPrefix: true,
   });
-  const { page, q: searchQuery, showError, type, category } = queryParams;
+  const { page, q: searchQuery, type, category } = queryParams;
 
   // TODO: Type this correctly
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,8 +34,12 @@ export async function GET(request: NextRequest) {
       category: {
         $eq: category || DEFAULT_CATEGORY,
       },
+      id: {
+        $in: [],
+      },
     },
     sort: "title:desc",
+    populate: "cover_img",
   };
 
   if (page) {
@@ -51,8 +67,28 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  if (type === "bookmarked") {
-    // fetch bookmarked resources from supabase
+  if (type === "bookmark") {
+    // fetch bookmarked resources for user from supabase
+    const { data: bookmarks, error: bookmarkError } = await supabase
+      .from("bookmarks")
+      .select("resource_id")
+      .eq("user_id", user.id);
+
+    if (bookmarkError) {
+      console.error(
+        "An error occurred while fetching bookmarks",
+        bookmarkError
+      );
+      return NextResponse.json(
+        { error: bookmarkError.message },
+        { status: 500 }
+      );
+    }
+
+    const resourceIds = bookmarks.map((bookmark) => bookmark.resource_id);
+    if (!resourceIds.length) return NextResponse.json({ resources: [] });
+
+    strapiQueryObj["filters"]["id"]["$in"].push(...resourceIds);
   } else if (type) {
     strapiQueryObj["filters"]["$or"].push({
       type: {
@@ -61,13 +97,12 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/resources`;
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
+  const strapiUrl = `${process.env.STRAPI_BASE_URL}/resources?${strapiQuery}`;
 
   try {
-    const data = await strapiFetch(`${strapiUrl}?${strapiQuery}`);
-    console.log("QUERY", `${strapiUrl}?${strapiQuery}`);
-    if (showError) throw new Error("Fake error");
+    const data = await strapiFetch(strapiUrl);
+    console.log("QUERYYYY", strapiUrl);
     return NextResponse.json(data);
   } catch (err) {
     console.error("An error occurred while fetching strapi resources", err);

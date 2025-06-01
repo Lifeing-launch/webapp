@@ -49,12 +49,12 @@ export async function GET(request: NextRequest) {
     strapiQueryObj["filters"]["id"]["$in"] = meetingIds;
   }
 
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/meetings`;
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
+  const strapiUrl = `${process.env.STRAPI_BASE_URL}/meetings?${strapiQuery}`;
 
   // Fetch future meetings in bulk from Strapi
   try {
-    const { data } = await strapiFetch(`${strapiUrl}?${strapiQuery}`);
+    const { data } = await strapiFetch(strapiUrl);
     return NextResponse.json({ data });
   } catch (err) {
     console.error("An error occurred while fetching strapi meetings", err);
