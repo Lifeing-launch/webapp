@@ -10,7 +10,7 @@ import { getSiteUrl } from "@/utils/urls";
 import { createClient } from "@/utils/supabase/server";
 
 interface IResourcesPage {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 const ResourcesPage = async ({ params }: IResourcesPage) => {
@@ -27,7 +27,7 @@ const ResourcesPage = async ({ params }: IResourcesPage) => {
     throw new Error(`Failed to fetch resource: ${res.statusText}`);
   }
 
-  const data: { data?: Resource; error?: string } = await res.json();
+  const data: { data?: Resource[]; error?: string } = await res.json();
 
   if (data.error) {
     throw new Error(data.error);
@@ -53,7 +53,7 @@ const ResourcesPage = async ({ params }: IResourcesPage) => {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      throw new Error("Unauthorized:", userError?.message || "");
+      throw new Error(`Unauthorized: ${userError?.message || ""}`);
     }
 
     const { data: bookmark, error: bookmarkError } = await supabase
@@ -65,7 +65,7 @@ const ResourcesPage = async ({ params }: IResourcesPage) => {
       .maybeSingle();
 
     if (bookmarkError) {
-      throw new Error("Bookmark error: ", bookmarkError.message);
+      throw new Error(`Bookmark error: ${bookmarkError.message || ""}`);
     }
 
     if (bookmark) {

@@ -7,7 +7,7 @@ import "../../globals.css";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Audio Resources" }];
 
-type TabKey = "all" | "meditation" | "podcast" | "relaxation" | "bookmarks";
+type TabKey = "all" | "meditation" | "podcast" | "relaxation" | "bookmark";
 
 const tabs: { key: TabKey; label: string }[] = [
   { key: "all", label: "All" },

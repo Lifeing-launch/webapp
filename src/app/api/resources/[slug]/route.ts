@@ -4,7 +4,11 @@ import { strapiFetch } from "@/utils/fetch";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  {
+    params,
+  }: {
+    params: Promise<{ slug: string }>;
+  }
 ) {
   const { slug } = await params;
   // TODO: Type this correctly

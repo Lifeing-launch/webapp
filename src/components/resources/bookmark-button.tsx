@@ -49,7 +49,7 @@ export default function BookmarkButton({
         toast.success("Bookmark removed");
       } else {
         const { error } = await supabase.from("bookmarks").insert({
-          resource_id: String(resourceId),
+          resource_id: resourceId,
           user_id: user.id,
         });
 
