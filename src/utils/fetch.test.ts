@@ -13,7 +13,7 @@ describe("strapiFetch", () => {
   });
 
   it("returns data when response is ok", async () => {
-    const dummyUrl = new URL("https://example.com/api");
+    const dummyUrl = "https://example.com/api";
     const dummyData = { id: 1, name: "Test" };
     const mockResponse = {
       ok: true,
@@ -30,7 +30,7 @@ describe("strapiFetch", () => {
   });
 
   it("throws an error when response is not ok", async () => {
-    const dummyUrl = new URL("https://example.com/api");
+    const dummyUrl = "https://example.com/api";
     const errorMessage = "An error occurred";
     const mockResponse = {
       ok: false,

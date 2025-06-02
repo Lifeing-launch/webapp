@@ -16,7 +16,7 @@ import {
 } from "@/utils/datetime";
 import RsvpButton from "./rsvp-button";
 
-export type MeetingType = "group" | "webinar" | "oneToOne";
+export type MeetingType = "group" | "webinar" | "oneToOne" | "one-to-one";
 
 export type Meeting = {
   id: number;
@@ -88,6 +88,10 @@ function MeetingStats({ meeting }: { meeting: Meeting }) {
       Icon: MonitorPlay,
     },
     oneToOne: {
+      label: "1:1",
+      Icon: UserRoundCheck,
+    },
+    "one-to-one": {
       label: "1:1",
       Icon: UserRoundCheck,
     },

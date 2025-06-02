@@ -7,14 +7,14 @@ import "../../globals.css";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Audio Resources" }];
 
-type TabKey = "all" | "meditation" | "podcast" | "relaxation" | "bookmarks";
+type TabKey = "all" | "meditation" | "podcast" | "relaxation" | "bookmark";
 
 const tabs: { key: TabKey; label: string }[] = [
   { key: "all", label: "All" },
   { key: "meditation", label: "Meditation" },
   { key: "podcast", label: "Podcast" },
   { key: "relaxation", label: "Relaxation" },
-  { key: "bookmarks", label: "Bookmarked" },
+  { key: "bookmark", label: "Bookmarked" },
 ];
 
 const AudioResourcesPage = () => {
@@ -27,11 +27,7 @@ const AudioResourcesPage = () => {
         label: "Search resources",
       }}
     >
-      <ResourcesContent<TabKey>
-        fetchUrl="/api/resources"
-        tabs={tabs}
-        resourceGroup="audio"
-      />
+      <ResourcesContent<TabKey> tabs={tabs} category="audio" />
     </PageTemplate>
   );
 };

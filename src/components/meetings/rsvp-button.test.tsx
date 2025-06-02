@@ -63,7 +63,7 @@ describe("RsvpButton", () => {
       expect(mockSupabaseClient.auth.getUser).toHaveBeenCalled();
       expect(mockSupabaseClient.from).toHaveBeenCalledWith("rsvps");
       expect(mockSupabaseClient.from().insert).toHaveBeenCalledWith({
-        meeting_id: "123",
+        meeting_id: 123,
         user_id: "user123",
       });
       expect(screen.getByText("RSVPed")).toBeInTheDocument();
@@ -88,7 +88,7 @@ describe("RsvpButton", () => {
       expect(mockSupabaseClient.auth.getUser).toHaveBeenCalled();
       expect(mockSupabaseClient.from).toHaveBeenCalledWith("rsvps");
       expect(mockSupabaseClient.from().insert).toHaveBeenCalledWith({
-        meeting_id: "123",
+        meeting_id: 123,
         user_id: "user123",
       });
       expect(screen.getByText("RSVP")).toBeInTheDocument();

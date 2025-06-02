@@ -1,5 +1,5 @@
-export const strapiFetch = async (strapiUrl: URL) => {
-  const strapiResp = await fetch(strapiUrl.toString(), {
+export const strapiFetch = async (strapiUrl: string) => {
+  const strapiResp = await fetch(strapiUrl, {
     headers: {
       Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
     },

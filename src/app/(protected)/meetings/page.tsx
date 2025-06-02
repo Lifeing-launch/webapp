@@ -28,41 +28,50 @@ const MeetingsPage = () => {
     const supabase = createClient();
 
     const fetchData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      // Fetch all future meetings
-      const res = await fetch("/api/user/meetings");
-      const data: { data?: Meeting[]; error?: string } = await res.json();
+        if (!user) {
+          throw new Error("Unauthorized");
+        }
 
-      if (data.error) {
-        toast.error(data.error);
-      } else {
-        const meetings = data.data;
+        // Fetch all future meetings
+        const res = await fetch("/api/user/meetings");
+        const data: { data?: Meeting[]; error?: string } = await res.json();
 
-        // Fetch RSVPs for the current user
-        const { data: rsvps } = await supabase
-          .from("rsvps")
-          .select("meeting_id")
-          .eq("user_id", user.id);
+        if (data.error) {
+          throw new Error(data.error);
+        } else {
+          const meetings = data.data;
 
-        // Map RSVP data to meetings
-        const rsvpedMeetingIds = new Set(
-          rsvps?.map((rsvp) => Number(rsvp.meeting_id))
-        );
-        const enrichedMeetings = (meetings || []).map((meeting) => ({
-          ...meeting,
-          hasRsvped: rsvpedMeetingIds.has(meeting.id),
-        }));
+          // Fetch RSVPs for the current user
+          const { data: rsvps } = await supabase
+            .from("rsvps")
+            .select("meeting_id")
+            .eq("user_id", user.id);
 
-        setGroupedMeetings(
-          enrichedMeetings.length ? groupMeetingsByDate(enrichedMeetings) : []
-        );
+          // Map RSVP data to meetings
+          const rsvpedMeetingIds = new Set(
+            rsvps?.map((rsvp) => Number(rsvp.meeting_id))
+          );
+          const enrichedMeetings = (meetings || []).map((meeting) => ({
+            ...meeting,
+            hasRsvped: rsvpedMeetingIds.has(meeting.id),
+          }));
+
+          setGroupedMeetings(
+            enrichedMeetings.length ? groupMeetingsByDate(enrichedMeetings) : []
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching meetings: ", err);
+        toast.error("Error fetching meetings");
+        setGroupedMeetings([]);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
     fetchData();

@@ -2,6 +2,7 @@
 import { strapiFetch } from "@/utils/fetch";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import qs from "qs";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -15,11 +16,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const strapiUrl = new URL(`${process.env.STRAPI_BASE_URL}/meetings`);
-  strapiUrl.searchParams.append(
-    "filters[when][$gte]",
-    new Date().toISOString()
-  );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const strapiQueryObj: any = {
+    filters: {
+      when: {
+        $gte: new Date().toISOString(),
+      },
+      id: {
+        $in: [],
+      },
+    },
+  };
 
   const { searchParams } = new URL(request.url);
   const rsvpOnly = searchParams.get("rsvpOnly");
@@ -39,9 +46,11 @@ export async function GET(request: NextRequest) {
     const meetingIds = rsvps.map((rsvp) => rsvp.meeting_id);
     if (!meetingIds.length) return NextResponse.json({ meetings: [] });
 
-    // Append meetingIds filter (assumes comma-separated ids)
-    strapiUrl.searchParams.append("filters[id][$in]", meetingIds.join(","));
+    strapiQueryObj["filters"]["id"]["$in"] = meetingIds;
   }
+
+  const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
+  const strapiUrl = `${process.env.STRAPI_BASE_URL}/meetings?${strapiQuery}`;
 
   // Fetch future meetings in bulk from Strapi
   try {

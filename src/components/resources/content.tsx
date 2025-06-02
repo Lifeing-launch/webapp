@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Resource,
   ResourceCard,
-  ResourceGroup,
+  ResourceCategory,
 } from "@/components/resources/resource-card";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { PaginationWithLinks } from "@/components/ui/custom/pagination-with-links";
@@ -15,29 +15,30 @@ import { toast } from "sonner";
 import qs from "qs";
 import { StrapiMeta } from "@/typing/global";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/browser";
 
 const PARAM_KEY_PAGE = "page";
 const PARAM_KEY_TAB = "tab";
 
 const PAGE_SIZE = 10;
 
+type EnrichedResource = Resource & { hasBookmarked?: boolean };
+
 interface IResourceContent<TabType> {
-  resourceGroup?: ResourceGroup;
-  fetchUrl: string;
+  category?: ResourceCategory;
   tabs: { key: TabType; label: string }[];
 }
 
 const ResourcesContent = <TabType extends string>({
-  fetchUrl,
   tabs,
-  resourceGroup = "visual",
+  category = "visual",
 }: IResourceContent<TabType>) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [resources, setResources] = useState<Resource[]>([]);
+  const [resources, setResources] = useState<EnrichedResource[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
   const page = Number(searchParams.get(PARAM_KEY_PAGE)) || 1;
@@ -47,27 +48,62 @@ const ResourcesContent = <TabType extends string>({
   const validTabs = new Set(tabs.map((tab) => tab.key));
 
   useEffect(() => {
-    const fetchResources = async () => {
-      setIsLoading(true);
-      const query = qs.stringify({
-        page,
-        q: searchQuery,
-        type: tab === "all" ? undefined : tab,
-      });
-      const res = await fetch(`${fetchUrl}?${query}`);
-      const data: { data?: Resource[]; error?: string; meta: StrapiMeta } =
-        await res.json();
-      if (data.error) {
-        toast.error(data.error);
-      }
+    const supabase = createClient();
 
-      setResources(data?.data || []);
-      setTotalCount(data?.meta?.pagination.total || 0);
-      setIsLoading(false);
+    const fetchData = async () => {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          throw new Error("Unauthorized");
+        }
+
+        const query = qs.stringify({
+          page,
+          q: searchQuery,
+          type: tab === "all" ? undefined : tab,
+          category,
+        });
+        const res = await fetch(`/api/resources?${query}`);
+        const data: { data?: Resource[]; error?: string; meta: StrapiMeta } =
+          await res.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        } else {
+          const resources = data.data;
+
+          // Fetch bookmarks for the current user
+          const { data: bookmarks } = await supabase
+            .from("bookmarks")
+            .select("resource_id")
+            .eq("user_id", user.id);
+
+          // Map bookmark data to resources
+          const bookmarkedResourceIds = new Set(
+            bookmarks?.map((bookmark) => Number(bookmark.resource_id))
+          );
+          const enrichedResources = (resources || []).map((resource) => ({
+            ...resource,
+            hasBookmarked: bookmarkedResourceIds.has(resource.id),
+          }));
+
+          setResources(enrichedResources || []);
+          setTotalCount(data?.meta?.pagination.total || 0);
+        }
+      } catch (err) {
+        console.error("Error fetching resources: ", err);
+        toast.error("Error fetching resources");
+        setResources([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    fetchResources();
-  }, [tab, searchQuery, page, fetchUrl]);
+    fetchData();
+  }, [tab, searchQuery, page, category]);
 
   const onTabChange = (tabKey: string) => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -98,15 +134,15 @@ const ResourcesContent = <TabType extends string>({
               <div
                 className={cn(
                   "grid auto-rows-fr gap-4 grid-cols-1 md:grid-cols-2 ",
-                  resourceGroup === "audio" && "lg:grid-cols-3"
+                  category === "audio" && "lg:grid-cols-3"
                 )}
               >
                 {resources.map((resource) => (
                   <ResourceCard
                     resource={resource}
                     key={resource.id}
-                    hasBookmarked={!!Math.round(Math.random())}
-                    resourceGroup={resourceGroup}
+                    hasBookmarked={resource.hasBookmarked}
+                    category={category}
                   />
                 ))}
               </div>

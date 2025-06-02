@@ -26,7 +26,7 @@ export default function RsvpButton({ meetingId, hasRsvped }: RsvpButtonProps) {
       if (!user) return;
 
       const { error } = await supabase.from("rsvps").insert({
-        meeting_id: String(meetingId),
+        meeting_id: meetingId,
         user_id: user.id,
       });
 
