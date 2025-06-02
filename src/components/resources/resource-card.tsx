@@ -6,6 +6,7 @@ import { formatDate } from "@/utils/datetime";
 import Link from "next/link";
 import BookmarkButton from "./bookmark-button";
 import { PreviewImage } from "./preview-image";
+import { type BlocksContent } from "@strapi/blocks-react-renderer";
 
 export type ResourceCategory = "visual" | "audio";
 export type ResourceType =
@@ -31,6 +32,13 @@ export type Resource = {
   duration?: string | null;
   url?: string | null;
   cover_img?: CoverImage | null;
+  article?: Article;
+};
+
+export type Article = {
+  id: number;
+  documentId: string;
+  body: BlocksContent;
 };
 
 export type CoverImage = {
@@ -62,7 +70,7 @@ interface IResourceCard {
   category?: ResourceCategory;
 }
 
-const TYPE_TO_LABEL_MAPPING: Record<ResourceType, string> = {
+export const TYPE_TO_LABEL_MAPPING: Record<ResourceType, string> = {
   article: "Article",
   document: "Document",
   video: "Video",

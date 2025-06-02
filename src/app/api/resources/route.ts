@@ -102,7 +102,6 @@ export async function GET(request: NextRequest) {
 
   try {
     const data = await strapiFetch(strapiUrl);
-    console.log("QUERYYYY", strapiUrl);
     return NextResponse.json(data);
   } catch (err) {
     console.error("An error occurred while fetching strapi resources", err);

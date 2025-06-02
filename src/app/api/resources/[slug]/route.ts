@@ -23,7 +23,7 @@ export async function GET(
       },
       slug,
     },
-    populate: ["cover_img"],
+    populate: "*",
     pagination: {
       pageSize: 1,
     },
@@ -34,7 +34,6 @@ export async function GET(
 
   try {
     const data = await strapiFetch(strapiUrl);
-    console.log("QUERY", strapiUrl);
     return NextResponse.json(data);
   } catch (err) {
     console.error("An error occurred while fetching strapi resources", err);

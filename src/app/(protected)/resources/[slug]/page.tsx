@@ -7,6 +7,7 @@ import { Resource } from "@/components/resources/resource-card";
 import { Article } from "@/components/resources/article";
 import { cookies } from "next/headers";
 import { getSiteUrl } from "@/utils/urls";
+import { createClient } from "@/utils/supabase/server";
 
 interface IResourcesPage {
   params: { slug: string };
@@ -23,7 +24,7 @@ const ResourcesPage = async ({ params }: IResourcesPage) => {
   });
 
   if (!res.ok) {
-    notFound();
+    throw new Error(`Failed to fetch resource: ${res.statusText}`);
   }
 
   const data: { data?: Resource; error?: string } = await res.json();
@@ -36,14 +37,48 @@ const ResourcesPage = async ({ params }: IResourcesPage) => {
     notFound();
   }
 
+  let hasBookmarked = false;
+  const resource = data.data[0];
   const breadcrumbs: Breadcrumb[] = [
     { label: "Articles", href: "/resources?tab=article" },
-    { label: data.data[0].title || "" },
+    { label: resource.title || "" },
   ];
+
+  const supabase = await createClient();
+
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("Unauthorized:", userError?.message || "");
+    }
+
+    const { data: bookmark, error: bookmarkError } = await supabase
+      .from("bookmarks")
+      .select("resource_id")
+      .eq("user_id", user.id)
+      .eq("resource_id", resource.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (bookmarkError) {
+      throw new Error("Bookmark error: ", bookmarkError.message);
+    }
+
+    if (bookmark) {
+      hasBookmarked = true;
+    }
+  } catch (err) {
+    // Fail silently
+    console.error("An error occurred fetching article bookmark", err);
+  }
 
   return (
     <PageTemplate breadcrumbs={breadcrumbs} headerIcon={sidebarIcons.podcast}>
-      <Article resource={data.data[0]} />
+      <Article resource={resource} hasBookmarked={hasBookmarked} />
     </PageTemplate>
   );
 };
