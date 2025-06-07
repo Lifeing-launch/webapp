@@ -1,7 +1,7 @@
 import React from "react";
 import { FileText, MonitorPlay, ScrollText } from "lucide-react";
 import Image from "next/image";
-import { Resource } from "./resource-card";
+import { Resource } from "@/typing/strapi";
 
 export function PreviewImage({ resource }: { resource: Resource }) {
   if (
@@ -36,7 +36,7 @@ function ArticleImage({ resource }: { resource: Resource }) {
   return (
     <div className="flex-1 rounded-xs overflow-hidden h-35 relative">
       <Image
-        src="https://images.unsplash.com/photo-1542353436-312f0e1f67ff?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        src={resource.cover_img?.url || ""}
         alt="Resource Image"
         width={600}
         height={300}

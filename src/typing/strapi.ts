@@ -1,0 +1,66 @@
+import { BlocksContent } from "@strapi/blocks-react-renderer";
+
+export type ResourceCategory = "visual" | "audio";
+export type ResourceType =
+  | "article"
+  | "document"
+  | "video"
+  | "meditation"
+  | "podcast"
+  | "relaxation";
+
+export type Resource = {
+  id: number;
+  documentId: string;
+  title: string;
+  description: string;
+  category: ResourceCategory;
+  type: ResourceType;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  is_published: boolean;
+  duration?: string | null;
+  url?: string | null;
+  cover_img?: Image | null;
+  article?: Article;
+};
+
+export type Image = {
+  id: number;
+  documentId: string;
+  name: string;
+  alternativeText?: string | null;
+  caption?: string | null;
+  width: number;
+  height: number;
+  formats: Record<string, never>;
+  hash: string;
+  ext: string;
+  mime: string;
+  size: number;
+  url: string;
+  previewUrl?: string | null;
+  provider: string;
+  provider_metadata: Record<string, never>;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+};
+
+export type Article = {
+  id: number;
+  documentId: string;
+  body: BlocksContent;
+};
+
+export type Coach = {
+  id: number;
+  name: string;
+  summary: string;
+  focus_areas: string[];
+  booking_url: string;
+  experience_in_years: number;
+  avatar: Image;
+};

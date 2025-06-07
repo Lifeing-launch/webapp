@@ -3,11 +3,11 @@ import PageTemplate from "@/components/layout/page-template";
 import React from "react";
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { notFound } from "next/navigation";
-import { Resource } from "@/components/resources/resource-card";
 import { Article } from "@/components/resources/article";
 import { cookies } from "next/headers";
 import { getSiteUrl } from "@/utils/urls";
 import { createClient } from "@/utils/supabase/server";
+import { Resource } from "@/typing/strapi";
 
 interface IResourcesPage {
   params: Promise<{ slug: string }>;

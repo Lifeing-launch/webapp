@@ -1,10 +1,11 @@
 import React from "react";
-import { Resource, TYPE_TO_LABEL_MAPPING } from "./resource-card";
+import { TYPE_TO_LABEL_MAPPING } from "./resource-card";
 import { ArticleBody } from "./article-body";
 import { Badge } from "../ui/badge";
 import BookmarkButton from "./bookmark-button";
 import Image from "next/image";
 import { formatDate } from "@/utils/datetime";
+import { Resource } from "@/typing/strapi";
 
 interface IArticle {
   resource: Resource;
