@@ -7,60 +7,12 @@ import Link from "next/link";
 import BookmarkButton from "./bookmark-button";
 import { PreviewImage } from "./preview-image";
 import { type BlocksContent } from "@strapi/blocks-react-renderer";
-
-export type ResourceCategory = "visual" | "audio";
-export type ResourceType =
-  | "article"
-  | "document"
-  | "video"
-  | "meditation"
-  | "podcast"
-  | "relaxation";
-
-export type Resource = {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  category: ResourceCategory;
-  type: ResourceType;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  is_published: boolean;
-  duration?: string | null;
-  url?: string | null;
-  cover_img?: CoverImage | null;
-  article?: Article;
-};
+import { Resource, ResourceCategory, ResourceType } from "@/typing/strapi";
 
 export type Article = {
   id: number;
   documentId: string;
   body: BlocksContent;
-};
-
-export type CoverImage = {
-  id: number;
-  documentId: string;
-  name: string;
-  alternativeText?: string | null;
-  caption?: string | null;
-  width: number;
-  height: number;
-  formats: Record<string, never>;
-  hash: string;
-  ext: string;
-  mime: string;
-  size: number;
-  url: string;
-  previewUrl?: string | null;
-  provider: string;
-  provider_metadata: Record<string, never>;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
 };
 
 interface IResourceCard {

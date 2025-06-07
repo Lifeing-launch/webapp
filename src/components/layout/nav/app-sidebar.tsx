@@ -44,7 +44,7 @@ const data = {
       },
       {
         title: "Coaching Program",
-        url: "#",
+        url: "/coaching",
         icon: sidebarIcons.coachingProgram,
       },
       {

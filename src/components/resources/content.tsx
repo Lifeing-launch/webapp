@@ -3,11 +3,7 @@
 import React, { useEffect, useState } from "react";
 import ResourcesSkeleton from "@/components/resources/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Resource,
-  ResourceCard,
-  ResourceCategory,
-} from "@/components/resources/resource-card";
+import { ResourceCard } from "@/components/resources/resource-card";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { PaginationWithLinks } from "@/components/ui/custom/pagination-with-links";
 import { PARAM_KEY_SEARCH } from "@/components/layout/page-search";
@@ -16,6 +12,7 @@ import qs from "qs";
 import { StrapiMeta } from "@/typing/global";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/browser";
+import { Resource, ResourceCategory } from "@/typing/strapi";
 
 const PARAM_KEY_PAGE = "page";
 const PARAM_KEY_TAB = "tab";
