@@ -22,23 +22,33 @@ const DashboardPage = () => {
 
   useEffect(() => {
     const fetchMeetings = async () => {
-      const res = await fetch("/api/user/meetings?rsvpOnly=1");
-      const data: { data?: Meeting[]; error?: string } = await res.json();
-      if (data.error) {
-        toast.error(data.error);
+      try {
+        const res = await fetch("/api/user/meetings?rsvpOnly=1");
+        const data: { data?: Meeting[]; error?: string } = await res.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        setMeetings(data?.data || []);
+      } catch (err) {
+        toast.error("Error fetching meetings");
+        console.error("Error fetching meetings: ", err);
       }
-
-      setMeetings(data?.data || []);
     };
 
     const fetchAnnouncements = async () => {
-      const res = await fetch("/api/user/announcements");
-      const data: { data?: Announcement[]; error?: string } = await res.json();
-      if (data.error) {
-        toast.error(data.error);
-      }
+      try {
+        const res = await fetch("/api/user/announcements");
+        const data: { data?: Announcement[]; error?: string } =
+          await res.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
 
-      setAnnouncements(data?.data || []);
+        setAnnouncements(data?.data || []);
+      } catch (err) {
+        toast.error("Error fetching announcements");
+        console.error("Error fetching announcements: ", err);
+      }
     };
 
     const fetchData = async () => {
