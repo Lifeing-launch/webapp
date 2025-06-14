@@ -51,7 +51,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  //  user must be accessing a protected page at this point. Let them through
+  //  user must be accessing a valid page at this point. Let them through
   return supabaseResponse;
 }
 

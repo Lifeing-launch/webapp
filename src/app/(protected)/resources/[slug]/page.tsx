@@ -4,10 +4,9 @@ import React from "react";
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { notFound } from "next/navigation";
 import { Article } from "@/components/resources/article";
-import { cookies } from "next/headers";
-import { getSiteUrl } from "@/utils/urls";
 import { createClient } from "@/utils/supabase/server";
 import { Resource } from "@/typing/strapi";
+import { serverFetch } from "@/utils/fetch";
 
 interface IResourcesPage {
   params: Promise<{ slug: string }>;
@@ -15,23 +14,9 @@ interface IResourcesPage {
 
 const ResourcesPage = async ({ params }: IResourcesPage) => {
   const { slug } = await params;
-
-  const res = await fetch(`${getSiteUrl()}/api/resources/${slug}`, {
-    headers: {
-      cookie: (await cookies()).toString(),
-    },
-    cache: "no-cache",
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch resource: ${res.statusText}`);
-  }
-
-  const data: { data?: Resource[]; error?: string } = await res.json();
-
-  if (data.error) {
-    throw new Error(data.error);
-  }
+  const data: { data?: Resource[] } = await serverFetch(
+    `/api/resources/${slug}`
+  );
 
   if (!data.data?.length) {
     notFound();
