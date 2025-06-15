@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "../ui/card";
-import { CalendarRange } from "lucide-react";
+import { CalendarClock, CalendarRange, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/utils/datetime";
 import { SubscriptionPlan } from "@/typing/strapi";
@@ -29,13 +29,8 @@ const CurrentPlanCard = async ({ subscription, plan }: ICurrentPlanCard) => {
     },
     {
       label: "Payment Method",
-      Icon: CalendarRange,
+      Icon: CreditCard,
       value: `${capitalizeFirstLetter(subscription.card_type || "")} ending in ${subscription.card_last4}`,
-    },
-    {
-      label: "Next Payment Due:",
-      Icon: CalendarRange,
-      value: formatDate(new Date(subscription.current_period_end)),
     },
   ];
 
@@ -52,6 +47,16 @@ const CurrentPlanCard = async ({ subscription, plan }: ICurrentPlanCard) => {
     subscription.status === "trialing" ||
     (subscription?.trial_end && new Date() < new Date(subscription?.trial_end));
 
+  const isSubscriptionCancelled = !!subscription.cancel_at;
+
+  if (!isSubscriptionCancelled) {
+    stats.push({
+      label: "Next Payment Due:",
+      Icon: CalendarClock,
+      value: formatDate(new Date(subscription.current_period_end)),
+    });
+  }
+
   return (
     <Card>
       <CardContent className="gap-4 flex flex-col">
@@ -64,11 +69,11 @@ const CurrentPlanCard = async ({ subscription, plan }: ICurrentPlanCard) => {
           </h2>
           <p className="text-2xl font-semibold"> {getDisplayPrice()} </p>
         </div>
-        <div className="flex text-sm items-center gap-2">
+        <div className="text-sm flex flex-col gap-4 md:flex-row md:items-center md:gap-2">
           {stats.map((stat) => (
             <dl
               key={stat.label}
-              className="flex flex-1 gap-2 border-slate-200 border-r last:border-0 pl-4 first:pl-0"
+              className="flex flex-1 gap-2 border-slate-200 border-r last:border-0 first:pl-0  md:pl-4 "
             >
               <div>{<stat.Icon className="size-5" />}</div>
               <div className="flex-1">
@@ -79,7 +84,14 @@ const CurrentPlanCard = async ({ subscription, plan }: ICurrentPlanCard) => {
           ))}
 
           <div className="flex-1 h-full text-red-700 font-medium text-center">
-            <Link href="/subscription/cancel">Cancel subscription</Link>
+            {subscription.cancel_at ? (
+              <>
+                Subsciption ends{" "}
+                {formatDate(new Date(subscription.cancel_at))}{" "}
+              </>
+            ) : (
+              <Link href="/subscription/cancel">Cancel subscription</Link>
+            )}
           </div>
         </div>
       </CardContent>

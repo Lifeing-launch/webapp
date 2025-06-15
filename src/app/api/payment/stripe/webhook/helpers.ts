@@ -44,13 +44,6 @@ export async function buildSubscriptionRecord(
     card_last4: card?.last4,
     card_type: card?.brand,
 
-    current_period_start: new Date(
-      subscription.current_period_start * 1000
-    ).toISOString(),
-    current_period_end: new Date(
-      subscription.current_period_end * 1000
-    ).toISOString(),
-
     canceled_at: subscription.canceled_at
       ? new Date(subscription.canceled_at * 1000).toISOString()
       : null,
@@ -67,6 +60,23 @@ export async function buildSubscriptionRecord(
 
     updated_at: new Date().toISOString(),
   };
+
+  if (subscription.current_period_start) {
+    // Handle current_period_start not existing on change subscription event
+    // See /api/payment/stripe/change
+    record.current_period_start = new Date(
+      subscription.current_period_start * 1000
+    ).toISOString();
+  }
+
+  if (subscription.current_period_end) {
+    // Handle current_period_start not existing on change subscription event
+    // See /api/payment/stripe/change
+    record.current_period_end = new Date(
+      subscription.current_period_end * 1000
+    ).toISOString();
+  }
+
   console.log("Record to store in Supabase", JSON.stringify(record));
   return record;
 }

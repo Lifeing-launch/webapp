@@ -8,6 +8,7 @@ import Link from "next/link";
 import { SubscriptionPlan } from "@/typing/strapi";
 import { serverFetch } from "@/utils/fetch";
 import { Database } from "@/typing/supabase";
+import ChangePlanButton from "./change-plan-button";
 
 export type SubscriptionInterval = "month" | "year";
 export const SUBSCRIPTION_INTERVALS: SubscriptionInterval[] = ["month", "year"];
@@ -55,8 +56,6 @@ export const PlanCard = async ({
       (currentSubscription.billing_interval === interval ||
         currentSubscription.billing_interval === "yearly");
 
-    const disabled = !url || matchesCurrentSubscription;
-
     const getDisplayPrice = () => {
       switch (interval) {
         case "month":
@@ -66,13 +65,26 @@ export const PlanCard = async ({
       }
     };
 
-    const getButtonLabel = () => {
+    const getButton = () => {
       if (matchesCurrentSubscription) {
-        return "Current Plan";
+        return <Button disabled>Current Plan</Button>;
       } else if (currentSubscription) {
-        return "Change Plan";
+        return (
+          <ChangePlanButton
+            currentSubscriptionId={currentSubscription.stripe_subscription_id}
+            priceId={
+              interval === "year"
+                ? plan.stripe_price_yearly_id
+                : plan.stripe_price_monthly_id
+            }
+          />
+        );
       } else {
-        return "Continue";
+        return (
+          <Button asChild>
+            <Link href={url || ""}> Continue</Link>
+          </Button>
+        );
       }
     };
 
@@ -101,13 +113,7 @@ export const PlanCard = async ({
             ))}
           </ul>
 
-          {disabled ? (
-            <Button disabled>{getButtonLabel()}</Button>
-          ) : (
-            <Button asChild>
-              <Link href={url || ""}>{getButtonLabel()}</Link>
-            </Button>
-          )}
+          {getButton()}
         </CardContent>
       </Card>
     );

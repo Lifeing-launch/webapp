@@ -29,8 +29,10 @@ const CancelSubscription = ({ currentSubscription }: ICancelSubscription) => {
         body: JSON.stringify({ subscriptionId, reason }),
       });
       if (!res.ok) throw new Error();
-      toast.info("Success. Your subscription will end at period end.");
-      router.push("/subscriptions/manage");
+      router.push("/subscription/manage");
+      toast.info(
+        "Success. Your subscription will end at the end of your billing cycle."
+      );
     } catch {
       toast.error("An error occurred while canceling your subscription");
     } finally {
