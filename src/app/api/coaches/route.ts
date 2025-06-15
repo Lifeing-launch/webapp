@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
-import { createClient } from "@/utils/supabase/server";
+import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
 
 // Always fetch 20 coaches for now. Introduce pagination if we ever exceed this.
 const DEFAULT_PAGE_SIZE = 20;
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
   const queryParams = qs.parse(new URL(request.url).search, {

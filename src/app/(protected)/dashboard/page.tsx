@@ -23,7 +23,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
-        const res = await fetch("/api/user/meetings?rsvpOnly=1");
+        const res = await fetch("/api/meetings?rsvpOnly=1");
         const data: { data?: Meeting[]; error?: string } = await res.json();
         if (data.error) {
           throw new Error(data.error);
@@ -37,7 +37,7 @@ const DashboardPage = () => {
 
     const fetchAnnouncements = async () => {
       try {
-        const res = await fetch("/api/user/announcements");
+        const res = await fetch("/api/announcements");
         const data: { data?: Announcement[]; error?: string } =
           await res.json();
         if (data.error) {

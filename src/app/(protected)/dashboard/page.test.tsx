@@ -33,10 +33,10 @@ describe("Dashboard Page", () => {
     // Override the fetch mock to return meeting and announcement data
     (global.fetch as jest.Mock).mockImplementation((url: RequestInfo) => {
       const urlStr = url.toString();
-      if (urlStr.includes("/api/user/meetings")) {
+      if (urlStr.includes("/api/meetings")) {
         return Promise.resolve(getMockFetchResponse({ data: mockMeetings }));
       }
-      if (urlStr.includes("/api/user/announcements")) {
+      if (urlStr.includes("/api/announcements")) {
         return Promise.resolve(
           getMockFetchResponse({ data: mockAnnouncements })
         );
@@ -116,10 +116,10 @@ describe("Dashboard Page", () => {
 
     (global.fetch as jest.Mock).mockImplementation((url: RequestInfo) => {
       const urlStr = url.toString();
-      if (urlStr.includes("/api/user/meetings")) {
+      if (urlStr.includes("/api/meetings")) {
         return Promise.resolve(getMockFetchResponse({ error: meetingsError }));
       }
-      if (urlStr.includes("/api/user/announcements")) {
+      if (urlStr.includes("/api/announcements")) {
         return Promise.resolve(
           getMockFetchResponse({ error: announcementsError })
         );

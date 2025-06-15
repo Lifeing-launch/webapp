@@ -38,7 +38,7 @@ const MeetingsPage = () => {
         }
 
         // Fetch all future meetings
-        const res = await fetch("/api/user/meetings");
+        const res = await fetch("/api/meetings");
         const data: { data?: Meeting[]; error?: string } = await res.json();
 
         if (data.error) {

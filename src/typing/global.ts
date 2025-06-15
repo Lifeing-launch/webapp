@@ -6,11 +6,3 @@ export type StrapiMeta = {
     total: number;
   };
 };
-
-export type Plan = {
-  id: number;
-  name: string;
-  price: number;
-  isMostPopular?: boolean;
-  benefits: string[];
-};

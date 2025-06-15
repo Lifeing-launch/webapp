@@ -64,3 +64,15 @@ export type Coach = {
   experience_in_years: number;
   avatar: Image;
 };
+
+export type SubscriptionPlan = {
+  id: number;
+  name: string;
+  is_most_popular: boolean;
+  is_active: boolean;
+  stripe_price_monthly_id: string;
+  stripe_price_yearly_id: string;
+  price_monthly: number;
+  price_yearly: number;
+  features: { id: number; label: string }[];
+};

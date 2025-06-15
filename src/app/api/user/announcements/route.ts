@@ -1,10 +1,16 @@
 import { strapiFetch } from "@/utils/fetch";
+import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 
 export async function GET(request: NextRequest) {
-  // TODO: Use user's subscription plan to filter out announcements
+  try {
+    await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  }
 
+  // TODO: Use user's subscription plan to filter out announcements
   const { searchParams } = new URL(request.url);
   const limit = searchParams.get("limit");
 

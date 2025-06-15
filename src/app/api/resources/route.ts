@@ -2,21 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
 import { createClient } from "@/utils/supabase/server";
+import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
 
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_CATEGORY = "visual";
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
+  let user;
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    user = await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
+
+  const supabase = await createClient();
 
   const queryParams = qs.parse(new URL(request.url).search, {
     ignoreQueryPrefix: true,

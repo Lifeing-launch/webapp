@@ -3,33 +3,54 @@ import { Card, CardContent } from "../ui/card";
 import { CalendarRange } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/utils/datetime";
-import { Plan } from "@/typing/global";
+import { SubscriptionPlan } from "@/typing/strapi";
+import { Badge } from "../ui/badge";
+import { capitalizeFirstLetter } from "@/utils/format";
+import { Database } from "@/typing/supabase";
+import {
+  SUBSCRIPTION_INTERVAL_LABELS,
+  SubscriptionInterval,
+} from "./plan-card";
 
-type Subscription = Plan & {
-  billingCycle: "monthly" | "yearly";
-  cardLastDigits: number;
-  nextPaymentDue: Date;
-  cardType: string;
-};
+interface ICurrentPlanCard {
+  subscription: Database["public"]["Tables"]["subscriptions"]["Row"];
+  plan: SubscriptionPlan;
+}
 
-const CurrentPlanCard = ({ subscription }: { subscription: Subscription }) => {
+const CurrentPlanCard = async ({ subscription, plan }: ICurrentPlanCard) => {
   const stats = [
     {
       label: "Billing Cycle",
       Icon: CalendarRange,
-      value: subscription.billingCycle,
+      value:
+        SUBSCRIPTION_INTERVAL_LABELS[
+          subscription.billing_interval as SubscriptionInterval
+        ],
     },
     {
       label: "Payment Method",
       Icon: CalendarRange,
-      value: `${subscription.cardType} ending in ${subscription.cardLastDigits}`,
+      value: `${capitalizeFirstLetter(subscription.card_type || "")} ending in ${subscription.card_last4}`,
     },
     {
       label: "Next Payment Due:",
       Icon: CalendarRange,
-      value: formatDate(subscription.nextPaymentDue),
+      value: formatDate(new Date(subscription.current_period_end)),
     },
   ];
+
+  const getDisplayPrice = () => {
+    switch (subscription.billing_interval) {
+      case "month":
+        return `$${plan.price_monthly}/month`;
+      case "year":
+        return `$${plan.price_yearly}/year`;
+    }
+  };
+
+  const isFreeTrial =
+    subscription.status === "trialing" ||
+    (subscription?.trial_end && new Date() < new Date(subscription?.trial_end));
 
   return (
     <Card>
@@ -38,9 +59,10 @@ const CurrentPlanCard = ({ subscription }: { subscription: Subscription }) => {
           <p className="text-xs text-primary"> Current plan </p>
           <h2 className="font-medium">
             {" "}
-            Lifeing Essentials + 1 Focused Group{" "}
+            {plan.name}
+            {isFreeTrial && <Badge className="ml-1"> Free Trial </Badge>}
           </h2>
-          <p className="text-2xl font-semibold"> $100/month </p>
+          <p className="text-2xl font-semibold"> {getDisplayPrice()} </p>
         </div>
         <div className="flex text-sm items-center gap-2">
           {stats.map((stat) => (

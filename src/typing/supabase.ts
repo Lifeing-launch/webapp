@@ -11,54 +11,19 @@ export type Database = {
     Tables: {
       announcement_audiences: {
         Row: {
-          announcement_id: string | null;
-          audience_plan: string | null;
+          announcement_id: number | null;
+          audience_plan: number | null;
           id: string;
         };
         Insert: {
-          announcement_id?: string | null;
-          audience_plan?: string | null;
+          announcement_id?: number | null;
+          audience_plan?: number | null;
           id?: string;
         };
         Update: {
-          announcement_id?: string | null;
-          audience_plan?: string | null;
+          announcement_id?: number | null;
+          audience_plan?: number | null;
           id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "announcement_audiences_audience_plan_fkey";
-            columns: ["audience_plan"];
-            isOneToOne: false;
-            referencedRelation: "subscription_plans";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      announcements: {
-        Row: {
-          created_at: string;
-          description: string;
-          id: string;
-          prompt: string | null;
-          prompt_url: string | null;
-          title: string;
-        };
-        Insert: {
-          created_at?: string;
-          description: string;
-          id?: string;
-          prompt?: string | null;
-          prompt_url?: string | null;
-          title: string;
-        };
-        Update: {
-          created_at?: string;
-          description?: string;
-          id?: string;
-          prompt?: string | null;
-          prompt_url?: string | null;
-          title?: string;
         };
         Relationships: [];
       };
@@ -91,33 +56,6 @@ export type Database = {
           },
         ];
       };
-      meetings: {
-        Row: {
-          description: string | null;
-          id: string;
-          meeting_type: string;
-          title: string;
-          url: string | null;
-          when: string;
-        };
-        Insert: {
-          description?: string | null;
-          id?: string;
-          meeting_type: string;
-          title: string;
-          url?: string | null;
-          when: string;
-        };
-        Update: {
-          description?: string | null;
-          id?: string;
-          meeting_type?: string;
-          title?: string;
-          url?: string | null;
-          when?: string;
-        };
-        Relationships: [];
-      };
       rsvps: {
         Row: {
           id: string;
@@ -147,72 +85,71 @@ export type Database = {
           },
         ];
       };
-      subscription_plans: {
-        Row: {
-          created_at: string;
-          id: string;
-          is_deleted: boolean;
-          name: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          is_deleted?: boolean;
-          name: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          is_deleted?: boolean;
-          name?: string;
-        };
-        Relationships: [];
-      };
       subscriptions: {
         Row: {
+          billing_interval: string;
+          cancel_at: string | null;
+          cancel_reason: string | null;
           canceled_at: string | null;
+          card_last4: string | null;
+          card_type: string | null;
           created_at: string;
           current_period_end: string;
           current_period_start: string;
+          failed_at: string | null;
           id: string;
-          plan: string | null;
+          plan_id: number;
           status: string;
-          stripe_customer_id: string | null;
-          stripe_subscription_id: string | null;
-          user_id: string | null;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          trial_end: string | null;
+          trial_start: string | null;
+          updated_at: string;
+          user_id: string;
         };
         Insert: {
+          billing_interval: string;
+          cancel_at?: string | null;
+          cancel_reason?: string | null;
           canceled_at?: string | null;
+          card_last4?: string | null;
+          card_type?: string | null;
           created_at?: string;
           current_period_end: string;
           current_period_start: string;
+          failed_at?: string | null;
           id?: string;
-          plan?: string | null;
+          plan_id: number;
           status: string;
-          stripe_customer_id?: string | null;
-          stripe_subscription_id?: string | null;
-          user_id?: string | null;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          trial_end?: string | null;
+          trial_start?: string | null;
+          updated_at?: string;
+          user_id: string;
         };
         Update: {
+          billing_interval?: string;
+          cancel_at?: string | null;
+          cancel_reason?: string | null;
           canceled_at?: string | null;
+          card_last4?: string | null;
+          card_type?: string | null;
           created_at?: string;
           current_period_end?: string;
           current_period_start?: string;
+          failed_at?: string | null;
           id?: string;
-          plan?: string | null;
+          plan_id?: number;
           status?: string;
-          stripe_customer_id?: string | null;
-          stripe_subscription_id?: string | null;
-          user_id?: string | null;
+          stripe_customer_id?: string;
+          stripe_subscription_id?: string;
+          trial_end?: string | null;
+          trial_start?: string | null;
+          updated_at?: string;
+          user_id?: string;
         };
         Relationships: [
-          {
-            foreignKeyName: "subscriptions_plan_fkey";
-            columns: ["plan"];
-            isOneToOne: false;
-            referencedRelation: "subscription_plans";
-            referencedColumns: ["id"];
-          },
           {
             foreignKeyName: "subscriptions_user_id_fkey";
             columns: ["user_id"];
@@ -253,25 +190,66 @@ export type Database = {
     Views: {
       active_subscriptions: {
         Row: {
+          billing_interval: string | null;
+          cancel_at: string | null;
+          cancel_reason: string | null;
           canceled_at: string | null;
+          card_last4: string | null;
+          card_type: string | null;
           created_at: string | null;
           current_period_end: string | null;
           current_period_start: string | null;
+          failed_at: string | null;
           id: string | null;
-          plan: string | null;
+          plan_id: number | null;
           status: string | null;
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
+          trial_end: string | null;
+          trial_start: string | null;
           user_id: string | null;
         };
+        Insert: {
+          billing_interval?: string | null;
+          cancel_at?: string | null;
+          cancel_reason?: string | null;
+          canceled_at?: string | null;
+          card_last4?: string | null;
+          card_type?: string | null;
+          created_at?: string | null;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          failed_at?: string | null;
+          id?: string | null;
+          plan_id?: number | null;
+          status?: string | null;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          trial_end?: string | null;
+          trial_start?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          billing_interval?: string | null;
+          cancel_at?: string | null;
+          cancel_reason?: string | null;
+          canceled_at?: string | null;
+          card_last4?: string | null;
+          card_type?: string | null;
+          created_at?: string | null;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          failed_at?: string | null;
+          id?: string | null;
+          plan_id?: number | null;
+          status?: string | null;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          trial_end?: string | null;
+          trial_start?: string | null;
+          user_id?: string | null;
+        };
         Relationships: [
-          {
-            foreignKeyName: "subscriptions_plan_fkey";
-            columns: ["plan"];
-            isOneToOne: false;
-            referencedRelation: "subscription_plans";
-            referencedColumns: ["id"];
-          },
           {
             foreignKeyName: "subscriptions_user_id_fkey";
             columns: ["user_id"];
