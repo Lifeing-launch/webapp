@@ -11,6 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-05-28.basil",
 });
 
+type InvoiceType = Stripe.Invoice & { subscription: string };
 const supabaseAdmin = createAdminClient();
 
 export async function POST(request: NextRequest) {
@@ -45,19 +46,18 @@ export async function POST(request: NextRequest) {
         break;
 
       case "invoice.payment_succeeded":
-        await handleInvoicePaymentSucceeded(
-          event.data.object as Stripe.Invoice
-        );
+        await handleInvoicePaymentSucceeded(event.data.object as InvoiceType);
         break;
 
       case "invoice.payment_failed":
-        await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
+        await handleInvoicePaymentFailed(event.data.object as InvoiceType);
         break;
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error("Error processing Stripe webhook:", err.message);
     return NextResponse.json({ error: "Webhook error" }, { status: 400 });
@@ -121,7 +121,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 // Invoice payment succeeded: renew period & clear any prior failure
-async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
+async function handleInvoicePaymentSucceeded(invoice: InvoiceType) {
   const subId = invoice.subscription as string;
   const eventName = "handleInvoicePaymentSucceeded";
 
@@ -155,7 +155,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
   );
 }
 
-async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
+async function handleInvoicePaymentFailed(invoice: InvoiceType) {
   const subId = invoice.subscription as string;
   const eventName = "handleInvoicePaymentFailed";
 

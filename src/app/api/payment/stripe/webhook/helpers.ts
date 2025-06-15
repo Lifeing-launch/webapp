@@ -23,7 +23,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
  * ```
  */
 export async function buildSubscriptionRecord(
-  subscription: Stripe.Subscription
+  subscription: Stripe.Subscription & {
+    current_period_start?: number;
+    current_period_end?: number;
+  }
 ) {
   const price = subscription.items.data[0]?.price;
   const plan = await fetchPlanByPriceId(price.id);
@@ -51,6 +54,15 @@ export async function buildSubscriptionRecord(
       ? new Date(subscription.cancel_at * 1000).toISOString()
       : null,
 
+    // Handle current_period_start/current_period_end not existing on change subscription event
+    // See /api/payment/stripe/change
+    current_period_start: subscription.current_period_start
+      ? new Date(subscription.current_period_start * 1000).toISOString()
+      : null,
+    current_period_end: subscription.current_period_end
+      ? new Date(subscription.current_period_end * 1000).toISOString()
+      : null,
+
     trial_start: subscription.trial_start
       ? new Date(subscription.trial_start * 1000).toISOString()
       : null,
@@ -60,22 +72,6 @@ export async function buildSubscriptionRecord(
 
     updated_at: new Date().toISOString(),
   };
-
-  if (subscription.current_period_start) {
-    // Handle current_period_start not existing on change subscription event
-    // See /api/payment/stripe/change
-    record.current_period_start = new Date(
-      subscription.current_period_start * 1000
-    ).toISOString();
-  }
-
-  if (subscription.current_period_end) {
-    // Handle current_period_start not existing on change subscription event
-    // See /api/payment/stripe/change
-    record.current_period_end = new Date(
-      subscription.current_period_end * 1000
-    ).toISOString();
-  }
 
   console.log("Record to store in Supabase", JSON.stringify(record));
   return record;
@@ -135,6 +131,7 @@ export function stripeHandlerLogger(
 }
 
 export async function supabaseQueryWrapper<T>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   query: any,
   eventName: string,
   suffix = ""

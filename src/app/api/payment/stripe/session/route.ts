@@ -35,14 +35,14 @@ export async function POST(request: NextRequest) {
         trial_period_days: 14,
         metadata: {
           userId,
-          email,
+          email: email || null,
           plan,
         },
       },
       payment_method_configuration: CARD_ONLY_PAYMENT_METHOD_CONFIG,
-      customer_email: email,
-      success_url: getSiteUrl() + successPath,
-      cancel_url: getSiteUrl() + cancelPath,
+      customer_email: email!,
+      success_url: getSiteUrl() + successPath!,
+      cancel_url: getSiteUrl() + cancelPath!,
     });
 
     return NextResponse.json({ url: session.url });
