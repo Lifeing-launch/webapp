@@ -5,13 +5,14 @@ import {
   AnnouncementsCard,
 } from "@/components/dashboard/announcements";
 import { Breadcrumb } from "@/components/layout/header";
-import { Meeting, MeetingCard } from "@/components/meetings/meeting-card";
+import { MeetingCard } from "@/components/meetings/meeting-card";
 import PageTemplate from "@/components/layout/page-template";
 import DashboardSkeleton from "@/components/dashboard/skeleton";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
+import { Meeting } from "@/typing/strapi";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard" }];
 

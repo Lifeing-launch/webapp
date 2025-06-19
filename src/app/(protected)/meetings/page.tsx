@@ -1,7 +1,7 @@
 "use client";
 
 import { Breadcrumb } from "@/components/layout/header";
-import { Meeting, MeetingCard } from "@/components/meetings/meeting-card";
+import { MeetingCard } from "@/components/meetings/meeting-card";
 import PageTemplate from "@/components/layout/page-template";
 import { formatDate } from "@/utils/datetime";
 import { createClient } from "@/utils/supabase/browser";
@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react";
 import MeetingsSkeleton from "@/components/meetings/skeleton";
 import { toast } from "sonner";
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
+import { Meeting } from "@/typing/strapi";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "My Meetings" }];
 

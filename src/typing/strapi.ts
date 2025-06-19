@@ -76,3 +76,14 @@ export type SubscriptionPlan = {
   price_yearly: number;
   features: { id: number; label: string }[];
 };
+
+export type MeetingType = "group" | "webinar" | "oneToOne" | "one-to-one";
+
+export type Meeting = {
+  id: number;
+  title: string;
+  description: string | null;
+  meeting_type: MeetingType;
+  url: string | null;
+  when: string;
+};

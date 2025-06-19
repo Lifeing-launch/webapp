@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     pagination: {
       pageSize: undefined,
     },
-    // Add query param to order announcements in descending order
+    // Add query param to fetch announcements for user specific plans
     sort: "createdAt:desc",
   };
 

@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { MeetingCard, MeetingType } from "./meeting-card";
+import { MeetingCard } from "./meeting-card";
 import { formatDate, formatTime } from "@/utils/datetime";
+import { MeetingType } from "@/typing/strapi";
 
 describe("MeetingCard", () => {
   const mockMeeting = {

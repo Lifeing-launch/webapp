@@ -35,11 +35,7 @@ export async function POST(request: NextRequest) {
 
     await supabase
       .from("subscriptions")
-      .update({
-        ...record,
-        cancel_at: null,
-        cancel_reason: null,
-      })
+      .update(record)
       .eq("stripe_subscription_id", subscriptionId)
       .single()
       .throwOnError();
