@@ -82,9 +82,9 @@ export function SignupForm({
                 />
               </div>
               <div className="grid gap-1">
-                <Label htmlFor="password">Confirm Password</Label>
+                <Label htmlFor="cPassword">Confirm Password</Label>
                 <Input
-                  id="password"
+                  id="cPassword"
                   type="password"
                   name="cPassword"
                   placeholder="********"
