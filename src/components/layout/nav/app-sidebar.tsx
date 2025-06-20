@@ -70,14 +70,14 @@ const data = {
 
 const AppSidebar = () => {
   return (
-    <Sidebar className="bg-lime-100">
+    <Sidebar>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <Image
-                  src="/lifeing-logo-full.svg"
+                  src="/lifeing-logo.svg"
                   alt="Lifeing Logo"
                   width={100}
                   height={60}

@@ -1,5 +1,5 @@
 import { LoadingSpinner } from "@/components/loading-spinner";
 
 export default function Loading() {
-  return <LoadingSpinner className="h-svh w-svw bg-lime-100" />;
+  return <LoadingSpinner className="h-svh w-svw bg-purple-50" />;
 }

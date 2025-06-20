@@ -40,12 +40,20 @@ export const loginAction = async (formData: FormData) => {
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString().toLowerCase();
   const password = formData.get("password")?.toString();
+  const cPassword = formData.get("cPassword")?.toString();
   const firstName = formData.get("firstname")?.toString();
   const lastName = formData.get("lastname")?.toString();
   const feedbackRedirectPath = "/signup";
 
-  if (!email || !password || !firstName || !lastName) {
+  if (!email || !password || !cPassword || !firstName || !lastName) {
     return encodedRedirect(feedbackRedirectPath, "All fields are required");
+  }
+
+  if (password !== cPassword) {
+    return encodedRedirect(
+      feedbackRedirectPath,
+      "Password and confirm password must match"
+    );
   }
 
   // Check if the user already exists

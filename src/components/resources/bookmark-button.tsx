@@ -83,7 +83,7 @@ export default function BookmarkButton({
           className={cn(
             "size-6",
             isBookmarked
-              ? "text-lime-500 fill-lime-500 hover:text-lime-500"
+              ? "text-primary fill-primary hover:text-primary"
               : "text-muted-foreground hover:text-muted-foreground"
           )}
         />
