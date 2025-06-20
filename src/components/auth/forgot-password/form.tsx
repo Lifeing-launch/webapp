@@ -47,7 +47,7 @@ const ForgotPasswordForm = ({ searchParams }: AuthFormProps) => {
               If your email is registered, you&apos;ll receive a reset link.
             </div>
 
-            <Link href="/login" className="text-sm text-lime-700">
+            <Link href="/login" className="text-sm text-primary">
               Back to login
             </Link>
           </form>

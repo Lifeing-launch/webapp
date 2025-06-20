@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Star } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -46,7 +47,11 @@ const Review: React.FC<{ review: (typeof REVIEWS)[number] }> = ({ review }) => {
   );
 };
 
-const Testimonials = () => {
+interface ITestimonials {
+  isSignup?: boolean;
+}
+
+const Testimonials = ({ isSignup }: ITestimonials) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -58,7 +63,12 @@ const Testimonials = () => {
   }, []);
 
   return (
-    <div className="hidden md:flex bg-[url(/testimonial.jpg)] bg-no-repeat bg-cover flex-col justify-end rounded-xl p-4 flex-1">
+    <div
+      className={cn(
+        "hidden md:flex  bg-no-repeat bg-cover flex-col justify-end rounded-xl p-4 flex-1",
+        isSignup ? "bg-[url(/signup-bg.png)]" : "bg-[url(/login-bg.png)]"
+      )}
+    >
       <div key={currentIndex}>
         <Review review={REVIEWS[currentIndex]} />
       </div>

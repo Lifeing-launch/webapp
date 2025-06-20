@@ -26,7 +26,7 @@ function FallbackImage({ resource }: { resource: Resource }) {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-lime-100 text-lime-700 h-35 rounded-xs">
+    <div className="flex flex-1 items-center justify-center bg-[#EAE1ED] text-primary h-35 rounded-xs">
       <Icon className="size-12 font-bold" />
     </div>
   );

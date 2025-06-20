@@ -46,7 +46,7 @@ const plans = [
 
 const PlanCard = ({ plan }: { plan: (typeof plans)[number] }) => {
   return (
-    <Card className={cn(plan.mostPopular && "bg-lime-100")}>
+    <Card className={cn(plan.mostPopular && "bg-purple-50")}>
       <CardContent className={"flex flex-col gap-9 h-full"}>
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-start">

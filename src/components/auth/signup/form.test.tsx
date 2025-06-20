@@ -29,6 +29,7 @@ describe("SignupForm", () => {
     expect(screen.getByLabelText("Last Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Email address")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByLabelText("Confirm Password")).toBeInTheDocument();
   });
 
   it("allows typing into all input fields", () => {
@@ -37,16 +38,19 @@ describe("SignupForm", () => {
     const lastNameInput = screen.getByLabelText("Last Name");
     const emailInput = screen.getByLabelText("Email address");
     const passwordInput = screen.getByLabelText("Password");
+    const cPasswordInput = screen.getByLabelText("Confirm Password");
 
     fireEvent.change(firstNameInput, { target: { value: "John" } });
     fireEvent.change(lastNameInput, { target: { value: "Doe" } });
     fireEvent.change(emailInput, { target: { value: "john.doe@example.com" } });
     fireEvent.change(passwordInput, { target: { value: "password123" } });
+    fireEvent.change(cPasswordInput, { target: { value: "password123" } });
 
     expect(firstNameInput).toHaveValue("John");
     expect(lastNameInput).toHaveValue("Doe");
     expect(emailInput).toHaveValue("john.doe@example.com");
     expect(passwordInput).toHaveValue("password123");
+    expect(cPasswordInput).toHaveValue("password123");
   });
 
   it("renders the submit button with correct text", () => {
@@ -76,11 +80,13 @@ describe("SignupForm", () => {
     const lastNameInput = screen.getByLabelText("Last Name");
     const emailInput = screen.getByLabelText("Email address");
     const passwordInput = screen.getByLabelText("Password");
+    const cPasswordInput = screen.getByLabelText("Confirm Password");
 
     fireEvent.change(firstNameInput, { target: { value: "John" } });
     fireEvent.change(lastNameInput, { target: { value: "Doe" } });
     fireEvent.change(emailInput, { target: { value: "john.doe@example.com" } });
     fireEvent.change(passwordInput, { target: { value: "password123" } });
+    fireEvent.change(cPasswordInput, { target: { value: "password123" } });
 
     const submitButton = screen.getByRole("button", { name: "Sign up" });
     fireEvent.click(submitButton);

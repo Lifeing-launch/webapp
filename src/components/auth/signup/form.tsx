@@ -36,7 +36,7 @@ export function SignupForm({
               </div>
               <FormMessage message={searchParams} />
               <div className="flex gap-4">
-                <div className="grid gap-2 w-full">
+                <div className="grid gap-1 w-full">
                   <Label htmlFor="firstname">First Name</Label>
                   <Input
                     id="firstname"
@@ -47,7 +47,7 @@ export function SignupForm({
                     required
                   />
                 </div>
-                <div className="grid gap-2 w-full">
+                <div className="grid gap-1 w-full">
                   <Label htmlFor="lastname">Last Name</Label>
                   <Input
                     id="lastname"
@@ -59,7 +59,7 @@ export function SignupForm({
                   />
                 </div>
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-1">
                 <Label htmlFor="email">Email address</Label>
                 <Input
                   id="email"
@@ -70,12 +70,23 @@ export function SignupForm({
                   required
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-1">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
                   name="password"
+                  placeholder="********"
+                  className="text-sm"
+                  required
+                />
+              </div>
+              <div className="grid gap-1">
+                <Label htmlFor="cPassword">Confirm Password</Label>
+                <Input
+                  id="cPassword"
+                  type="password"
+                  name="cPassword"
                   placeholder="********"
                   className="text-sm"
                   required

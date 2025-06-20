@@ -50,7 +50,7 @@ export function MeetingCard({
     <Card
       className={cn(
         "w-full gap-3",
-        isHighlighted ? "bg-lime-50 border-l-3 border-l-[#65A30D]" : undefined,
+        isHighlighted ? "bg-purple-50 border-l-3 border-l-primary" : undefined,
         className
       )}
       data-testid="meeting-card"
