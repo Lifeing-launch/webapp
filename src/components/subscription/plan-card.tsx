@@ -52,9 +52,17 @@ export const PlanCard = async ({
     );
 
     const matchesCurrentSubscription =
-      currentSubscription?.plan_id === plan.id &&
-      (currentSubscription.billing_interval === interval ||
-        currentSubscription.billing_interval === "yearly");
+      currentSubscription?.plan_id == plan.id &&
+      currentSubscription.billing_interval === interval;
+
+    console.log(
+      currentSubscription?.billing_interval,
+      currentSubscription?.plan_id,
+      interval,
+      plan.id,
+      "matchesCurrentSubscription",
+      matchesCurrentSubscription
+    );
 
     const getDisplayPrice = () => {
       switch (interval) {
