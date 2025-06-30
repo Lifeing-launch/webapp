@@ -1,10 +1,17 @@
 import { strapiFetch } from "@/utils/fetch";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getStrapiBaseUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 
 export async function GET(request: NextRequest) {
-  // TODO: Use user's subscription plan to filter out announcements
+  try {
+    await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  }
 
+  // TODO: Use user's subscription plan to filter out announcements
   const { searchParams } = new URL(request.url);
   const limit = searchParams.get("limit");
 
@@ -13,7 +20,7 @@ export async function GET(request: NextRequest) {
     pagination: {
       pageSize: undefined,
     },
-    // Add query param to order announcements in descending order
+    // Add query param to fetch announcements for user specific plans
     sort: "createdAt:desc",
   };
 
@@ -22,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/announcements?${strapiQuery}`;
+  const strapiUrl = `${getStrapiBaseUrl()}/announcements?${strapiQuery}`;
 
   // Fetch announcements in bulk from Strapi
   try {

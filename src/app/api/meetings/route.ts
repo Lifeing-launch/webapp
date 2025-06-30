@@ -1,20 +1,21 @@
-// app/api/user/meetings/route.ts
+// app/api/meetings/route.ts
 import { strapiFetch } from "@/utils/fetch";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
+import { getStrapiBaseUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
+  let user;
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    user = await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
+
+  const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const strapiQueryObj: any = {
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
   }
 
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/meetings?${strapiQuery}`;
+  const strapiUrl = `${getStrapiBaseUrl()}/meetings?${strapiQuery}`;
 
   // Fetch future meetings in bulk from Strapi
   try {

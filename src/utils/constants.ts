@@ -5,3 +5,7 @@ export const AUTH_PATHS: { path: string; exact?: boolean }[] = [
   { path: "/forgot-password" },
   { path: "/reset-password/verify" },
 ];
+
+export const PUBLIC_PATHS: { path: string; exact?: boolean }[] = [
+  { path: "/api" },
+];

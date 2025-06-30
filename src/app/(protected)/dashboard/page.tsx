@@ -5,13 +5,14 @@ import {
   AnnouncementsCard,
 } from "@/components/dashboard/announcements";
 import { Breadcrumb } from "@/components/layout/header";
-import { Meeting, MeetingCard } from "@/components/meetings/meeting-card";
+import { MeetingCard } from "@/components/meetings/meeting-card";
 import PageTemplate from "@/components/layout/page-template";
 import DashboardSkeleton from "@/components/dashboard/skeleton";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
+import { Meeting } from "@/typing/strapi";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard" }];
 
@@ -23,7 +24,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
-        const res = await fetch("/api/user/meetings?rsvpOnly=1");
+        const res = await fetch("/api/meetings?rsvpOnly=1");
         const data: { data?: Meeting[]; error?: string } = await res.json();
         if (data.error) {
           throw new Error(data.error);
@@ -37,7 +38,7 @@ const DashboardPage = () => {
 
     const fetchAnnouncements = async () => {
       try {
-        const res = await fetch("/api/user/announcements");
+        const res = await fetch("/api/announcements");
         const data: { data?: Announcement[]; error?: string } =
           await res.json();
         if (data.error) {

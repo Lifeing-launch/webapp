@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getStrapiBaseUrl } from "@/utils/urls";
 
 export async function GET(
   request: NextRequest,
@@ -10,6 +12,12 @@ export async function GET(
     params: Promise<{ slug: string }>;
   }
 ) {
+  try {
+    await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  }
+
   const { slug } = await params;
   // TODO: Type this correctly
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,7 +42,7 @@ export async function GET(
   };
 
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/resources?${strapiQuery}`;
+  const strapiUrl = `${getStrapiBaseUrl()}/resources?${strapiQuery}`;
 
   try {
     const data = await strapiFetch(strapiUrl);

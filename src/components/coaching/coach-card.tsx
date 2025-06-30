@@ -22,10 +22,10 @@ export function CoachCard({ coach, className }: ICoachCard) {
   return (
     <Card className={cn("w-full gap-4", className)} data-testid="coach-card">
       <CardHeader className="flex flex-col gap-4 items-center">
-        <div className="w-25 h-25 overflow-hidden">
+        <div className="w-25 h-25 overflow-hidden rounded-full">
           <Image
             src={coach.avatar.url}
-            className="object-cover w-full"
+            className="object-cover w-full h-full"
             alt={coach.name}
             width={200}
             height={200}

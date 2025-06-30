@@ -46,7 +46,7 @@ describe("Meetings Page", () => {
     // Override the fetch mock to return meeting data
     (global.fetch as jest.Mock).mockImplementation((url: RequestInfo) => {
       const urlStr = url.toString();
-      if (urlStr.includes("/api/user/meetings")) {
+      if (urlStr.includes("/api/meetings")) {
         return Promise.resolve(getMockFetchResponse({ data: mockMeetings }));
       }
 
@@ -268,7 +268,7 @@ describe("Meetings Page", () => {
 
     (global.fetch as jest.Mock).mockImplementation((url: RequestInfo) => {
       const urlStr = url.toString();
-      if (urlStr.includes("/api/user/meetings")) {
+      if (urlStr.includes("/api/meetings")) {
         return Promise.resolve(getMockFetchResponse({ error: meetingsError }));
       }
       return Promise.resolve(getMockFetchResponse({ error: "Unknown error" }));

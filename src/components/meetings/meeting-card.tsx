@@ -15,17 +15,7 @@ import {
   formatTime,
 } from "@/utils/datetime";
 import RsvpButton from "./rsvp-button";
-
-export type MeetingType = "group" | "webinar" | "oneToOne" | "one-to-one";
-
-export type Meeting = {
-  id: number;
-  title: string;
-  description: string | null;
-  meeting_type: MeetingType;
-  url: string | null;
-  when: string;
-};
+import { Meeting, MeetingType } from "@/typing/strapi";
 
 interface IMeetingCard {
   meeting: Meeting;

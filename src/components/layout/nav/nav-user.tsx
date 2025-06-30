@@ -20,6 +20,7 @@ import {
 import { signOutAction } from "@/utils/supabase/actions";
 import { createClient } from "@/utils/supabase/browser";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export type UserMetadata = {
   firstName: string | null;
@@ -130,10 +131,12 @@ export function NavUser() {
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
+              <Link href={"/subscription/manage"}>
+                <DropdownMenuItem>
+                  <CreditCard />
+                  Billing
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOutAction}>

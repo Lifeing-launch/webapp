@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { MeetingCard, MeetingType } from "./meeting-card";
+import { MeetingCard } from "./meeting-card";
 import { formatDate, formatTime } from "@/utils/datetime";
+import { MeetingType } from "@/typing/strapi";
 
 describe("MeetingCard", () => {
   const mockMeeting = {
@@ -78,8 +79,8 @@ describe("MeetingCard", () => {
     };
     render(<MeetingCard meeting={pastMeeting} />);
     const card = screen.getByTestId("meeting-card");
-    expect(card).not.toHaveClass("bg-lime-50");
-    expect(card).not.toHaveClass("border-l-[#65A30D]");
+    expect(card).not.toHaveClass("bg-purple-50");
+    expect(card).not.toHaveClass("border-l-primary");
   });
 
   it("renders custom className when provided", () => {

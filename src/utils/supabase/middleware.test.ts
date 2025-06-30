@@ -19,6 +19,13 @@ describe("updateSession", () => {
       auth: {
         getUser: jest.fn(),
       },
+      from: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      gt: jest.fn().mockReturnThis(),
+      order: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      single: jest.fn().mockReturnThis(),
     };
     (createServerClient as jest.Mock).mockReturnValue(mockSupabase);
 
@@ -29,6 +36,7 @@ describe("updateSession", () => {
       },
       nextUrl: {
         pathname: "",
+        origin: "http://localhost",
       },
       url: "http://localhost",
     };
@@ -44,7 +52,7 @@ describe("updateSession", () => {
 
     expect(mockSupabase.auth.getUser).toHaveBeenCalled();
     expect(NextResponse.redirect).toHaveBeenCalledWith(
-      new URL("/login", mockRequest.url)
+      `${mockRequest.nextUrl.origin}/login`
     );
     expect(response).toEqual(NextResponse.redirect());
   });
@@ -59,7 +67,7 @@ describe("updateSession", () => {
 
     expect(mockSupabase.auth.getUser).toHaveBeenCalled();
     expect(NextResponse.redirect).toHaveBeenCalledWith(
-      new URL("/dashboard", mockRequest.url)
+      `${mockRequest.nextUrl.origin}/dashboard`
     );
     expect(response).toBeUndefined();
   });
@@ -68,6 +76,9 @@ describe("updateSession", () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: "123" } },
     });
+    mockSupabase.single.mockResolvedValueOnce({
+      data: true,
+    }); // mock subscription
     mockRequest.nextUrl.pathname = "/protected";
 
     const response = await updateSession(mockRequest as unknown as NextRequest);
