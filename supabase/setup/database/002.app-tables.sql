@@ -110,7 +110,7 @@ CREATE TABLE subscriptions (
   cancel_at TIMESTAMPTZ, -- scheduled end-of-period cancellation
 
   failed_at TIMESTAMPTZ, -- first payment failure timestamp
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
