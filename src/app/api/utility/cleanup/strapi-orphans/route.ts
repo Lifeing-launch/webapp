@@ -69,6 +69,7 @@ async function entityCleaner(supabase: SupabaseClient, entity: Entity) {
     .select(field)
     .throwOnError();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ids: string[] = Array.from(new Set(rows.map((r: any) => r[field])));
 
   for (let i = 0; i < ids.length; i += BATCH_SIZE) {
