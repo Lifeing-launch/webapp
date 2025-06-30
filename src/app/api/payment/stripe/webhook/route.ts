@@ -1,198 +1,73 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 import {
-  buildSubscriptionRecord,
-  stripeHandlerLogger,
-  supabaseQueryWrapper,
-} from "./helpers";
-import { createAdminClient } from "@/utils/supabase/server";
+  handleSubscriptionCreated,
+  handleSubscriptionUpdated,
+  handleSubscriptionDeleted,
+} from "./handlers/subscription-handlers";
+import {
+  handleInvoicePaymentSucceeded,
+  handleInvoicePaymentFailed,
+  handleInvoiceUpcoming,
+} from "./handlers/invoice-handlers";
+import Stripe from "stripe";
+import { stripeClient } from "@/services/subscription";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2025-05-28.basil",
-});
-
-type InvoiceType = Stripe.Invoice & { subscription: string };
-const supabaseAdmin = createAdminClient();
-
+/**
+ * Stripe webhook handler for processing subscription and invoice events
+ */
 export async function POST(request: NextRequest) {
-  const sig = request.headers.get("stripe-signature");
-  const rawBody = await request.text();
-
   try {
-    // Verify the Stripe webhook signature.
-    const event = stripe.webhooks.constructEvent(
+    const sig = request.headers.get("stripe-signature");
+    const rawBody = await request.text();
+
+    if (!sig) {
+      console.error("Missing Stripe signature header");
+      return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+    }
+
+    // Verify the Stripe webhook signature
+    const event = stripeClient.webhooks.constructEvent(
       rawBody,
-      sig!,
+      sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
 
-    switch (event.type) {
-      case "customer.subscription.created":
-        await handleSubscriptionCreated(
-          event.data.object as Stripe.Subscription
-        );
-        break;
-
-      case "customer.subscription.updated":
-        await handleSubscriptionUpdated(
-          event.data.object as Stripe.Subscription
-        );
-        break;
-
-      case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(
-          event.data.object as Stripe.Subscription
-        );
-        break;
-
-      case "invoice.payment_succeeded":
-        await handleInvoicePaymentSucceeded(event.data.object as InvoiceType);
-        break;
-
-      case "invoice.payment_failed":
-        await handleInvoicePaymentFailed(event.data.object as InvoiceType);
-        break;
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
-    }
+    // Route events to appropriate handlers
+    await routeWebhookEvent(event);
 
     return NextResponse.json({ received: true });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    console.error("Error processing Stripe webhook:", err.message);
+  } catch (err) {
+    console.error("Error processing Stripe webhook:", err);
     return NextResponse.json({ error: "Webhook error" }, { status: 400 });
   }
 }
 
-async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
-  const eventName = "handleSubscriptionCreated";
+/**
+ * Routes webhook events to appropriate handlers based on event type
+ */
+async function routeWebhookEvent(event: Stripe.Event): Promise<void> {
+  const eventHandlers: Record<
+    string,
+    (data: Stripe.Subscription | Stripe.Invoice) => Promise<void>
+  > = {
+    "customer.subscription.created": (data) =>
+      handleSubscriptionCreated(data as Stripe.Subscription),
+    "customer.subscription.updated": (data) =>
+      handleSubscriptionUpdated(data as Stripe.Subscription),
+    "customer.subscription.deleted": (data) =>
+      handleSubscriptionDeleted(data as Stripe.Subscription),
+    "invoice.payment_succeeded": (data) =>
+      handleInvoicePaymentSucceeded(data as Stripe.Invoice),
+    "invoice.payment_failed": (data) =>
+      handleInvoicePaymentFailed(data as Stripe.Invoice),
+    "invoice.upcoming": (data) => handleInvoiceUpcoming(data as Stripe.Invoice),
+  };
 
-  stripeHandlerLogger(eventName, `subscription_id: ${subscription.id}`);
+  const handler = eventHandlers[event.type];
 
-  const record = await buildSubscriptionRecord(subscription);
-
-  await supabaseQueryWrapper(
-    supabaseAdmin.from("subscriptions").insert(record),
-    eventName
-  );
-
-  stripeHandlerLogger(eventName, `subscription_id: ${subscription.id}`, false);
-}
-
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const eventName = "handleSubscriptionUpdated";
-
-  stripeHandlerLogger(eventName, `subscription_id: ${subscription.id}`);
-
-  const record = await buildSubscriptionRecord(subscription);
-
-  await supabaseQueryWrapper(
-    supabaseAdmin
-      .from("subscriptions")
-      .update(record)
-      .eq("stripe_subscription_id", subscription.id)
-      .single(),
-    eventName
-  );
-
-  stripeHandlerLogger(eventName, `subscription_id: ${subscription.id}`, false);
-}
-
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const eventName = "handleSubscriptionDeleted";
-
-  stripeHandlerLogger(eventName, `subscription_id: ${subscription.id}`);
-  const now = new Date().toISOString();
-
-  await supabaseQueryWrapper(
-    supabaseAdmin
-      .from("subscriptions")
-      .update({
-        status: "canceled",
-        canceled_at: now,
-        updated_at: now,
-      })
-      .eq("stripe_subscription_id", subscription.id)
-      .single(),
-    eventName
-  );
-
-  stripeHandlerLogger(eventName, `subscription_id: ${subscription.id}`, false);
-}
-
-// Invoice payment succeeded: renew period & clear any prior failure
-async function handleInvoicePaymentSucceeded(invoice: InvoiceType) {
-  const subId = invoice.subscription as string;
-  const eventName = "handleInvoicePaymentSucceeded";
-
-  stripeHandlerLogger(
-    eventName,
-    `invoice_id: ${invoice.id} and subscription_id: ${subId}`
-  );
-
-  const line = invoice.lines.data[0];
-  const { start, end } = line.period;
-
-  await supabaseQueryWrapper(
-    supabaseAdmin
-      .from("subscriptions")
-      .update({
-        status: "active",
-        current_period_start: new Date(start * 1000).toISOString(),
-        current_period_end: new Date(end * 1000).toISOString(),
-        failed_at: null, // clear any previous failure,
-        updated_at: new Date(),
-      })
-      .eq("stripe_subscription_id", subId)
-      .single(),
-    eventName
-  );
-
-  stripeHandlerLogger(
-    eventName,
-    `invoice_id: ${invoice.id} and subscription_id: ${subId}`,
-    false
-  );
-}
-
-async function handleInvoicePaymentFailed(invoice: InvoiceType) {
-  const subId = invoice.subscription as string;
-  const eventName = "handleInvoicePaymentFailed";
-
-  stripeHandlerLogger(
-    eventName,
-    `invoice_id: ${invoice.id} and subscription_id: ${subId}`
-  );
-
-  // Fetch current failed_at
-  const data = (await supabaseQueryWrapper(
-    supabaseAdmin
-      .from("subscriptions")
-      .select("failed_at")
-      .eq("stripe_subscription_id", subId)
-      .single(),
-    eventName,
-    "fetching current failed at"
-  )) as { failed_at?: Date };
-
-  const now = new Date().toISOString();
-
-  // If this is the first failure, set failed_at
-  if (!data?.failed_at) {
-    await supabaseQueryWrapper(
-      supabaseAdmin
-        .from("subscriptions")
-        .update({ failed_at: now, updated_at: now })
-        .eq("stripe_subscription_id", subId)
-        .single(),
-      eventName,
-      "setting failed at"
-    );
+  if (handler) {
+    await handler(event.data.object as Stripe.Subscription | Stripe.Invoice);
+  } else {
+    console.log(`Unhandled event type: ${event.type}`);
   }
-
-  stripeHandlerLogger(
-    eventName,
-    `invoice_id: ${invoice.id} and subscription_id: ${subId}`,
-    false
-  );
 }

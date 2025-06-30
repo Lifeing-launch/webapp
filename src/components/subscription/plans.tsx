@@ -7,10 +7,10 @@ import {
 import { SubscriptionPlan } from "@/typing/strapi";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { serverFetch } from "@/utils/fetch";
-import { Database } from "@/typing/supabase";
+import { SubscriptionRecord } from "@/typing/supabase";
 
 interface IPlans {
-  currentSubscription?: Database["public"]["Tables"]["subscriptions"]["Row"];
+  currentSubscription?: SubscriptionRecord;
 }
 
 const Plans = async ({ currentSubscription }: IPlans) => {

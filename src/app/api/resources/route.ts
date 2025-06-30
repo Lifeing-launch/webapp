@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
 import { createClient } from "@/utils/supabase/server";
-import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getStrapiBaseUrl } from "@/utils/urls";
 
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_CATEGORY = "visual";
@@ -98,7 +99,7 @@ export async function GET(request: NextRequest) {
   }
 
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/resources?${strapiQuery}`;
+  const strapiUrl = `${getStrapiBaseUrl()}/resources?${strapiQuery}`;
 
   try {
     const data = await strapiFetch(strapiUrl);

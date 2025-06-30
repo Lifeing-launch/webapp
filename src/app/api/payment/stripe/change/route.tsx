@@ -1,12 +1,7 @@
-import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
-import { buildSubscriptionRecord } from "../webhook/helpers";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2025-05-28.basil",
-});
+import { SubscriptionService } from "@/services/subscription";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,19 +14,19 @@ export async function POST(request: NextRequest) {
     const { subscriptionId, newPriceId } = await request.json();
 
     // Look up the subscription item ID
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    const itemId = subscription.items.data[0].id;
+    const itemId = (
+      await SubscriptionService.fetchSubscriptionItem(subscriptionId)
+    ).id;
 
     // Update the subscription to the new price
-    const updated = await stripe.subscriptions.update(subscriptionId, {
-      items: [{ id: itemId, price: newPriceId }],
-      proration_behavior: "create_prorations",
-    });
-
-    console.log("Updated!!", JSON.stringify(updated));
+    const updated = await SubscriptionService.updateSubscriptionPrice(
+      subscriptionId,
+      itemId,
+      newPriceId
+    );
 
     const supabase = await createClient();
-    const record = await buildSubscriptionRecord(updated);
+    const record = await SubscriptionService.buildSubscriptionRecord(updated);
 
     await supabase
       .from("subscriptions")

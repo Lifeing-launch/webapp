@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
-import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getStrapiBaseUrl } from "@/utils/urls";
 
 export async function GET(
   request: NextRequest,
@@ -21,8 +22,10 @@ export async function GET(
 
   const queryObj = {
     filters: {
-      is_active: { $eq: true },
       id,
+      plan_status: {
+        $in: ["ACTIVE", "RETIRED"],
+      },
     },
     populate: "features",
     pagination: {
@@ -30,7 +33,7 @@ export async function GET(
     },
   };
   const strapiQuery = qs.stringify(queryObj, { encodeValuesOnly: true });
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/subscription-plans?${strapiQuery}`;
+  const strapiUrl = `${getStrapiBaseUrl()}/subscription-plans?${strapiQuery}`;
 
   try {
     const data = await strapiFetch(strapiUrl);

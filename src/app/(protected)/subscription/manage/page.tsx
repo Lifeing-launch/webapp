@@ -7,6 +7,10 @@ import Plans from "@/components/subscription/plans";
 import { SubscriptionPlan } from "@/typing/strapi";
 import { serverFetch } from "@/utils/fetch";
 import { createClient } from "@/utils/supabase/server";
+import { formatDate } from "@/utils/datetime";
+import { SubscriptionRecord } from "@/typing/supabase";
+import { IBanner } from "@/components/ui/custom/banner";
+import { PlanService } from "@/services/plan";
 
 const breadcrumbs: Breadcrumb[] = [
   { label: "Profile", href: "/profile" },
@@ -40,6 +44,7 @@ const ManagePlansPage = async () => {
       breadcrumbs={breadcrumbs}
       headerIcon={<CreditCard />}
       title="Manage Subscription"
+      bannerProps={getBannerProps(plan, subscription)}
     >
       <CurrentPlanCard subscription={subscription} plan={plan} />
       <section className="my-4">
@@ -48,6 +53,37 @@ const ManagePlansPage = async () => {
       </section>
     </PageTemplate>
   );
+};
+
+const getBannerProps = (
+  plan: SubscriptionPlan,
+  subscription: SubscriptionRecord
+): IBanner | undefined => {
+  if (subscription.failed_at) {
+    return {
+      type: "warning",
+      message: `You have a failed payment. Your membership will be cancelled after 3 attempts.`,
+    };
+  }
+
+  if (PlanService.isPlanRetired(plan)) {
+    return {
+      type: "error",
+      message: `Your subscription plan has been retired. Please choose a new plan before ${formatDate(new Date(subscription.current_period_end))} to continue your membership.`,
+    };
+  }
+
+  if (
+    PlanService.shouldUpdatePlan(
+      subscription.stripe_price_id,
+      subscription.billing_interval,
+      plan
+    )
+  ) {
+    return {
+      message: `Your subscription rate has changed from $${subscription.amount}. You will be charged the new amount from the next billing cycle.`,
+    };
+  }
 };
 
 export default ManagePlansPage;

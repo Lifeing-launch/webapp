@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { SubscriptionPlan } from "@/typing/strapi";
 import { serverFetch } from "@/utils/fetch";
-import { Database } from "@/typing/supabase";
+import { SubscriptionRecord } from "@/typing/supabase";
 import ChangePlanButton from "./change-plan-button";
 
 export type SubscriptionInterval = "month" | "year";
@@ -23,7 +23,7 @@ export const SUBSCRIPTION_INTERVAL_LABELS: Record<
 interface IPlanCard {
   plan: SubscriptionPlan;
   interval: SubscriptionInterval;
-  currentSubscription?: Database["public"]["Tables"]["subscriptions"]["Row"];
+  currentSubscription?: SubscriptionRecord;
 }
 
 export const PlanCard = async ({

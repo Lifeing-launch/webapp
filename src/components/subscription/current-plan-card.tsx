@@ -6,14 +6,14 @@ import { formatDate } from "@/utils/datetime";
 import { SubscriptionPlan } from "@/typing/strapi";
 import { Badge } from "../ui/badge";
 import { capitalizeFirstLetter } from "@/utils/format";
-import { Database } from "@/typing/supabase";
+import { SubscriptionRecord } from "@/typing/supabase";
 import {
   SUBSCRIPTION_INTERVAL_LABELS,
   SubscriptionInterval,
 } from "./plan-card";
 
 interface ICurrentPlanCard {
-  subscription: Database["public"]["Tables"]["subscriptions"]["Row"];
+  subscription: SubscriptionRecord;
   plan: SubscriptionPlan;
 }
 

@@ -65,11 +65,13 @@ export type Coach = {
   avatar: Image;
 };
 
+export type SubscriptionPlanStatus = "DRAFT" | "ACTIVE" | "RETIRED";
+
 export type SubscriptionPlan = {
   id: number;
   name: string;
   is_most_popular: boolean;
-  is_active: boolean;
+  plan_status: SubscriptionPlanStatus;
   stripe_price_monthly_id: string;
   stripe_price_yearly_id: string;
   price_monthly: number;

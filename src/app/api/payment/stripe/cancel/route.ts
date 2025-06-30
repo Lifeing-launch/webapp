@@ -1,11 +1,7 @@
-import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
+import { SubscriptionService } from "@/services/subscription";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2025-05-28.basil",
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,10 +26,7 @@ export async function POST(request: NextRequest) {
       throw new Error("Subscription is already set to cancel at period end.");
     }
 
-    // Tell Stripe to cancel at period end
-    await stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: true,
-    });
+    await SubscriptionService.cancelSubscriptionAtPeriodEnd(subscriptionId);
 
     // Persist in Supabase: mark cancel_at + reason
     const now = new Date().toISOString();

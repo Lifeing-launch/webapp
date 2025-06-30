@@ -88,9 +88,11 @@ CREATE POLICY "Users can insert their own bookmarks"
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  
   stripe_subscription_id TEXT NOT NULL UNIQUE,
-  stripe_price_id TEXT NOT NULL,  
   stripe_customer_id TEXT NOT NULL,  
+  stripe_price_id TEXT NOT NULL,  
+  amount NUMERIC(10,2) NOT NULL,  
   plan_id VARCHAR NOT NULL,
   "status" TEXT NOT NULL,
   billing_interval TEXT NOT NULL CHECK (billing_interval IN ('month', 'year')),

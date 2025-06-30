@@ -1,5 +1,6 @@
 import { strapiFetch } from "@/utils/fetch";
-import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getStrapiBaseUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/announcements?${strapiQuery}`;
+  const strapiUrl = `${getStrapiBaseUrl()}/announcements?${strapiQuery}`;
 
   // Fetch announcements in bulk from Strapi
   try {

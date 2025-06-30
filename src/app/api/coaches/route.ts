@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
-import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getStrapiBaseUrl } from "@/utils/urls";
 
 // Always fetch 20 coaches for now. Introduce pagination if we ever exceed this.
 const DEFAULT_PAGE_SIZE = 20;
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
   };
 
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/coaches?${strapiQuery}`;
+  const strapiUrl = `${getStrapiBaseUrl()}/coaches?${strapiQuery}`;
 
   try {
     const data = await strapiFetch(strapiUrl);

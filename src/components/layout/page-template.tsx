@@ -1,6 +1,7 @@
 import AppHeader, { Breadcrumb } from "@/components/layout/header";
 import React from "react";
 import { PageSearch, IPageSearch } from "./page-search";
+import { Banner, IBanner } from "../ui/custom/banner";
 
 interface IPageTemplate {
   title?: string;
@@ -8,6 +9,7 @@ interface IPageTemplate {
   breadcrumbs: Breadcrumb[];
   headerIcon?: React.ReactNode;
   searchProps?: IPageSearch;
+  bannerProps?: IBanner;
 }
 
 const PageTemplate = ({
@@ -16,8 +18,10 @@ const PageTemplate = ({
   breadcrumbs,
   headerIcon,
   searchProps,
+  bannerProps,
 }: IPageTemplate) => (
   <div className="w-full">
+    {bannerProps && <Banner {...bannerProps} />}
     <AppHeader breadcrumbs={breadcrumbs} icon={headerIcon} />
     <main>
       <div className="flex flex-col gap-4">

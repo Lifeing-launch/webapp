@@ -30,3 +30,7 @@ export function getSiteUrl() {
 
   return "http://localhost:3000";
 }
+
+export function getStrapiBaseUrl() {
+  return process.env.STRAPI_BASE_URL;
+}

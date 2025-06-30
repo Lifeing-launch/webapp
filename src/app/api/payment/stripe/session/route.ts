@@ -1,12 +1,11 @@
-import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
+import { stripeClient } from "@/services/subscription";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
 import { getSiteUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 
-const CARD_ONLY_PAYMENT_METHOD_CONFIG = "pmc_1RaBGxEIENaDiQFRBB1iEL88";
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2025-05-28.basil",
-});
+// TODO: Change value based on environment - test/prod
+// See https://dashboard.stripe.com/test/settings/payment_methods/
+const CARD_ONLY_PAYMENT_METHOD_CONFIG = "pmc_1RdQB1GRqtxHfTeQKRWXlRkX";
 
 export async function POST(request: NextRequest) {
   let user;
@@ -23,7 +22,7 @@ export async function POST(request: NextRequest) {
     // Get priceId and plan from request body.
     const { priceId, plan, successPath, cancelPath } = await request.json();
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripeClient.checkout.sessions.create({
       line_items: [
         {
           price: priceId,

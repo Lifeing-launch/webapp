@@ -6,11 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Database } from "@/typing/supabase";
+import { SubscriptionRecord } from "@/typing/supabase";
 import { useRouter } from "next/navigation";
 
 interface ICancelSubscription {
-  currentSubscription: Database["public"]["Tables"]["subscriptions"]["Row"];
+  currentSubscription: SubscriptionRecord;
 }
 
 const CancelSubscription = ({ currentSubscription }: ICancelSubscription) => {

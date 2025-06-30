@@ -8,33 +8,24 @@
  * - Deletes RSVPs associated with a deleted "meeting".
  * - Deletes bookmarks associated with a deleted "resource".
  * - Logs an error if a "subscription-plan" is deleted (this is not expected behavior).
- *
- * @remarks
- * This function uses the Supabase client to interact with the database and expects
- * the `SUPABASE_URL` and `SUPABASE_ANON_KEY` environment variables to be set.
- *
- * @param req - The incoming HTTP request object.
- * @returns A JSON response indicating success or failure.
- *
- * @throws Will return a 500 status response if an error occurs during processing.
  */
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+
 Deno.serve(async (req) => {
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: {
-            Authorization: req.headers.get("Authorization"),
-          },
+    const supabase = createClient(SUPABASE_URL ?? "", SUPABASE_ANON_KEY ?? "", {
+      global: {
+        headers: {
+          Authorization: req.headers.get("Authorization"),
         },
-      }
-    );
+      },
+    });
+
     const body = await req.json();
     const { model, event, entry } = body;
     if (event === "entry.delete") {

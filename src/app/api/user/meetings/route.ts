@@ -1,7 +1,8 @@
 // app/api/meetings/route.ts
 import { strapiFetch } from "@/utils/fetch";
-import { checkUserIsAuthenticated } from "@/utils/supabase/middleware";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
+import { getStrapiBaseUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
   }
 
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
-  const strapiUrl = `${process.env.STRAPI_BASE_URL}/meetings?${strapiQuery}`;
+  const strapiUrl = `${getStrapiBaseUrl()}/meetings?${strapiQuery}`;
 
   // Fetch future meetings in bulk from Strapi
   try {
