@@ -1,5 +1,6 @@
 import { strapiFetch } from "@/utils/fetch";
 import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { createClient } from "@/utils/supabase/server";
 import { getStrapiBaseUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
@@ -7,13 +8,23 @@ import qs from "qs";
 const DEFAULT_PAGE_SIZE = 10;
 
 export async function GET(request: NextRequest) {
+  let user;
+
   try {
-    await checkUserIsAuthenticated();
+    user = await checkUserIsAuthenticated();
   } catch {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
-  // TODO: Use user's subscription plan to filter out announcements
+  const supabase = await createClient();
+
+  const { data: subscription } = await supabase
+    .from("active_subscriptions")
+    .select("*")
+    .eq("user_id", user?.id)
+    .single();
+  const planId = subscription.plan_id;
+
   const { searchParams } = new URL(request.url);
   const pageSize = searchParams.get("pageSize") || DEFAULT_PAGE_SIZE;
   const page = searchParams.get("page");
@@ -23,6 +34,13 @@ export async function GET(request: NextRequest) {
     pagination: {
       pageSize,
       page,
+    },
+    populate: "*",
+    filters: {
+      $or: [
+        { subscription_plans: { id: { $eq: planId } } },
+        { subscription_plans: { id: { $null: true } } },
+      ],
     },
     // Add query param to fetch announcements for user specific plans
     sort: "createdAt:desc",
