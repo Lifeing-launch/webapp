@@ -31,14 +31,18 @@ export function AnnouncementsCard({ announcements }: IAnnouncementsCard) {
       </CardContent>
       <CardFooter className="p-0">
         <Button className="w-full" variant="secondary" asChild>
-          <Link href="/announcements">See all announcements</Link>
+          <Link href="/dashboard/announcements">See all announcements</Link>
         </Button>
       </CardFooter>
     </Card>
   );
 }
 
-function AnnouncementItem({ announcement }: { announcement: Announcement }) {
+export function AnnouncementItem({
+  announcement,
+}: {
+  announcement: Announcement;
+}) {
   return (
     <article className="flex flex-1 flex-col gap-2 text-sm">
       <h3 className="font-semibold text-base"> {announcement.title} </h3>

@@ -4,6 +4,8 @@ import { getStrapiBaseUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 
+const DEFAULT_PAGE_SIZE = 10;
+
 export async function GET(request: NextRequest) {
   try {
     await checkUserIsAuthenticated();
@@ -13,28 +15,26 @@ export async function GET(request: NextRequest) {
 
   // TODO: Use user's subscription plan to filter out announcements
   const { searchParams } = new URL(request.url);
-  const limit = searchParams.get("limit");
+  const pageSize = searchParams.get("pageSize") || DEFAULT_PAGE_SIZE;
+  const page = searchParams.get("page");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const strapiQueryObj: any = {
     pagination: {
-      pageSize: undefined,
+      pageSize,
+      page,
     },
     // Add query param to fetch announcements for user specific plans
     sort: "createdAt:desc",
   };
-
-  if (limit) {
-    strapiQueryObj.pagination.pageSize = limit;
-  }
 
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
   const strapiUrl = `${getStrapiBaseUrl()}/announcements?${strapiQuery}`;
 
   // Fetch announcements in bulk from Strapi
   try {
-    const { data } = await strapiFetch(strapiUrl);
-    return NextResponse.json({ data });
+    const { data, meta } = await strapiFetch(strapiUrl);
+    return NextResponse.json({ data, meta });
   } catch (err) {
     console.error("An error occurred while fetching strapi announcements", err);
     return NextResponse.json(
