@@ -166,6 +166,7 @@ describe("Supabase Actions", () => {
         const formData = new FormData();
         formData.set("email", "test@example.com");
         formData.set("password", "password123");
+        formData.set("cPassword", "password123");
         formData.set("firstname", "John");
         formData.set("lastname", "Doe");
 
@@ -213,6 +214,7 @@ describe("Supabase Actions", () => {
         const formData = new FormData();
         formData.set("email", "test@example.com");
         formData.set("password", "password123");
+        formData.set("cPassword", "password123");
         formData.set("firstname", "John");
         formData.set("lastname", "Doe");
 
@@ -258,6 +260,7 @@ describe("Supabase Actions", () => {
         const formData = new FormData();
         formData.set("email", "test@example.com");
         formData.set("password", "password123");
+        formData.set("cPassword", "password123");
         formData.set("firstname", "John");
         formData.set("lastname", "Doe");
 

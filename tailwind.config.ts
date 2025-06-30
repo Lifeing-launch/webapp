@@ -13,6 +13,9 @@ const config: Config = {
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
       },
+      colors: {
+        sidebar: "var(--color-sidebar)",
+      },
     },
   },
 };

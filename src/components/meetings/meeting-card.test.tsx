@@ -68,8 +68,8 @@ describe("MeetingCard", () => {
   it("applies the highlighted style when the meeting is within the highlight interval", () => {
     render(<MeetingCard meeting={mockMeeting} />);
     const card = screen.getByTestId("meeting-card");
-    expect(card).toHaveClass("bg-lime-50");
-    expect(card).toHaveClass("border-l-[#65A30D]");
+    expect(card).toHaveClass("bg-purple-50");
+    expect(card).toHaveClass("border-l-primary");
   });
 
   it("does not apply the highlighted style when the meeting is outside the highlight interval", () => {
