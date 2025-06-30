@@ -1,7 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { AUTH_PATHS, PUBLIC_PATHS } from "../constants";
-import { createClient } from "./server";
 
 export async function updateSession(request: NextRequest) {
   if (isPublicPath(request.nextUrl.pathname)) {
@@ -39,7 +38,7 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  // // IMPORTANT: DO NOT REMOVE auth.getUser()
+  // IMPORTANT: DO NOT REMOVE auth.getUser()
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -84,21 +83,6 @@ export async function updateSession(request: NextRequest) {
 
   // Everything’s in order → let request proceed
   return supabaseResponse;
-}
-
-export async function checkUserIsAuthenticated() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    throw new Error("Unauthenticated user");
-  }
-
-  return user;
 }
 
 function isAuthPath(pathname: string): boolean {
