@@ -74,6 +74,6 @@ describe("AnnouncementsCard", () => {
       name: /see all announcements/i,
     });
     expect(seeAllLink).toBeInTheDocument();
-    expect(seeAllLink).toHaveAttribute("href", "/announcements");
+    expect(seeAllLink).toHaveAttribute("href", "/dashboard/announcements");
   });
 });

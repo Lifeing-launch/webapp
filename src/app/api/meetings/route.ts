@@ -17,11 +17,16 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient();
 
+  const { searchParams } = new URL(request.url);
+  const rsvpOnly = searchParams.get("rsvpOnly");
+  const dateFrom = searchParams.get("dateFrom") || new Date().toISOString();
+  const dateTo = searchParams.get("dateTo");
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const strapiQueryObj: any = {
     filters: {
       when: {
-        $gte: new Date().toISOString(),
+        $gte: dateFrom,
       },
       id: {
         $in: [],
@@ -29,8 +34,9 @@ export async function GET(request: NextRequest) {
     },
   };
 
-  const { searchParams } = new URL(request.url);
-  const rsvpOnly = searchParams.get("rsvpOnly");
+  if (dateTo) {
+    strapiQueryObj.filters.when["$lte"] = dateTo;
+  }
 
   if (rsvpOnly) {
     // 1. Get meeting IDs the user RSVP'd to

@@ -13,8 +13,12 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { Meeting } from "@/typing/strapi";
+import qs from "qs";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard" }];
+
+const today = new Date();
+const inThirtyDays = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
 
 const DashboardPage = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -24,7 +28,13 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
-        const res = await fetch("/api/meetings?rsvpOnly=1");
+        const query = qs.stringify({
+          dateFrom: today,
+          dateTo: inThirtyDays,
+          rsvpOnly: true,
+        });
+
+        const res = await fetch(`/api/meetings?${query}`);
         const data: { data?: Meeting[]; error?: string } = await res.json();
         if (data.error) {
           throw new Error(data.error);
