@@ -10,6 +10,11 @@ import MeetingsSkeleton from "@/components/meetings/skeleton";
 import { toast } from "sonner";
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { Meeting } from "@/typing/strapi";
+import {
+  DateRange,
+  DateRangePicker,
+} from "@/components/ui/custom/date-range-picker";
+import qs from "qs";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "My Meetings" }];
 
@@ -21,14 +26,40 @@ type GroupedMessage = {
   noMeetingMessage?: string;
 };
 
+const startOfCurrentMonth = new Date(
+  new Date().getFullYear(),
+  new Date().getMonth(),
+  1,
+  0,
+  0,
+  0,
+  0
+);
+
+const endOfCurrentMonth = new Date(
+  new Date().getFullYear(),
+  new Date().getMonth() + 1,
+  0,
+  23,
+  59,
+  59,
+  999
+);
+
 const MeetingsPage = () => {
   const [groupedMeetings, setGroupedMeetings] = useState<GroupedMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: startOfCurrentMonth,
+    to: endOfCurrentMonth,
+  });
 
   useEffect(() => {
     const supabase = createClient();
 
     const fetchData = async () => {
+      setIsLoading(true);
+
       try {
         const {
           data: { user },
@@ -38,8 +69,13 @@ const MeetingsPage = () => {
           throw new Error("Unauthorized");
         }
 
+        const query = qs.stringify({
+          dateFrom: dateRange.from.toISOString(),
+          dateTo: dateRange.to?.toISOString(),
+        });
+
         // Fetch all future meetings
-        const res = await fetch("/api/meetings");
+        const res = await fetch(`/api/meetings?${query}`);
         const data: { data?: Meeting[]; error?: string } = await res.json();
 
         if (data.error) {
@@ -76,7 +112,7 @@ const MeetingsPage = () => {
     };
 
     fetchData();
-  }, []);
+  }, [dateRange]);
 
   let content = <></>;
 
@@ -124,6 +160,15 @@ const MeetingsPage = () => {
       breadcrumbs={breadcrumbs}
       headerIcon={sidebarIcons.meetings}
     >
+      <div className="mb-3">
+        <DateRangePicker
+          onUpdate={(values) => setDateRange(values.range)}
+          initialDateFrom={dateRange.from}
+          initialDateTo={dateRange.to}
+          align="start"
+          showCompare={false}
+        />
+      </div>
       {content}
     </PageTemplate>
   );
