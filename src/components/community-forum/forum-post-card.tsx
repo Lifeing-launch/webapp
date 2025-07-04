@@ -1,0 +1,89 @@
+import React, { useState, useCallback } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { PostWithDetails } from "@/typing/forum";
+import { PostActions } from "./post-actions";
+import { CommentSection } from "./comments/comment-section";
+import { formatTimeAgo } from "@/utils/datetime";
+import { User } from "lucide-react";
+
+export interface IForumPostCard {
+  post: PostWithDetails;
+  onLike?: (postId: string) => void;
+  onAddComment?: (postId: string, comment: string) => void;
+}
+
+export function ForumPostCard({ post, onLike }: IForumPostCard) {
+  const [isLiked, setIsLiked] = useState(post.is_liked || false);
+  const [likesCount, setLikesCount] = useState(post.likes_count || 0);
+  const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
+
+  const handleLike = useCallback(() => {
+    const newIsLiked = !isLiked;
+    setIsLiked(newIsLiked);
+    setLikesCount((prev: number) => (newIsLiked ? prev + 1 : prev - 1));
+    onLike?.(post.id);
+  }, [isLiked, post.id, onLike]);
+
+  const handleCommentsToggle = useCallback(() => {
+    setIsCommentsExpanded(!isCommentsExpanded);
+  }, [isCommentsExpanded]);
+
+  return (
+    <div className="border-b border-gray-200 py-6 px-2 first:pt-4 last:pb-3">
+      <div className="flex gap-4">
+        <Avatar className="h-10 w-10 flex-shrink-0">
+          <AvatarFallback className={cn("text-white bg-primary")}>
+            <User className="h-6 w-6" />
+            {/* {post.author_profile.nickname.slice(0, 2).toUpperCase()} */}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-1.5">
+            <h4 className="text-sm font-semibold text-zinc-900">
+              {post.author_profile.nickname}
+            </h4>
+            <div className="mt-1.5 flex flex-wrap items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                {formatTimeAgo(post.created_at)}
+              </span>
+              <Badge
+                variant="secondary"
+                className="bg-primary/40 text-primary text-xs py-0.5 px-2 rounded-lg"
+              >
+                {post.category?.name}
+              </Badge>
+              {post.tags?.map((tag) => (
+                <Badge
+                  key={tag.id}
+                  variant="ghost"
+                  className="text-primary text-xs"
+                >
+                  #{tag.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-sm leading-5 text-zinc-900 mb-1.5">
+            {post.content}
+          </p>
+
+          <PostActions
+            isLiked={isLiked}
+            likesCount={likesCount}
+            commentsCount={post.comments_count || 0}
+            onLike={handleLike}
+            onCommentClick={handleCommentsToggle}
+            isCommentsExpanded={isCommentsExpanded}
+          />
+        </div>
+      </div>
+      {isCommentsExpanded && <CommentSection postId={post.id} />}
+    </div>
+  );
+}
+
+export default ForumPostCard;
