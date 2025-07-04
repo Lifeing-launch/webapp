@@ -39,7 +39,7 @@ export function PostActions({
           isCommentsExpanded && "text-black font-normal"
         )}
       >
-        {commentsCount} Comments
+        {commentsCount} {commentsCount === 1 ? "Comment" : "Comments"}
       </button>
     </div>
   );

@@ -7,6 +7,7 @@ import { PostActions } from "./post-actions";
 import { CommentSection } from "./comments/comment-section";
 import { formatTimeAgo } from "@/utils/datetime";
 import { User } from "lucide-react";
+import * as Collapsible from "@radix-ui/react-collapsible";
 
 export interface IForumPostCard {
   post: PostWithDetails;
@@ -31,7 +32,7 @@ export function ForumPostCard({ post, onLike }: IForumPostCard) {
   }, [isCommentsExpanded]);
 
   return (
-    <div className="border-b border-gray-200 py-6 px-2 first:pt-4 last:pb-3">
+    <div className="border-b border-gray-200 py-6 px-2 first:pt-4">
       <div className="flex gap-4">
         <Avatar className="h-10 w-10 flex-shrink-0">
           <AvatarFallback className={cn("text-white bg-primary")}>
@@ -81,7 +82,12 @@ export function ForumPostCard({ post, onLike }: IForumPostCard) {
           />
         </div>
       </div>
-      {isCommentsExpanded && <CommentSection postId={post.id} />}
+
+      <Collapsible.Root open={isCommentsExpanded}>
+        <Collapsible.Content className="data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp overflow-hidden">
+          <CommentSection postId={post.id} opened={isCommentsExpanded} />
+        </Collapsible.Content>
+      </Collapsible.Root>
     </div>
   );
 }

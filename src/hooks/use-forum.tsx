@@ -53,6 +53,6 @@ export function useForumPosts(options: UseForumPostsOptions = {}) {
   return {
     posts,
     tags,
-    categories
+    categories,
   };
 }

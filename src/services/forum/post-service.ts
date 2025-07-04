@@ -1,5 +1,6 @@
 import { BaseForumService } from "./base-forum-service";
 import {
+  Comment,
   Category,
   Post,
   PostWithDetails,
@@ -261,6 +262,28 @@ export class PostService extends BaseForumService {
     } catch (error) {
       this.handleError(error, "toggle like");
     }
+  }
+
+  async getComments(
+    postId: string,
+    offset: number = 0,
+    limit: number = 15
+  ): Promise<{ comments: Comment[]; total: number }> {
+    const { data, error, count } = await this.supabase
+      .from("comments")
+      .select("*", { count: "exact" })
+      .eq("post_id", postId)
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      this.handleError(error, "fetch comments");
+    }
+
+    return {
+      comments: data || [],
+      total: count || 0,
+    };
   }
 }
 
