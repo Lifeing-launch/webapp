@@ -72,8 +72,6 @@ export const NewPostModal = ({
     },
   });
 
-  console.log("isError", error);
-
   // Calculate tag relevance for sorting
   const getTagRelevance = (tagName: string, filter: string): number => {
     const lowerTag = tagName.toLowerCase();

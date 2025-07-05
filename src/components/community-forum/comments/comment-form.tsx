@@ -5,10 +5,8 @@ export interface ICommentForm {
   postId: string;
 }
 
-export function CommentForm({ onSubmit, postId }: ICommentForm) {
+export function CommentForm({ onSubmit }: ICommentForm) {
   const [commentText, setCommentText] = useState("");
-
-  console.log(postId);
 
   const handleAddComment = useCallback(() => {
     if (!commentText.trim()) return;

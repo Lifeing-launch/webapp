@@ -39,7 +39,7 @@ export function CommentCard({ comment }: CommentCardProps) {
       >
         <Avatar className="h-10 w-10 flex-shrink-0">
           <AvatarFallback className={cn("text-white", "bg-primary")}>
-            {comment.author_profile?.nickname.slice(0, 2).toUpperCase() || "??_"}
+            {comment.author_profile?.nickname.slice(0, 2).toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">

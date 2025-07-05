@@ -54,8 +54,7 @@ export class PostService extends BaseForumService {
         group:groups(id, name, description),
         category:categories(id, name, description),
         tags:post_tags(tag:tags(id, name)),
-        likes_count:likes(count),
-        comments_count:comments(count)
+        likes_count:likes(count)
       `);
 
       if (options.onlyForum) {
@@ -110,6 +109,7 @@ export class PostService extends BaseForumService {
       if (!rawPosts || rawPosts.length === 0) {
         return [];
       }
+
       let userLikes: Set<string> = new Set();
 
       if (profile) {
@@ -125,6 +125,39 @@ export class PostService extends BaseForumService {
         userLikes = new Set(likesData?.map((like) => like.post_id) || []);
       }
 
+      // Buscar contagem de comentários com filtro aplicado
+      const postIds = (rawPosts as SupabasePostResponse[]).map(
+        (post) => post.id
+      );
+
+      let commentsQuery = this.supabase
+        .from("comments")
+        .select("post_id", { count: "exact" })
+        .in("post_id", postIds);
+
+      if (profile) {
+        commentsQuery = commentsQuery.or(
+          `status.eq.approved,author_anon_id.eq.${profile.id}`
+        );
+      } else {
+        commentsQuery = commentsQuery.eq("status", "approved");
+      }
+
+      const { data: commentsData, error: commentsError } = await commentsQuery;
+
+      if (commentsError) {
+        console.error("Error fetching comments count:", commentsError);
+      }
+
+      // Contar comentários por post
+      const commentsCount = new Map<string, number>();
+      if (commentsData) {
+        commentsData.forEach((comment) => {
+          const postId = comment.post_id;
+          commentsCount.set(postId, (commentsCount.get(postId) || 0) + 1);
+        });
+      }
+
       const postsWithDetails: PostWithDetails[] = (
         rawPosts as SupabasePostResponse[]
       ).map((rawPost) => {
@@ -136,7 +169,7 @@ export class PostService extends BaseForumService {
         );
 
         const likes_count = rawPost.likes_count?.[0]?.count || 0;
-        const comments_count = rawPost.comments_count?.[0]?.count || 0;
+        const comments_count = commentsCount.get(rawPost.id) || 0;
 
         const is_liked = userLikes.has(rawPost.id);
 

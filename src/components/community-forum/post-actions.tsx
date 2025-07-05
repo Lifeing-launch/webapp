@@ -9,6 +9,7 @@ export interface IPostActions {
   onLike: () => void;
   onCommentClick: () => void;
   isCommentsExpanded: boolean;
+  isLikeDisabled?: boolean;
 }
 
 export function PostActions({
@@ -18,17 +19,27 @@ export function PostActions({
   onLike,
   onCommentClick,
   isCommentsExpanded,
+  isLikeDisabled = false,
 }: IPostActions) {
   return (
     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
       <button
-        onClick={onLike}
+        onClick={isLikeDisabled ? undefined : onLike}
+        disabled={isLikeDisabled}
         className={cn(
-          "flex items-center gap-1 transition-colors hover:text-primary cursor-pointer",
-          isLiked && "text-primary"
+          "flex items-center gap-1 transition-colors",
+          isLikeDisabled
+            ? "cursor-not-allowed opacity-50"
+            : "hover:text-primary cursor-pointer",
+          isLiked && !isLikeDisabled && "text-primary"
         )}
       >
-        <Heart className={cn("h-4.5 w-4.5", isLiked && "fill-current")} />
+        <Heart
+          className={cn(
+            "h-4.5 w-4.5",
+            isLiked && !isLikeDisabled && "fill-current"
+          )}
+        />
         <span>{likesCount}</span>
       </button>
       <span className="text-zinc-400">•</span>
