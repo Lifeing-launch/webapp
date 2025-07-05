@@ -3,15 +3,17 @@
 import React, { useState } from "react";
 import { GroupsGrid } from "@/components/community-forum/groups-grid";
 import { GroupThreads } from "@/components/community-forum/group-threads";
-import { ForumGroup, Group } from "@/typing/forum";
+import { ForumGroup } from "@/typing/forum";
 import { ForumSidebar } from "@/components/community-forum/forum-sidebar";
 import { ForumHeader } from "@/components/community-forum/forum-header";
 import SidebarSection from "./sidebar/sidebar-section";
 import { CategoryList } from "./sidebar/category-list";
+import { groupService } from "@/services/forum/group-service";
+import { useQuery } from "@tanstack/react-query";
+import { useAnonymousProfile } from "@/hooks/use-anonymous-profile";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertTriangle, Users } from "lucide-react";
 
-/**
- * Props para o componente GroupsView
- */
 export interface IGroupsViewProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -22,74 +24,114 @@ export interface IGroupsViewProps {
 }
 
 /**
- * Componente para exibir a view dos grupos
+ * Skeleton component for group cards
  */
+function GroupCardSkeleton() {
+  return (
+    <div className="group transition-all duration-200 rounded-lg border bg-card text-card-foreground shadow-sm p-4">
+      <div className="flex items-start gap-4">
+        {/* Avatar skeleton */}
+        <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+
+        {/* Content skeleton */}
+        <div className="flex-1 min-w-0 space-y-3">
+          {/* Group name skeleton */}
+          <Skeleton className="h-4 w-32" />
+
+          {/* Group info skeleton */}
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-3 w-1" />
+            <Skeleton className="h-3 w-20" />
+          </div>
+
+          {/* Description skeleton */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+
+          {/* Action skeleton */}
+          <div className="pt-2">
+            <Skeleton className="h-8 w-16 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Error state component for groups
+ */
+function GroupsErrorState({ message }: { message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 text-center">
+      <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
+      <p className="text-sm text-muted-foreground">{message}</p>
+    </div>
+  );
+}
+
+/**
+ * Empty state component for groups
+ */
+function GroupsEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center h-64 text-center px-4">
+      <Users className="h-16 w-16 text-muted-foreground mb-6" />
+      <h3 className="text-lg font-semibold text-foreground mb-2">
+        No Groups Yet
+      </h3>
+      <p className="text-sm text-muted-foreground max-w-md">
+        Groups help organize conversations around specific topics. Be the first
+        to create one!
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Loading state component for groups grid
+ */
+function GroupsGridSkeleton() {
+  return (
+    <div className="flex-1 bg-gray-50/50">
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <GroupCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const GroupsView = ({
   searchQuery,
   setSearchQuery,
   activePage,
   setActivePage,
 }: IGroupsViewProps) => {
+  const { profile } = useAnonymousProfile();
+
+  const {
+    data: groups,
+    isLoading,
+    error,
+    isFetched,
+  } = useQuery({
+    queryKey: ["groups"],
+    queryFn: () => groupService.getGroups(),
+  });
+
   const [selectedGroup, setSelectedGroup] = useState<ForumGroup | null>(null);
 
-  // My Groups mock data - em produção viria de uma API
-  const myGroups: Group[] = [
-    {
-      id: 1,
-      name: "Single 30s Parents",
-      avatarColor: "#805B87",
-      unreadCount: 3,
-    },
-    {
-      id: 2,
-      name: "Solo Parents in Their 30s",
-      avatarColor: "#2563eb",
-      unreadCount: 0,
-    },
-  ];
-
-  // Public Groups mock data
-  const publicGroups: Group[] = [
-    {
-      id: 4,
-      name: "The Explorers",
-      avatarColor: "#16a34a",
-    },
-    {
-      id: 5,
-      name: "Curiosity Crew",
-      avatarColor: "#f59e0b",
-    },
-    {
-      id: 6,
-      name: "Inquiry Squad",
-      avatarColor: "#8b5cf6",
-    },
-    {
-      id: 7,
-      name: "Question Masters",
-      avatarColor: "#dc2626",
-    },
-    {
-      id: 8,
-      name: "Answer Alliance",
-      avatarColor: "#059669",
-    },
-    {
-      id: 9,
-      name: "Discovery Team",
-      avatarColor: "#7c3aed",
-    },
-    {
-      id: 10,
-      name: "Knowledge Seekers",
-      avatarColor: "#e11d48",
-    },
-  ];
-
-  const handleGroupSelect = (group: ForumGroup) => {
-    setSelectedGroup(group);
-  };
+  const myGroups = groups?.filter(
+    (group) => group.owner_anon_id === profile?.id
+  );
+  const publicGroups = groups?.filter((group) => group.group_type === "public");
 
   return (
     <>
@@ -114,32 +156,58 @@ export const GroupsView = ({
                 <SidebarSection title="My Groups">
                   <CategoryList
                     activeCategory={selectedGroup?.name}
-                    categories={myGroups.map((group) => group.name)}
-                    onCategoryClick={(category) =>
-                      handleGroupSelect(
-                        myGroups.find(
-                          (group) => group.name === category
-                        ) as unknown as ForumGroup
-                      )
+                    categories={
+                      myGroups?.map((group) => ({
+                        id: group.id,
+                        name: group.name,
+                      })) || []
                     }
+                    onCategoryClick={(category) => {
+                      setSelectedGroup(
+                        myGroups?.find((group) => group.name === category) ||
+                          null
+                      );
+                    }}
                   />
                 </SidebarSection>
                 <SidebarSection title="Public Groups">
                   <CategoryList
                     activeCategory={selectedGroup?.name}
-                    categories={publicGroups.map((group) => group.name)}
-                    onCategoryClick={(category) =>
-                      handleGroupSelect(
-                        publicGroups.find(
-                          (group) => group.name === category
-                        ) as unknown as ForumGroup
-                      )
+                    categories={
+                      publicGroups?.map((group) => ({
+                        id: group.id,
+                        name: group.name,
+                      })) || []
                     }
+                    onCategoryClick={(category) => {
+                      setSelectedGroup(
+                        publicGroups?.find(
+                          (group) => group.name === category
+                        ) || null
+                      );
+                    }}
                   />
                 </SidebarSection>
               </>
             ) : (
-              <GroupsGrid onGroupSelect={handleGroupSelect} />
+              <>
+                {/* Loading state */}
+                {isLoading || !isFetched ? (
+                  <GroupsGridSkeleton />
+                ) : error ? (
+                  /* Error state */
+                  <GroupsErrorState message="Error loading groups." />
+                ) : groups?.length === 0 ? (
+                  /* Empty state */
+                  <GroupsEmptyState />
+                ) : (
+                  /* Groups grid */
+                  <GroupsGrid
+                    groups={groups as ForumGroup[]}
+                    onGroupSelect={setSelectedGroup}
+                  />
+                )}
+              </>
             )}
           </div>
         </ForumSidebar>

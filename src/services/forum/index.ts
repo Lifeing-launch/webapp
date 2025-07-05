@@ -9,11 +9,12 @@
  * - PostService: Operações com posts e likes + realtime
  * - CommentService: Operações com comentários + realtime
  * - MessageService: Operações com DMs + realtime
- * - GroupService: Operações com grupos (a ser implementado)
+ * - GroupService: Operações com grupos (implementado)
  * - ThreadService: Operações com threads (a ser implementado)
  */
 
 import { commentService } from "./comment-service";
+import { groupService } from "./group-service";
 import { messageService } from "./message-service";
 import { postService } from "./post-service";
 import { profileService } from "./profile-service";
@@ -26,6 +27,7 @@ export { ProfileService, profileService } from "./profile-service";
 export { PostService, postService } from "./post-service";
 export { CommentService, commentService } from "./comment-service";
 export { MessageService, messageService } from "./message-service";
+export { GroupService, groupService } from "./group-service";
 
 // Utilitários de realtime
 export {
@@ -44,6 +46,7 @@ export class ForumService {
   public readonly posts = postService;
   public readonly comments = commentService;
   public readonly messages = messageService;
+  public readonly groups = groupService;
   public readonly profile = profileService;
 
   // Métodos para compatibilidade com o código existente
@@ -96,25 +99,24 @@ export class ForumService {
     return this.profile.isNicknameAvailable(nickname);
   }
 
-  // Métodos de realtime agregados
-  subscribeToPostLikes(
-    postId: string,
-    callback: Parameters<typeof postService.subscribeToPostLikes>[1]
-  ) {
-    return this.posts.subscribeToPostLikes(postId, callback);
+  // Métodos de grupos
+  async getGroups(options?: Parameters<typeof groupService.getGroups>[0]) {
+    return this.groups.getGroups(options);
   }
 
-  subscribeToPostComments(
-    postId: string,
-    callback: Parameters<typeof commentService.subscribeToPostComments>[1]
-  ) {
-    return this.comments.subscribeToPostComments(postId, callback);
+  async createGroup(groupData: Parameters<typeof groupService.createGroup>[0]) {
+    return this.groups.createGroup(groupData);
   }
 
-  async subscribeToUserMessages(
-    callback: Parameters<typeof messageService.subscribeToUserMessages>[0]
+  async joinGroup(groupId: string) {
+    return this.groups.joinGroup(groupId);
+  }
+
+  async getGroupMembers(
+    groupId: string,
+    options?: Parameters<typeof groupService.getGroupMembers>[1]
   ) {
-    return this.messages.subscribeToUserMessages(callback);
+    return this.groups.getGroupMembers(groupId, options);
   }
 }
 
