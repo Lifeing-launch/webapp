@@ -89,8 +89,15 @@ export class PostService extends BaseForumService {
         query = query.in("id", postIdList);
       }
 
+      const profile = await this.getCurrentProfile();
+
+      if (profile) {
+        query = query.or(`status.eq.approved,author_anon_id.eq.${profile.id}`);
+      } else {
+        query = query.eq("status", "approved");
+      }
+
       query = query
-        .eq("status", "approved")
         .order("created_at", { ascending: false })
         .range(offset, offset + limit - 1);
 
@@ -103,8 +110,6 @@ export class PostService extends BaseForumService {
       if (!rawPosts || rawPosts.length === 0) {
         return [];
       }
-
-      const profile = await this.getCurrentProfile();
       let userLikes: Set<string> = new Set();
 
       if (profile) {
@@ -180,12 +185,13 @@ export class PostService extends BaseForumService {
     content: string;
     title?: string;
     categoryId?: string;
+    tags?: string[];
   }): Promise<Post> {
     try {
-      const { groupId, content, title, categoryId } = postData;
+      const { groupId, content, title, categoryId, tags } = postData;
       const profile = await this.requireProfile();
 
-      const { data, error } = await this.supabase
+      const { data: post, error: postError } = await this.supabase
         .from("posts")
         .insert({
           group_id: groupId || null,
@@ -198,13 +204,67 @@ export class PostService extends BaseForumService {
         .select()
         .single();
 
-      if (error) {
-        this.handleError(error, "create post");
+      if (postError) {
+        this.handleError(postError, "create post");
       }
 
-      return data;
+      if (!post) {
+        throw new Error("Failed to create post: post data is null.");
+      }
+
+      this.moderatePost(post.id);
+
+      if (tags && tags.length > 0) {
+        const tagsToInsert = tags.map((tagId) => ({
+          post_id: post.id,
+          tag_id: tagId,
+        }));
+
+        const { error: tagsError } = await this.supabase
+          .from("post_tags")
+          .insert(tagsToInsert);
+
+        if (tagsError) {
+          this.handleError(tagsError, "add tags to post");
+        }
+      }
+
+      return post;
     } catch (error) {
       this.handleError(error, "create post");
+    }
+  }
+
+  private async moderatePost(postId: string): Promise<void> {
+    try {
+      const response = await fetch("/api/moderate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resource_id: postId,
+          resource_type: "post",
+        }),
+      });
+
+      if (!response.ok) {
+        console.error(
+          "Moderation API error:",
+          response.status,
+          response.statusText
+        );
+        // Don't throw error to prevent blocking post creation
+        return;
+      }
+
+      const data = await response.json();
+      if (data?.success) {
+        console.log(`Post ${postId} moderated successfully`);
+      }
+    } catch (error) {
+      console.error("Failed to moderate post:", postId, error);
+      // Don't throw error to prevent blocking post creation
     }
   }
 

@@ -35,6 +35,13 @@ export class ForumClient {
   }
 
   /**
+   * Acesso às Edge Functions
+   */
+  get functions() {
+    return this.supabase.functions;
+  }
+
+  /**
    * Criar canal realtime para tabelas do forum
    */
   channel(name: string) {

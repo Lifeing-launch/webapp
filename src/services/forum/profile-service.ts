@@ -1,17 +1,9 @@
 import { forumClient } from "@/utils/supabase/forum";
 import { AnonymousProfile } from "@/typing/forum";
 
-/**
- * Serviço centralizado para operações com perfil anônimo
- * Evita redundância com o hook use-anonymous-profile.tsx
- */
 export class ProfileService {
   private supabase = forumClient;
 
-  /**
-   * Busca o perfil anônimo do usuário atual
-   * Mesma lógica do hook use-anonymous-profile.tsx
-   */
   async getCurrentProfile(): Promise<AnonymousProfile | null> {
     try {
       const {
@@ -30,7 +22,6 @@ export class ProfileService {
 
       if (error) {
         if (error.code === "PGRST116") {
-          // Profile não existe
           return null;
         }
         throw error;
@@ -43,10 +34,6 @@ export class ProfileService {
     }
   }
 
-  /**
-   * Valida se o usuário tem perfil anônimo
-   * Lança erro se não tiver
-   */
   async requireProfile(): Promise<AnonymousProfile> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
@@ -55,10 +42,6 @@ export class ProfileService {
     return profile;
   }
 
-  /**
-   * Cria um novo perfil anônimo
-   * Mesma lógica do hook use-anonymous-profile.tsx
-   */
   async createProfile(nickname: string): Promise<AnonymousProfile> {
     try {
       const {
@@ -90,9 +73,6 @@ export class ProfileService {
     }
   }
 
-  /**
-   * Atualiza o nickname do perfil anônimo
-   */
   async updateProfile(nickname: string): Promise<AnonymousProfile> {
     try {
       const profile = await this.requireProfile();
@@ -116,9 +96,6 @@ export class ProfileService {
     }
   }
 
-  /**
-   * Deleta o perfil anônimo
-   */
   async deleteProfile(): Promise<void> {
     try {
       const profile = await this.requireProfile();
@@ -138,9 +115,6 @@ export class ProfileService {
     }
   }
 
-  /**
-   * Verifica se o nickname está disponível
-   */
   async isNicknameAvailable(nickname: string): Promise<boolean> {
     try {
       const { error } = await this.supabase
@@ -150,7 +124,6 @@ export class ProfileService {
         .single();
 
       if (error && error.code === "PGRST116") {
-        // Nickname não existe, está disponível
         return true;
       }
 
@@ -158,7 +131,6 @@ export class ProfileService {
         throw error;
       }
 
-      // Nickname já existe
       return false;
     } catch (err) {
       console.error("Error checking nickname availability:", err);
@@ -167,5 +139,4 @@ export class ProfileService {
   }
 }
 
-// Instância singleton do serviço
 export const profileService = new ProfileService();

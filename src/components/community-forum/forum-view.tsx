@@ -6,6 +6,7 @@ import { CategoryList } from "@/components/community-forum/sidebar/category-list
 import { ForumPostList } from "@/components/community-forum/forum-post-list";
 import { useForumPosts, UseForumPostsOptions } from "@/hooks/use-forum";
 import { useState, useCallback, useMemo } from "react";
+import NewPostModal from "./new-post-modal";
 
 export interface IForumViewProps {
   searchQuery: string;
@@ -17,13 +18,18 @@ export interface IForumViewProps {
 }
 
 export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
+  const [openNewPost, setOpenNewPost] = useState(false);
   const [filters, setFilters] = useState<UseForumPostsOptions>({
     onlyForum: true,
   });
 
   const memoizedFilters = useMemo(() => filters, [filters]);
 
-  const { tags, categories } = useForumPosts(memoizedFilters);
+  const {
+    tags,
+    categories,
+    posts: { refetch: refetchPosts },
+  } = useForumPosts(memoizedFilters);
 
   const handleTagClick = useCallback((tagId: string) => {
     setFilters((prev) => ({
@@ -46,12 +52,17 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
     }));
   }, []);
 
+  const handleNewPost = useCallback(() => {
+    setOpenNewPost((prev) => !prev);
+  }, []);
+
   return (
     <>
       <div className="sticky top-0 z-20 bg-background border-b border-border px-4 py-3">
         <ForumHeader
           searchQuery={filters.searchQuery ?? ""}
           setSearchQuery={handleSearchQuery}
+          buttonOnClick={handleNewPost}
         />
       </div>
       <div className="flex flex-1 min-h-0 overflow-hidden">
@@ -80,6 +91,13 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
           </div>
         </div>
       </div>
+      <NewPostModal
+        open={openNewPost}
+        onClose={handleNewPost}
+        tags={tags.data ?? []}
+        categories={categories.data ?? []}
+        revalidate={refetchPosts}
+      />
     </>
   );
 };

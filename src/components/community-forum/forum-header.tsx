@@ -10,6 +10,7 @@ export interface IForumHeader {
   searchQuery: string;
   placeholder?: string;
   hiddenButton?: boolean;
+  buttonOnClick?: () => void;
   setSearchQuery?: (query: string) => void;
 }
 
@@ -20,6 +21,7 @@ export function ForumHeader({
   hiddenButton = false,
   searchQuery,
   setSearchQuery,
+  buttonOnClick,
 }: IForumHeader) {
   const [inputValue, setInputValue] = useState(searchQuery);
   const debouncedValue = useDebounce(inputValue, 500); // 500ms delay
@@ -52,7 +54,10 @@ export function ForumHeader({
         </div>
 
         {!hiddenButton && (
-          <Button className="flex items-center justify-center gap-2 h-9 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm w-full sm:w-auto cursor-pointer">
+          <Button
+            onClick={buttonOnClick}
+            className="flex items-center justify-center gap-2 h-9 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm w-full sm:w-auto cursor-pointer"
+          >
             <Pen className="w-4 h-4" />
             <span className="text-sm font-medium leading-5">{buttonText}</span>
           </Button>

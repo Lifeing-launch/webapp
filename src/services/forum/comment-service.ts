@@ -66,11 +66,8 @@ export class CommentService extends BaseForumService {
         this.handleError(error, "create comment");
       }
 
-      // Chamar moderação assíncrona - não bloqueia a criação do comentário
-      this.moderateComment(data.id).catch((error) => {
-        console.error("Moderation failed for comment:", data.id, error);
-        // Falha silenciosa - o comentário permanece com status "pending"
-      });
+      // Moderar comentário de forma assíncrona
+      this.moderateComment(data.id);
 
       return data;
     } catch (error) {
@@ -79,34 +76,39 @@ export class CommentService extends BaseForumService {
   }
 
   /**
-   * Chama a edge function de moderação
+   * Chama o endpoint interno de moderação
    * @private
    */
   private async moderateComment(commentId: string): Promise<void> {
     try {
-      const { data, error } = await this.supabase.client.functions.invoke(
-        "moderate-resource",
-        {
-          body: {
-            resource_id: commentId,
-            resource_type: "comment",
-          },
-        }
-      );
+      const response = await fetch("/api/moderate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resource_id: commentId,
+          resource_type: "comment",
+        }),
+      });
 
-      if (error) {
-        console.error("Edge function error:", error);
-        throw error;
+      if (!response.ok) {
+        console.error(
+          "Moderation API error:",
+          response.status,
+          response.statusText
+        );
+        // Don't throw error to prevent blocking comment creation
+        return;
       }
 
+      const data = await response.json();
       if (data?.success) {
-        console.log(
-          `Comment ${commentId} moderated: ${data.status} - ${data.reason}`
-        );
+        console.log(`Comment ${commentId} moderated successfully`);
       }
     } catch (error) {
       console.error("Failed to moderate comment:", commentId, error);
-      throw error;
+      // Don't throw error to prevent blocking comment creation
     }
   }
 
