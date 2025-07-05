@@ -1,84 +1,46 @@
 import { BaseForumService } from "./base-forum-service";
 import { Comment, CommentWithDetails, StatusEnum } from "@/typing/forum";
-import {
-  subscribeToPostComments,
-  type RealtimeSubscription,
-} from "@/utils/supabase/realtime-config";
 
-/**
- * Serviço para operações com comentários
- * Inclui funcionalidades de CRUD e realtime para comentários
- */
 export class CommentService extends BaseForumService {
-  /**
-   * Busca comentários de um post
-   */
-  async getComments(postId: string): Promise<CommentWithDetails[]> {
-    try {
-      const { data, error } = await this.supabase
-        .from("comments")
-        .select(
-          `
-          *,
-          author_profile:anonymous_profiles!comments_author_anon_id_fkey(
-            id, nickname, created_at
-          )
+  async getComments(
+    postId: string,
+    offset: number = 0,
+    limit: number = 15,
+    currentUserId?: string
+  ): Promise<{ comments: CommentWithDetails[]; total: number }> {
+    let query = this.supabase
+      .from("comments")
+      .select(
         `
+        *,
+        author_profile:anonymous_profiles!comments_author_anon_id_fkey(
+          id, nickname, created_at
         )
-        .eq("post_id", postId)
-        .eq("status", "approved")
-        .order("created_at", { ascending: true });
+      `,
+        { count: "exact" }
+      )
+      .eq("post_id", postId);
 
-      if (error) {
-        this.handleError(error, "fetch comments");
-      }
+    if (currentUserId) {
+      query = query.or(`status.eq.approved,author_anon_id.eq.${currentUserId}`);
+    } else {
+      query = query.eq("status", "approved");
+    }
 
-      return data || [];
-    } catch (error) {
+    const { data, error, count } = await query
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
       this.handleError(error, "fetch comments");
     }
+
+    return {
+      comments: data || [],
+      total: count || 0,
+    };
   }
 
-  /**
-   * Busca comentários aninhados (com replies)
-   */
-  async getNestedComments(postId: string): Promise<CommentWithDetails[]> {
-    try {
-      const comments = await this.getComments(postId);
-
-      // Organiza comentários em estrutura aninhada
-      const commentMap = new Map<string, CommentWithDetails>();
-      const rootComments: CommentWithDetails[] = [];
-
-      // Primeiro, cria o mapa de todos os comentários
-      comments.forEach((comment) => {
-        commentMap.set(comment.id, { ...comment, replies: [] });
-      });
-
-      // Segundo, organiza a hierarquia
-      comments.forEach((comment) => {
-        const commentWithReplies = commentMap.get(comment.id)!;
-
-        if (comment.parent_comment_id) {
-          const parent = commentMap.get(comment.parent_comment_id);
-          if (parent) {
-            parent.replies = parent.replies || [];
-            parent.replies.push(commentWithReplies);
-          }
-        } else {
-          rootComments.push(commentWithReplies);
-        }
-      });
-
-      return rootComments;
-    } catch (error) {
-      this.handleError(error, "fetch nested comments");
-    }
-  }
-
-  /**
-   * Cria um novo comentário
-   */
   async createComment(commentData: {
     postId: string;
     content: string;
@@ -95,7 +57,7 @@ export class CommentService extends BaseForumService {
           author_anon_id: profile.id,
           content: content.trim(),
           parent_comment_id: parentCommentId || null,
-          status: "approved" as StatusEnum, // Comments aprovados por padrão
+          status: "pending" as StatusEnum,
         })
         .select()
         .single();
@@ -104,6 +66,12 @@ export class CommentService extends BaseForumService {
         this.handleError(error, "create comment");
       }
 
+      // Chamar moderação assíncrona - não bloqueia a criação do comentário
+      this.moderateComment(data.id).catch((error) => {
+        console.error("Moderation failed for comment:", data.id, error);
+        // Falha silenciosa - o comentário permanece com status "pending"
+      });
+
       return data;
     } catch (error) {
       this.handleError(error, "create comment");
@@ -111,8 +79,37 @@ export class CommentService extends BaseForumService {
   }
 
   /**
-   * Atualiza um comentário (apenas o autor pode atualizar)
+   * Chama a edge function de moderação
+   * @private
    */
+  private async moderateComment(commentId: string): Promise<void> {
+    try {
+      const { data, error } = await this.supabase.client.functions.invoke(
+        "moderate-resource",
+        {
+          body: {
+            resource_id: commentId,
+            resource_type: "comment",
+          },
+        }
+      );
+
+      if (error) {
+        console.error("Edge function error:", error);
+        throw error;
+      }
+
+      if (data?.success) {
+        console.log(
+          `Comment ${commentId} moderated: ${data.status} - ${data.reason}`
+        );
+      }
+    } catch (error) {
+      console.error("Failed to moderate comment:", commentId, error);
+      throw error;
+    }
+  }
+
   async updateComment(commentId: string, content: string): Promise<Comment> {
     try {
       const profile = await this.requireProfile();
@@ -138,9 +135,6 @@ export class CommentService extends BaseForumService {
     }
   }
 
-  /**
-   * Deleta um comentário (apenas o autor pode deletar)
-   */
   async deleteComment(commentId: string): Promise<void> {
     try {
       const profile = await this.requireProfile();
@@ -158,72 +152,6 @@ export class CommentService extends BaseForumService {
       this.handleError(error, "delete comment");
     }
   }
-
-  /**
-   * Conta o número de comentários de um post
-   */
-  async getCommentsCount(postId: string): Promise<number> {
-    try {
-      const { count, error } = await this.supabase
-        .from("comments")
-        .select("*", { count: "exact", head: true })
-        .eq("post_id", postId)
-        .eq("status", "approved");
-
-      if (error) {
-        this.handleError(error, "count comments");
-      }
-
-      return count || 0;
-    } catch (error) {
-      this.handleError(error, "count comments");
-    }
-  }
-
-  /**
-   * Busca comentário por ID
-   */
-  async getCommentById(commentId: string): Promise<CommentWithDetails | null> {
-    try {
-      const { data, error } = await this.supabase
-        .from("comments")
-        .select(
-          `
-          *,
-          author_profile:anonymous_profiles!comments_author_anon_id_fkey(
-            id, nickname, created_at
-          )
-        `
-        )
-        .eq("id", commentId)
-        .eq("status", "approved")
-        .single();
-
-      if (error && error.code !== "PGRST116") {
-        this.handleError(error, "fetch comment by ID");
-      }
-
-      return data;
-    } catch (error) {
-      this.handleError(error, "fetch comment by ID");
-    }
-  }
-
-  // ===================================================================
-  // REALTIME METHODS
-  // ===================================================================
-
-  /**
-   * Subscribe para novos comentários em um post
-   */
-  subscribeToPostComments(
-    postId: string,
-    onNewComment: (comment: Record<string, unknown>) => void,
-    onCommentUpdate?: (comment: Record<string, unknown>) => void
-  ): RealtimeSubscription {
-    return subscribeToPostComments(postId, onNewComment, onCommentUpdate);
-  }
 }
 
-// Instância singleton do serviço
 export const commentService = new CommentService();

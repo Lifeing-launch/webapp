@@ -79,6 +79,7 @@ export interface Comment {
   id: string;
   post_id: string;
   author_anon_id: string;
+  author_profile: AnonymousProfile;
   parent_comment_id?: string;
   content: string;
   status: StatusEnum;

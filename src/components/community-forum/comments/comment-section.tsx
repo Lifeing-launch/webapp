@@ -4,9 +4,10 @@ import { Comment } from "@/typing/forum";
 import { CommentCard } from "./comment-card";
 import { CommentForm } from "./comment-form";
 import { useQuery } from "@tanstack/react-query";
-import { postService } from "@/services/forum";
+import { commentService } from "@/services/forum";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useAnonymousProfile } from "@/hooks/use-anonymous-profile";
 
 function CommentSkeleton() {
   return (
@@ -32,6 +33,8 @@ export interface ICommentSection {
 }
 
 export function CommentSection({ postId, opened }: ICommentSection) {
+  const { profile } = useAnonymousProfile();
+
   const [offset, setOffset] = useState(0);
   const [allComments, setAllComments] = useState<Comment[]>([]);
   const [localComments, setLocalComments] = useState<Comment[]>([]);
@@ -39,7 +42,8 @@ export function CommentSection({ postId, opened }: ICommentSection) {
 
   const { data, isLoading } = useQuery({
     queryKey: ["comments", postId, offset],
-    queryFn: () => postService.getComments(postId, offset),
+    queryFn: () =>
+      commentService.getComments(postId, offset, 15, profile?.id || ""),
     enabled: !!postId && opened,
   });
 
@@ -67,18 +71,38 @@ export function CommentSection({ postId, opened }: ICommentSection) {
 
   const handleAddComment = useCallback(
     (commentText: string) => {
+      if (!profile) return;
+
       const newComment: Comment = {
         id: String(Date.now()),
         post_id: postId,
-        author_anon_id: "currentuser",
-        status: "approved",
+        author_anon_id: profile?.id || "currentuser",
+        status: "pending",
         created_at: new Date().toISOString(),
         content: commentText,
+        author_profile: {
+          id: profile?.id || "currentuser",
+          user_id: profile?.user_id || "currentuser",
+          nickname: profile?.nickname || "currentuser",
+          created_at: new Date().toISOString(),
+        },
       };
 
       setLocalComments((prev) => [newComment, ...prev]);
+
+      commentService
+        .createComment({
+          postId,
+          content: commentText,
+        })
+        .then((comment) => {
+          setLocalComments((prev) =>
+            prev.filter((c) => c.id !== newComment.id)
+          );
+          setAllComments((prev) => [comment, ...prev]);
+        });
     },
-    [postId]
+    [postId, profile]
   );
 
   const visibleComments = [...localComments, ...allComments];
