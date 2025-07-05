@@ -51,7 +51,6 @@ export const NewPostModal = ({
     mutate: createPost,
     isPending,
     isError,
-    error,
   } = useMutation({
     mutationFn: (data: {
       groupId?: string;
@@ -98,6 +97,16 @@ export const NewPostModal = ({
       }, 100);
     }
   }, [open]);
+
+  // Ensure first category is selected when categories change
+  useEffect(() => {
+    if (categories.length > 0 && !selectedCategory) {
+      setSelectedCategory(categories[0].id);
+    }
+    if (tags.length > 0 && !selectedTags.length) {
+      setSelectedTags([tags[0].id]);
+    }
+  }, [categories, selectedCategory, tags, selectedTags]);
 
   // Filter and sort tags based on # input and selection status
   const filteredTags = useMemo(() => {

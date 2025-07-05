@@ -125,6 +125,7 @@ export function ForumPostCard({ post, onLike }: IForumPostCard) {
               onCommentClick={handleCommentsToggle}
               isCommentsExpanded={isCommentsExpanded}
               isLikeDisabled={status !== "approved"}
+              rejected={status === "rejected"}
             />
           </div>
         </div>

@@ -10,6 +10,7 @@ export interface IPostActions {
   onCommentClick: () => void;
   isCommentsExpanded: boolean;
   isLikeDisabled?: boolean;
+  rejected?: boolean;
 }
 
 export function PostActions({
@@ -20,6 +21,7 @@ export function PostActions({
   onCommentClick,
   isCommentsExpanded,
   isLikeDisabled = false,
+  rejected = false,
 }: IPostActions) {
   return (
     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -45,9 +47,11 @@ export function PostActions({
       <span className="text-zinc-400">•</span>
       <button
         onClick={onCommentClick}
+        disabled={rejected}
         className={cn(
           "transition-colors hover:text-foreground cursor-pointer",
-          isCommentsExpanded && "text-black font-normal"
+          isCommentsExpanded && "text-black font-normal",
+          rejected && "cursor-not-allowed opacity-50"
         )}
       >
         {commentsCount} {commentsCount === 1 ? "Comment" : "Comments"}
