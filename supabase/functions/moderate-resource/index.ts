@@ -1,52 +1,15 @@
-import { serve } from "https://deno.land/std@0.170.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", {
-  auth: {
-    persistSession: false
-  }
-});
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS"
-};
-function validateInput(data) {
-  if (!data || typeof data !== "object") throw new Error("Invalid request body");
-  const { resource_id, resource_type } = data;
-  if (!resource_id || typeof resource_id !== "string") throw new Error("resource_id is required and must be a string");
-  if (![
-    "post",
-    "comment"
-  ].includes(resource_type)) throw new Error("resource_type must be 'post' or 'comment'");
-  return {
-    resource_id,
-    resource_type
-  };
-}
-async function getContent(resource_id, resource_type) {
-  if (resource_type === "post") {
-    const { data, error } = await supabase.from("forum.posts").select("content, status").eq("id", resource_id).maybeSingle();
-    if (error) throw error;
-    if (!data) return null;
-    return {
-      content: data.content,
-      status: data.status
-    };
-  }
-  if (resource_type === "comment") {
-    const { data, error } = await supabase.from("forum.comments").select("content, status").eq("id", resource_id).maybeSingle();
-    if (error) throw error;
-    if (!data) return null;
-    return {
-      content: data.content,
-      status: data.status
-    };
-  }
-  return null;
-}
+/**
+ * @fileoverview Moderate a resource (post or comment) using OpenAI.
+ */
+import { createClient } from "jsr:@supabase/supabase-js@2";
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL");
+
 async function moderate(content) {
-  const openaiKey = Deno.env.get("OPENAI_API_KEY");
-  if (!openaiKey) return "rejected";
+  if (!OPENAI_API_KEY) return "rejected";
   const systemPrompt = `
     You are a strict content moderator for a family-friendly community forum.
 
@@ -68,108 +31,114 @@ async function moderate(content) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${openaiKey}`
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: Deno.env.get("OPENAI_MODEL") ?? "gpt-4o-mini",
+      model: OPENAI_MODEL ?? "gpt-4o-mini",
       temperature: 0,
       max_tokens: 1,
       messages: [
         {
           role: "system",
-          content: systemPrompt
+          content: systemPrompt,
         },
         {
           role: "user",
-          content
-        }
-      ]
-    })
+          content,
+        },
+      ],
+    }),
   });
   if (!resp.ok) return "rejected";
   const json = await resp.json();
   const verdict = json.choices?.[0]?.message?.content?.trim()?.toLowerCase();
   return verdict === "approved" ? "approved" : "rejected";
 }
-async function updateStatus(resource_id, resource_type, status) {
-  let update;
-  if (resource_type === "post") {
-    update = await supabase.from("forum.posts").update({
-      status
-    }).eq("id", resource_id);
-  } else {
-    update = await supabase.from("forum.comments").update({
-      status
-    }).eq("id", resource_id);
-  }
-  return !update.error;
-}
-serve(async (req)=>{
-  if (req.method === "OPTIONS") return new Response(null, {
-    headers: corsHeaders
-  });
-  if (req.method !== "POST") return new Response(JSON.stringify({
-    error: "Method not allowed"
-  }), {
-    status: 405,
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "application/json"
-    }
-  });
+
+Deno.serve(async (req) => {
   try {
-    const requestBody = await req.json();
-    const { resource_id, resource_type } = validateInput(requestBody);
-    const row = await getContent(resource_id, resource_type);
-    if (!row) {
-      return new Response(JSON.stringify({
-        error: "Resource not found"
-      }), {
+    const supabase = createClient(SUPABASE_URL ?? "", SUPABASE_ANON_KEY ?? "", {
+      global: {
+        headers: {
+          Authorization: req.headers.get("Authorization"),
+        },
+      },
+    });
+
+    const { resource_id, resource_type } = await req.json();
+
+    if (!resource_id || !resource_type) {
+      return new Response(
+        JSON.stringify({ error: "Missing resource_id or resource_type" }),
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const table = resource_type === "comment" ? "comments" : "posts";
+
+    const { data: resource } = await supabase
+      .schema("forum")
+      .from(table)
+      .select("*")
+      .eq("id", resource_id)
+      .single();
+
+    if (!resource) {
+      return new Response(JSON.stringify({ error: "Resource not found" }), {
         status: 404,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
-        }
       });
     }
-    if (row.status !== "pending") {
-      return new Response(JSON.stringify({
-        success: true,
-        resource_id,
+
+    const status = await moderate(resource.content);
+
+    await supabase
+      .schema("forum")
+      .from(table)
+      .update({ status })
+      .eq("id", resource_id)
+      .throwOnError();
+
+    //moderation_log table
+    await supabase
+      .schema("forum")
+      .from("moderation_log")
+      .insert({
         resource_type,
-        status: row.status,
-        message: "Already moderated"
-      }), {
-        status: 200,
+        resource_id,
+        action: status,
+        reviewer_anon_id: resource.author_anon_id,
+        reason:
+          status === "rejected"
+            ? "Content rejected by AI moderator"
+            : "Content approved by AI moderator",
+      })
+      .throwOnError();
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+      }),
+      {
         headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
-        }
-      });
-    }
-    const status = await moderate(row.content);
-    const updated = await updateStatus(resource_id, resource_type, status);
-    return new Response(JSON.stringify({
-      success: updated,
-      resource_id,
-      resource_type,
-      status
-    }), {
-      status: updated ? 200 : 500,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
+          "Content-Type": "application/json",
+        },
+        status: 200,
       }
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({
-      error: error instanceof Error ? error.message : "Internal server error"
-    }), {
-      status: 400,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
+    );
+  } catch (err) {
+    console.log(err);
+    return new Response(
+      JSON.stringify({
+        message: err?.message ?? err,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        status: 500,
       }
-    });
+    );
   }
 });
