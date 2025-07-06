@@ -209,7 +209,9 @@ export const GroupsView = ({
             )}
           </div>
         </ForumSidebar>
-        {selectedGroup && <GroupThreads groupId={selectedGroup.id} />}
+        {selectedGroup && (
+          <GroupThreads groupId={selectedGroup.id} searchQuery={searchQuery} />
+        )}
       </div>
     </>
   );

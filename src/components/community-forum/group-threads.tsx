@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 
 export interface IGroupThreads {
   groupId: string;
+  searchQuery: string;
 }
 
-export function GroupThreads({ groupId }: IGroupThreads) {
+export function GroupThreads({ groupId, searchQuery }: IGroupThreads) {
   const [newPostText, setNewPostText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -18,9 +19,10 @@ export function GroupThreads({ groupId }: IGroupThreads) {
   const filters = useMemo<UseForumPostsOptions>(
     () => ({
       groupId,
-      limit: 50,
+      searchQuery: searchQuery || undefined,
+      limit: 100,
     }),
-    [groupId]
+    [groupId, searchQuery]
   );
 
   const {
@@ -61,10 +63,11 @@ export function GroupThreads({ groupId }: IGroupThreads) {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
+
       {/* Posts List - Scrollable Area */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 py-3 pb-0">
-          <ForumPostList filters={filters} />
+          <ForumPostList filters={filters}  />
         </div>
       </div>
 

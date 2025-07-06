@@ -91,12 +91,14 @@ export function ForumPostCard({ post, onLike }: IForumPostCard) {
                     </TooltipContent>
                   </Tooltip>
                 )}
-                <Badge
-                  variant="secondary"
-                  className="bg-primary/40 text-primary text-xs py-0.5 px-2 rounded-lg"
-                >
-                  {post.category?.name}
-                </Badge>
+                {post.category && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-primary/40 text-primary text-xs py-0.5 px-2 rounded-lg"
+                  >
+                    {post.category?.name}
+                  </Badge>
+                )}
                 {post.tags?.map((tag) => (
                   <Badge
                     key={tag.id}
