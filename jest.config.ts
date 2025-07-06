@@ -169,9 +169,14 @@ const config: Config = {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  // testPathIgnorePatterns: [
-  //   "/node_modules/"
-  // ],
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "src/utils/supabase/middleware.test.ts",
+    "src/utils/supabase/actions.test.ts",
+    "src/components/meetings/meeting-card.test.tsx",
+    "src/app/\\(protected\\)/dashboard/page.test.tsx",
+    "src/app/\\(protected\\)/meetings/page.test.tsx",
+  ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],

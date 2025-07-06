@@ -49,7 +49,7 @@ const data = {
       },
       {
         title: "Community Forum",
-        url: "#",
+        url: "/community-forum",
         icon: sidebarIcons.communityForum,
       },
     ],

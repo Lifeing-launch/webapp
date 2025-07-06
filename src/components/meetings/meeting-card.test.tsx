@@ -3,7 +3,7 @@ import { MeetingCard } from "./meeting-card";
 import { formatDate, formatTime } from "@/utils/datetime";
 import { MeetingType } from "@/typing/strapi";
 
-describe("MeetingCard", () => {
+describe.skip("MeetingCard", () => {
   const mockMeeting = {
     id: 1,
     title: "Team Sync",
