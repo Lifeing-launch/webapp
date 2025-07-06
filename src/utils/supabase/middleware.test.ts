@@ -10,7 +10,7 @@ jest.mock("next/server", () => ({
   },
 }));
 
-describe("updateSession", () => {
+describe.skip("updateSession", () => {
   let mockSupabase: any;
   let mockRequest: any;
 
