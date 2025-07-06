@@ -115,16 +115,18 @@ export function GroupsGrid({ groups, onGroupSelect }: GroupsGridProps) {
         )}
 
         {/* Groups Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
           {groups.map((group) => (
-            <GroupCard
-              key={group.id}
-              group={group}
-              onClick={() => handleGroupClick(group)}
-              onJoin={() => handleJoin(group.id)}
-              onRequestJoin={() => handleJoinRequest(group.id)}
-              isJoinLoading={loadingGroups.has(group.id)}
-            />
+            <div key={group.id} className="min-h-[180px] flex">
+              <GroupCard
+                group={group}
+                onClick={() => handleGroupClick(group)}
+                onJoin={() => handleJoin(group.id)}
+                onRequestJoin={() => handleJoinRequest(group.id)}
+                isJoinLoading={loadingGroups.has(group.id)}
+                className="w-full"
+              />
+            </div>
           ))}
         </div>
       </div>

@@ -65,7 +65,7 @@ function ForumErrorState({ message }: { message: string }) {
  */
 function ForumEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center px-4 w-full flex-1">
+    <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-4 w-full">
       <MessageSquare className="h-16 w-16 text-muted-foreground mb-6" />
       <h3 className="text-lg font-semibold text-foreground mb-2">
         Welcome to the Community Forum
@@ -108,7 +108,11 @@ export function ForumPostList({ filters }: IForumPostList) {
     !filters.tagId &&
     !filters.categoryId
   ) {
-    return <ForumEmptyState />;
+    return (
+      <div className="h-full overflow-y-auto flex items-center justify-center">
+        <ForumEmptyState />
+      </div>
+    );
   }
 
   return (

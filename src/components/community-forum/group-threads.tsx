@@ -81,7 +81,7 @@ export function GroupThreads({ groupId, searchQuery }: IGroupThreads) {
             rows={3}
             onKeyDown={handleKeyDown}
           />
-          <div className="flex justify-end">
+          <div className="flex justify-start">
             <Button
               size="sm"
               className="gap-2"

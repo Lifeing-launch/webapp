@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { GroupWithDetails } from "@/typing/forum";
 
 const cardVariants = cva(
-  "group transition-all duration-200 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md hover:border-primary/30",
+  "group transition-all duration-200 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md hover:border-primary/30 h-full",
   {
     variants: {
       size: {
@@ -107,44 +107,49 @@ export function GroupCard({
       </div>
 
       {/* Group Content */}
-      <div className="flex-1 min-w-0 space-y-1.5">
-        {/* Group Name with Owner indicator */}
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm leading-5 text-foreground truncate">
-            {group.name}
-          </h3>
-          {group.is_owner && (
-            <Badge
-              variant="secondary"
-              className="bg-amber-100 text-amber-800 rounded-lg flex items-center gap-1 px-2 py-0.5 text-xs"
-            >
-              <Crown className="w-3 h-3" />
-              Owner
-            </Badge>
-          )}
+      <div className="flex-1 min-w-0 flex flex-col h-full">
+        {/* Header Section */}
+        <div className="space-y-1.5">
+          {/* Group Name with Owner indicator */}
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-sm leading-5 text-foreground truncate">
+              {group.name}
+            </h3>
+            {group.is_owner && (
+              <Badge
+                variant="secondary"
+                className="bg-amber-100 text-amber-800 rounded-lg flex items-center gap-1 px-2 py-0.5 text-xs"
+              >
+                <Crown className="w-3 h-3" />
+                Owner
+              </Badge>
+            )}
+          </div>
+
+          {/* Group Info */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{group.memberCount || group.members_count || 0} members</span>
+            <span>•</span>
+            {group.group_type === "private" ? (
+              <div className="flex items-center gap-1">
+                <LockKeyhole className="w-3 h-3" />
+                <span>Private Group</span>
+              </div>
+            ) : (
+              <span>Public Group</span>
+            )}
+          </div>
         </div>
 
-        {/* Group Info */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{group.memberCount || group.members_count || 0} members</span>
-          <span>•</span>
-          {group.group_type === "private" ? (
-            <div className="flex items-center gap-1">
-              <LockKeyhole className="w-3 h-3" />
-              <span>Private Group</span>
-            </div>
-          ) : (
-            <span>Public Group</span>
-          )}
+        {/* Group Description - grows to fill available space */}
+        <div className="flex-1 py-2">
+          <p className="text-sm text-foreground line-clamp-3 leading-5">
+            {group.description}
+          </p>
         </div>
 
-        {/* Group Description */}
-        <p className="text-sm text-foreground line-clamp-2 leading-5">
-          {group.description}
-        </p>
-
-        {/* Group Status/Actions */}
-        <div className="pt-2">
+        {/* Group Status/Actions - stays at bottom */}
+        <div className="pt-2 mt-auto">
           {group.isJoined || group.is_owner ? (
             <Badge
               variant="secondary"
