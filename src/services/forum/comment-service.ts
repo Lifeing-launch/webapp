@@ -5,7 +5,7 @@ export class CommentService extends BaseForumService {
   async getComments(
     postId: string,
     offset: number = 0,
-    limit: number = 15,
+    limit: number = 100,
     currentUserId?: string
   ): Promise<{ comments: CommentWithDetails[]; total: number }> {
     let query = this.supabase

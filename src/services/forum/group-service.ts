@@ -5,19 +5,7 @@ import {
   GroupWithDetails,
   GroupMemberWithDetails,
   GroupTypeEnum,
-  AnonymousProfile,
 } from "@/typing/forum";
-
-interface SupabaseGroupResponse {
-  id: string;
-  name: string;
-  description: string | null;
-  group_type: GroupTypeEnum;
-  owner_anon_id: string;
-  created_at: string;
-  owner_profile: AnonymousProfile | null;
-  members_count: Array<{ count: number }>;
-}
 
 export class GroupService extends BaseForumService {
   /**
@@ -43,8 +31,7 @@ export class GroupService extends BaseForumService {
 
       let query = this.supabase.from("groups").select(`
         *,
-        owner_profile:anonymous_profiles!groups_owner_anon_id_fkey(id, nickname, created_at),
-        members_count:group_members(count)
+        owner_profile:anonymous_profiles!groups_owner_anon_id_fkey(id, nickname, created_at)
       `);
 
       if (groupType) {
@@ -89,6 +76,23 @@ export class GroupService extends BaseForumService {
         return [];
       }
 
+      // Get group IDs for additional queries
+      const groupIds = rawGroups.map((group) => group.id);
+
+      // Get approved members count for each group
+      const { data: membersCount } = await this.supabase
+        .from("group_members")
+        .select("group_id")
+        .eq("is_approved", true)
+        .in("group_id", groupIds);
+
+      // Create a map of group_id to approved members count
+      const membersCountMap = new Map<string, number>();
+      membersCount?.forEach((member) => {
+        const currentCount = membersCountMap.get(member.group_id) || 0;
+        membersCountMap.set(member.group_id, currentCount + 1);
+      });
+
       // Check current user's membership status
       const userMemberships = new Map<
         string,
@@ -96,10 +100,6 @@ export class GroupService extends BaseForumService {
       >();
 
       if (profile) {
-        const groupIds = (rawGroups as SupabaseGroupResponse[]).map(
-          (group) => group.id
-        );
-
         const { data: memberships } = await this.supabase
           .from("group_members")
           .select("group_id, is_approved")
@@ -114,29 +114,31 @@ export class GroupService extends BaseForumService {
         });
       }
 
-      const groupsWithDetails: GroupWithDetails[] = (
-        rawGroups as SupabaseGroupResponse[]
-      ).map((rawGroup) => {
-        const membershipInfo = userMemberships.get(rawGroup.id) || {
-          isMember: false,
-        };
+      const groupsWithDetails: GroupWithDetails[] = rawGroups.map(
+        (rawGroup) => {
+          const membershipInfo = userMemberships.get(rawGroup.id) || {
+            isMember: false,
+          };
 
-        return {
-          id: rawGroup.id,
-          name: rawGroup.name,
-          description: rawGroup.description,
-          group_type: rawGroup.group_type,
-          owner_anon_id: rawGroup.owner_anon_id,
-          created_at: rawGroup.created_at,
-          owner_profile: rawGroup.owner_profile,
-          members_count: rawGroup.members_count?.[0]?.count || 0,
-          is_member: membershipInfo.isMember,
-          member_status: membershipInfo.status as
-            | "pending"
-            | "approved"
-            | undefined,
-        } as GroupWithDetails;
-      });
+          return {
+            id: rawGroup.id,
+            name: rawGroup.name,
+            description: rawGroup.description,
+            group_type: rawGroup.group_type,
+            owner_anon_id: rawGroup.owner_anon_id,
+            created_at: rawGroup.created_at,
+            owner_profile: rawGroup.owner_profile,
+            members_count: membersCountMap.get(rawGroup.id) || 0,
+            is_member: membershipInfo.isMember,
+            is_owner: profile ? rawGroup.owner_anon_id === profile.id : false,
+            isJoined: membershipInfo.isMember,
+            member_status: membershipInfo.status as
+              | "pending"
+              | "approved"
+              | undefined,
+          } as GroupWithDetails;
+        }
+      );
 
       return groupsWithDetails;
     } catch (error) {
@@ -154,8 +156,7 @@ export class GroupService extends BaseForumService {
         .select(
           `
           *,
-          owner_profile:anonymous_profiles!groups_owner_anon_id_fkey(id, nickname, created_at),
-          members_count:group_members(count)
+          owner_profile:anonymous_profiles!groups_owner_anon_id_fkey(id, nickname, created_at)
         `
         )
         .eq("id", groupId)
@@ -169,9 +170,22 @@ export class GroupService extends BaseForumService {
         return null;
       }
 
+      // Get approved members count for this group
+      const { data: membersCount } = await this.supabase
+        .from("group_members")
+        .select("anon_profile_id", { count: "exact" })
+        .eq("group_id", groupId)
+        .eq("is_approved", true);
+
       // Check current user's membership status
       const profile = await this.getCurrentProfile();
-      let membershipInfo = { isMember: false, status: undefined };
+      let membershipInfo: {
+        isMember: boolean;
+        status?: "pending" | "approved";
+      } = {
+        isMember: false,
+        status: undefined,
+      };
 
       if (profile) {
         const { data: membership } = await this.supabase
@@ -197,8 +211,10 @@ export class GroupService extends BaseForumService {
         owner_anon_id: rawGroup.owner_anon_id,
         created_at: rawGroup.created_at,
         owner_profile: rawGroup.owner_profile,
-        members_count: rawGroup.members_count?.[0]?.count || 0,
+        members_count: membersCount?.length || 0,
         is_member: membershipInfo.isMember,
+        is_owner: profile ? rawGroup.owner_anon_id === profile.id : false,
+        isJoined: membershipInfo.isMember,
         member_status: membershipInfo.status as
           | "pending"
           | "approved"
@@ -445,9 +461,10 @@ export class GroupService extends BaseForumService {
         query = query.eq("is_approved", true);
       }
 
-      const { data: members, error } = await query
-        .order("created_at", { ascending: false })
-        .range(offset, offset + limit - 1);
+      const { data: members, error } = await query.range(
+        offset,
+        offset + limit - 1
+      );
 
       if (error) {
         this.handleError(error, "fetch group members");
@@ -570,7 +587,9 @@ export class GroupService extends BaseForumService {
   /**
    * Fetch pending membership requests (owner only)
    */
-  async getPendingJoinRequests(groupId: string): Promise<GroupMemberWithDetails[]> {
+  async getPendingJoinRequests(
+    groupId: string
+  ): Promise<GroupMemberWithDetails[]> {
     try {
       const profile = await this.requireProfile();
 
@@ -582,19 +601,22 @@ export class GroupService extends BaseForumService {
         .single();
 
       if (!group || group.owner_anon_id !== profile.id) {
-        throw new Error("You do not have permission to view join requests for this group.");
+        throw new Error(
+          "You do not have permission to view join requests for this group."
+        );
       }
 
       const { data: requests, error } = await this.supabase
         .from("group_members")
-        .select(`
+        .select(
+          `
           *,
           profile:anonymous_profiles!group_members_anon_profile_id_fkey(id, nickname, created_at),
           group:groups!group_members_group_id_fkey(id, name, description)
-        `)
+        `
+        )
         .eq("group_id", groupId)
-        .eq("is_approved", false)
-        .order("created_at", { ascending: false });
+        .eq("is_approved", false);
 
       if (error) {
         this.handleError(error, "fetch pending join requests");
@@ -603,6 +625,52 @@ export class GroupService extends BaseForumService {
       return requests || [];
     } catch (error) {
       this.handleError(error, "fetch pending join requests");
+    }
+  }
+
+  /**
+   * Fetch all pending membership requests for groups owned by current user
+   */
+  async getAllPendingJoinRequests(): Promise<GroupMemberWithDetails[]> {
+    try {
+      const profile = await this.requireProfile();
+
+      // Get all groups owned by current user
+      const { data: ownedGroups, error: groupsError } = await this.supabase
+        .from("groups")
+        .select("id")
+        .eq("owner_anon_id", profile.id);
+
+      if (groupsError) {
+        this.handleError(groupsError, "fetch owned groups");
+      }
+
+      if (!ownedGroups || ownedGroups.length === 0) {
+        return [];
+      }
+
+      const groupIds = ownedGroups.map((g) => g.id);
+
+      // Get all pending requests for owned groups
+      const { data: requests, error } = await this.supabase
+        .from("group_members")
+        .select(
+          `
+          *,
+          profile:anonymous_profiles!group_members_anon_profile_id_fkey(id, nickname, created_at),
+          group:groups!group_members_group_id_fkey(id, name, description)
+        `
+        )
+        .in("group_id", groupIds)
+        .eq("is_approved", false);
+
+      if (error) {
+        this.handleError(error, "fetch all pending join requests");
+      }
+
+      return requests || [];
+    } catch (error) {
+      this.handleError(error, "fetch all pending join requests");
     }
   }
 }

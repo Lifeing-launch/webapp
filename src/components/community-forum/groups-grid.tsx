@@ -1,79 +1,115 @@
 import React from "react";
 import { GroupCard } from "@/components/community-forum/group-card";
 import { GroupJoinRequestAlert } from "@/components/community-forum/group-join-request-alert";
-import { ForumGroup, GroupJoinRequest } from "@/typing/forum";
+import { GroupWithDetails } from "@/typing/forum";
+import { usePendingJoinRequests } from "@/hooks/use-forum";
+import { getQueryClient } from "@/components/providers/query-provider";
+import { groupService } from "@/services/forum";
 
 interface GroupsGridProps {
-  onGroupSelect?: (group: ForumGroup) => void;
-}
-
-interface GroupsGridProps {
-  groups: ForumGroup[];
-  onGroupSelect?: (group: ForumGroup) => void;
+  groups: GroupWithDetails[];
+  onGroupSelect?: (group: GroupWithDetails) => void;
 }
 
 export function GroupsGrid({ groups, onGroupSelect }: GroupsGridProps) {
-  // Mock data - em produção viria de uma API
-  const joinRequests: GroupJoinRequest[] = [
-    {
-      id: 1,
-      userId: 101,
-      username: "Alice Johnson",
-      userAvatar: "#2563eb",
-      requestedAt: "2 hours ago",
-      groupId: 1,
-      groupName: "Single 30s Parents",
-    },
-    {
-      id: 2,
-      userId: 102,
-      username: "Bob Smith",
-      userAvatar: "#dc2626",
-      requestedAt: "1 day ago",
-      groupId: 3,
-      groupName: "Independent Explorers in Their 30s",
-    },
-    {
-      id: 3,
-      userId: 103,
-      username: "Carol White",
-      userAvatar: "#16a34a",
-      requestedAt: "3 hours ago",
-      groupId: 1,
-      groupName: "Single 30s Parents",
-    },
-  ];
+  const queryClient = getQueryClient();
 
-  const totalJoinRequests = joinRequests.length;
+  // Track loading states for each group
+  const [loadingGroups, setLoadingGroups] = React.useState<Set<string>>(
+    new Set()
+  );
 
-  const handleGroupClick = (group: ForumGroup) => {
+  // Fetch real pending join requests
+  const {
+    data: pendingRequests,
+    isLoading: isLoadingRequests,
+    error: requestsError,
+  } = usePendingJoinRequests();
+
+  const handleGroupClick = (group: GroupWithDetails) => {
     if (onGroupSelect) {
       onGroupSelect(group);
     }
   };
 
-  const handleJoinRequest = (groupId: string) => {
-    // TODO: Implementar lógica de pedido de entrada
-    console.log("Requesting to join group:", groupId);
+  const setGroupLoading = (groupId: string, isLoading: boolean) => {
+    setLoadingGroups((prev) => {
+      const newSet = new Set(prev);
+      if (isLoading) {
+        newSet.add(groupId);
+      } else {
+        newSet.delete(groupId);
+      }
+      return newSet;
+    });
   };
 
-  const handleJoin = (groupId: string) => {
-    // TODO: Implementar lógica de entrada direta
-    console.log("Joining group:", groupId);
+  const handleJoinRequest = async (groupId: string) => {
+    try {
+      setGroupLoading(groupId, true);
+      await groupService.joinGroup(groupId);
+
+      // Invalidate cache to refresh data
+      queryClient.invalidateQueries({
+        queryKey: ["groups"],
+      });
+
+      console.log("Successfully requested to join group:", groupId);
+    } catch (error) {
+      console.error("Error requesting to join group:", error);
+    } finally {
+      setGroupLoading(groupId, false);
+    }
+  };
+
+  const handleJoin = async (groupId: string) => {
+    try {
+      setGroupLoading(groupId, true);
+      await groupService.joinGroup(groupId);
+
+      // Invalidate cache to refresh data
+      queryClient.invalidateQueries({
+        queryKey: ["groups"],
+      });
+
+      console.log("Successfully joined group:", groupId);
+    } catch (error) {
+      console.error("Error joining group:", error);
+    } finally {
+      setGroupLoading(groupId, false);
+    }
   };
 
   const handleViewRequests = () => {
     // TODO: Implementar lógica para visualizar pedidos
     console.log("View join requests");
+    console.log("Pending requests:", pendingRequests);
   };
+
+  // Don't show join request alert if there are no requests or if loading/error
+  const shouldShowJoinRequestAlert =
+    !isLoadingRequests &&
+    !requestsError &&
+    pendingRequests &&
+    pendingRequests.length > 0;
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log("Groups Grid - Pending requests state:", {
+      isLoading: isLoadingRequests,
+      error: requestsError,
+      data: pendingRequests,
+      count: pendingRequests?.length || 0,
+    });
+  }, [isLoadingRequests, requestsError, pendingRequests]);
 
   return (
     <div className="flex-1 bg-gray-50/50">
       <div className="space-y-6">
         {/* Alert for join requests */}
-        {totalJoinRequests > 0 && (
+        {shouldShowJoinRequestAlert && (
           <GroupJoinRequestAlert
-            requestCount={totalJoinRequests}
+            requestCount={pendingRequests.length}
             onViewRequests={handleViewRequests}
           />
         )}
@@ -87,6 +123,7 @@ export function GroupsGrid({ groups, onGroupSelect }: GroupsGridProps) {
               onClick={() => handleGroupClick(group)}
               onJoin={() => handleJoin(group.id)}
               onRequestJoin={() => handleJoinRequest(group.id)}
+              isJoinLoading={loadingGroups.has(group.id)}
             />
           ))}
         </div>

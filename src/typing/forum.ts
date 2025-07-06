@@ -35,6 +35,7 @@ export interface ForumGroup {
   group_type: GroupTypeEnum;
   owner_anon_id: string;
   created_at: string;
+  members_count: number;
 }
 
 export interface GroupMember {
@@ -385,6 +386,8 @@ export interface GroupWithDetails extends ForumGroup {
   owner_profile: AnonymousProfile;
   members_count: number;
   is_member: boolean;
+  is_owner: boolean;
+  isJoined: boolean;
   member_status?: "pending" | "approved";
 }
 

@@ -41,7 +41,7 @@ export class PostService extends BaseForumService {
     try {
       const {
         groupId,
-        limit = 20,
+        limit = 100,
         offset = 0,
         searchQuery,
         tagId,
@@ -360,7 +360,7 @@ export class PostService extends BaseForumService {
   async getComments(
     postId: string,
     offset: number = 0,
-    limit: number = 15
+    limit: number = 100
   ): Promise<{ comments: Comment[]; total: number }> {
     const { data, error, count } = await this.supabase
       .from("comments")

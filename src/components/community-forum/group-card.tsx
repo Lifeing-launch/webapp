@@ -1,10 +1,10 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Check, LockKeyhole, Users } from "lucide-react";
+import { Check, LockKeyhole, Users, Crown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { ForumGroup } from "@/typing/forum";
+import { GroupWithDetails } from "@/typing/forum";
 
 const cardVariants = cva(
   "group transition-all duration-200 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md hover:border-primary/30",
@@ -52,9 +52,12 @@ const avatarVariants = cva(
 export interface IGroupCard
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof cardVariants> {
-  group: ForumGroup;
+  group: GroupWithDetails & {
+    memberCount?: number;
+  };
   onJoin?: () => void;
   onRequestJoin?: () => void;
+  isJoinLoading?: boolean;
 }
 
 /**
@@ -64,6 +67,7 @@ export function GroupCard({
   group,
   onJoin,
   onRequestJoin,
+  isJoinLoading = false,
   size,
   layout,
   className,
@@ -72,6 +76,10 @@ export function GroupCard({
 }: IGroupCard) {
   const handleJoinClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    // Prevent action if already loading
+    if (isJoinLoading) return;
+
     if (group.group_type === "private") {
       onRequestJoin?.();
     } else {
@@ -100,14 +108,25 @@ export function GroupCard({
 
       {/* Group Content */}
       <div className="flex-1 min-w-0 space-y-1.5">
-        {/* Group Name */}
-        <h3 className="font-semibold text-sm leading-5 text-foreground truncate">
-          {group.name}
-        </h3>
+        {/* Group Name with Owner indicator */}
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-sm leading-5 text-foreground truncate">
+            {group.name}
+          </h3>
+          {group.is_owner && (
+            <Badge
+              variant="secondary"
+              className="bg-amber-100 text-amber-800 rounded-lg flex items-center gap-1 px-2 py-0.5 text-xs"
+            >
+              <Crown className="w-3 h-3" />
+              Owner
+            </Badge>
+          )}
+        </div>
 
         {/* Group Info */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{group.memberCount || 0} members</span>
+          <span>{group.memberCount || group.members_count || 0} members</span>
           <span>•</span>
           {group.group_type === "private" ? (
             <div className="flex items-center gap-1">
@@ -126,7 +145,7 @@ export function GroupCard({
 
         {/* Group Status/Actions */}
         <div className="pt-2">
-          {group.isJoined ? (
+          {group.isJoined || group.is_owner ? (
             <Badge
               variant="secondary"
               className="bg-lime-100 text-lime-800 rounded-lg"
@@ -139,9 +158,21 @@ export function GroupCard({
               size="sm"
               variant="default"
               onClick={handleJoinClick}
-              className="text-xs h-8 cursor-pointer"
+              disabled={isJoinLoading}
+              className="text-xs h-8 cursor-pointer disabled:cursor-not-allowed"
             >
-              {group.group_type === "private" ? "Request to Join" : "Join"}
+              {isJoinLoading ? (
+                <>
+                  <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                  {group.group_type === "private"
+                    ? "Requesting..."
+                    : "Joining..."}
+                </>
+              ) : (
+                <>
+                  {group.group_type === "private" ? "Request to Join" : "Join"}
+                </>
+              )}
             </Button>
           )}
         </div>

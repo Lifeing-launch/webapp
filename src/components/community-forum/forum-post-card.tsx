@@ -69,7 +69,7 @@ export function ForumPostCard({ post, onLike }: IForumPostCard) {
           <div className="min-w-0 flex-1">
             <div className="mb-1.5">
               <h4 className="text-sm font-semibold text-zinc-900">
-                {post.author_profile.nickname}
+                {post.author_profile?.nickname || "Anonymous"}
               </h4>
               <div className="mt-1.5 flex flex-wrap items-center gap-3">
                 <span className="text-xs text-muted-foreground">

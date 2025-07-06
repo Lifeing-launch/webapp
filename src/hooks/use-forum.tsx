@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { postService } from "@/services/forum";
+import { postService, groupService } from "@/services/forum";
 import { useMemo } from "react";
+import { getQueryClient } from "@/components/providers/query-provider";
 
 export type UseForumPostsOptions = {
   groupId?: string;
@@ -54,5 +55,59 @@ export function useForumPosts(options: UseForumPostsOptions = {}) {
     posts,
     tags,
     categories,
+  };
+}
+
+/**
+ * Hook to fetch all pending join requests for groups owned by current user
+ */
+export function usePendingJoinRequests() {
+  return useQuery({
+    queryKey: ["pending-join-requests"],
+    queryFn: async () => {
+      return await groupService.getAllPendingJoinRequests();
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes to keep data fresh
+  });
+}
+
+/**
+ * Hook to manage group member operations with proper cache invalidation
+ */
+export function useGroupMemberActions() {
+  const queryClient = getQueryClient();
+
+  const approveGroupMember = async (groupId: string, memberId: string) => {
+    await groupService.approveGroupMember(groupId, memberId);
+
+    // Invalidate cache to refresh data
+    queryClient.invalidateQueries({
+      queryKey: ["pending-join-requests"],
+    });
+
+    // Also invalidate groups cache if needed
+    queryClient.invalidateQueries({
+      queryKey: ["groups"],
+    });
+  };
+
+  const removeGroupMember = async (groupId: string, memberId: string) => {
+    await groupService.removeGroupMember(groupId, memberId);
+
+    // Invalidate cache to refresh data
+    queryClient.invalidateQueries({
+      queryKey: ["pending-join-requests"],
+    });
+
+    // Also invalidate groups cache if needed
+    queryClient.invalidateQueries({
+      queryKey: ["groups"],
+    });
+  };
+
+  return {
+    approveGroupMember,
+    removeGroupMember,
   };
 }

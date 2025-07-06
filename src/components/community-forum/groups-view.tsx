@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { GroupsGrid } from "@/components/community-forum/groups-grid";
 import { GroupThreads } from "@/components/community-forum/group-threads";
-import { ForumGroup } from "@/typing/forum";
+import { GroupWithDetails } from "@/typing/forum";
 import { ForumSidebar } from "@/components/community-forum/forum-sidebar";
 import { ForumHeader } from "@/components/community-forum/forum-header";
 import SidebarSection from "./sidebar/sidebar-section";
@@ -13,7 +13,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useAnonymousProfile } from "@/hooks/use-anonymous-profile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, Users } from "lucide-react";
-
 export interface IGroupsViewProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -114,6 +113,9 @@ export const GroupsView = ({
   activePage,
   setActivePage,
 }: IGroupsViewProps) => {
+  const [selectedGroup, setSelectedGroup] = useState<GroupWithDetails | null>(
+    null
+  );
   const { profile } = useAnonymousProfile();
 
   const {
@@ -125,8 +127,6 @@ export const GroupsView = ({
     queryKey: ["groups"],
     queryFn: () => groupService.getGroups(),
   });
-
-  const [selectedGroup, setSelectedGroup] = useState<ForumGroup | null>(null);
 
   const myGroups = groups?.filter(
     (group) => group.owner_anon_id === profile?.id
@@ -155,7 +155,7 @@ export const GroupsView = ({
               <>
                 <SidebarSection title="My Groups">
                   <CategoryList
-                    activeCategory={selectedGroup?.name}
+                    activeCategory={selectedGroup?.id}
                     categories={
                       myGroups?.map((group) => ({
                         id: group.id,
@@ -164,15 +164,14 @@ export const GroupsView = ({
                     }
                     onCategoryClick={(category) => {
                       setSelectedGroup(
-                        myGroups?.find((group) => group.name === category) ||
-                          null
+                        myGroups?.find((group) => group.id === category) || null
                       );
                     }}
                   />
                 </SidebarSection>
                 <SidebarSection title="Public Groups">
                   <CategoryList
-                    activeCategory={selectedGroup?.name}
+                    activeCategory={selectedGroup?.id}
                     categories={
                       publicGroups?.map((group) => ({
                         id: group.id,
@@ -181,9 +180,8 @@ export const GroupsView = ({
                     }
                     onCategoryClick={(category) => {
                       setSelectedGroup(
-                        publicGroups?.find(
-                          (group) => group.name === category
-                        ) || null
+                        publicGroups?.find((group) => group.id === category) ||
+                          null
                       );
                     }}
                   />
@@ -203,7 +201,7 @@ export const GroupsView = ({
                 ) : (
                   /* Groups grid */
                   <GroupsGrid
-                    groups={groups as ForumGroup[]}
+                    groups={groups || []}
                     onGroupSelect={setSelectedGroup}
                   />
                 )}
@@ -211,7 +209,7 @@ export const GroupsView = ({
             )}
           </div>
         </ForumSidebar>
-        {selectedGroup && <GroupThreads />}
+        {selectedGroup && <GroupThreads groupId={selectedGroup.id} />}
       </div>
     </>
   );
