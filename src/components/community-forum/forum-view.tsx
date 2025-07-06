@@ -34,14 +34,14 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
   const handleTagClick = useCallback((tagId: string) => {
     setFilters((prev) => ({
       ...prev,
-      tagId: prev.tagId === tagId ? null : tagId,
+      tagId: prev.tagId === tagId ? undefined : tagId,
     }));
   }, []);
 
   const handleCategoryClick = useCallback((categoryId: string) => {
     setFilters((prev) => ({
       ...prev,
-      categoryId: prev.categoryId === categoryId ? null : categoryId,
+      categoryId: prev.categoryId === categoryId ? undefined : categoryId,
     }));
   }, []);
 
@@ -71,14 +71,14 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
             <TagList
               tags={tags.data ?? []}
               isLoading={tags.isLoading}
-              activeTag={filters.tagId ?? undefined}
+              activeTag={filters.tagId}
               onTagClick={handleTagClick}
             />
           </SidebarSection>
 
           <SidebarSection title="Browse by Categories">
             <CategoryList
-              activeCategory={filters.categoryId ?? undefined}
+              activeCategory={filters.categoryId}
               categories={categories.data ?? []}
               isLoading={categories.isLoading}
               onCategoryClick={handleCategoryClick}

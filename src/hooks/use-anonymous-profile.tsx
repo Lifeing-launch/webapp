@@ -1,10 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { forumClient } from "@/utils/supabase/forum";
 import { AnonymousProfile } from "@/typing/forum";
 import { User } from "@supabase/supabase-js";
 import { profileService } from "@/services/forum/profile-service";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const ANONYMOUS_PROFILE_STORAGE_KEY = "anonymous_profile";
 
@@ -25,162 +26,176 @@ const AnonymousProfileContext = createContext<
 
 /**
  * Provider para gerenciar o perfil anônimo do usuário
- * Agora usa ProfileService para operações de dados, mantendo apenas
- * o estado React e lifecycle aqui
+ * Agora usa React Query para gerenciar cache e estado
  */
 export const AnonymousProfileProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [profile, setProfile] = useState<AnonymousProfile | null>(() => {
-    if (typeof window === "undefined") {
-      return null;
-    }
-    try {
-      const item = window.localStorage.getItem(ANONYMOUS_PROFILE_STORAGE_KEY);
-      return item ? JSON.parse(item) : null;
-    } catch (error) {
-      console.error(
-        "Error reading anonymous profile from local storage:",
-        error
-      );
-      return null;
-    }
+  const queryClient = useQueryClient();
+
+  // Query para o usuário autenticado
+  const {
+    data: user,
+    isLoading: userLoading,
+    error: userError,
+  } = useQuery({
+    queryKey: ["auth-user"],
+    queryFn: async () => {
+      const { data } = await forumClient.auth.getUser();
+      return data.user;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    refetchInterval: 10 * 60 * 1000, // Verificar a cada 10 minutos
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
 
-  const supabase = forumClient;
+  // Query para o perfil anônimo
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    error: profileError,
+    refetch: refetchProfile,
+  } = useQuery({
+    queryKey: ["anonymous-profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
 
-  /**
-   * Cria um novo perfil anônimo usando ProfileService
-   */
-  const createProfile = async (nickname: string): Promise<AnonymousProfile> => {
-    setLoading(true);
-    setError(null);
+      try {
+        const fetchedProfile = await profileService.getCurrentProfile();
 
-    try {
+        // Atualizar localStorage com o perfil
+        if (fetchedProfile) {
+          localStorage.setItem(
+            ANONYMOUS_PROFILE_STORAGE_KEY,
+            JSON.stringify(fetchedProfile)
+          );
+        } else {
+          localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
+        }
+
+        return fetchedProfile;
+      } catch (error) {
+        // Se retornar 406 (não encontrado), retornar null sem erro
+        if (error instanceof Error && error.message.includes("406")) {
+          localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
+          return null;
+        }
+        throw error;
+      }
+    },
+    enabled: !!user && !userLoading,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    retry: (failureCount, error) => {
+      // Não fazer retry se for erro 406 (perfil não encontrado)
+      if (error instanceof Error && error.message.includes("406")) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    // Não usar initialData ou placeholderData para forçar sempre verificar na base
+    // quando não houver cache do React Query
+  });
+
+  // Mutation para criar perfil
+  const createProfileMutation = useMutation({
+    mutationFn: async (nickname: string) => {
       const newProfile = await profileService.createProfile(nickname);
-      setProfile(newProfile);
-      window.localStorage.setItem(
+      return newProfile;
+    },
+    onSuccess: (newProfile) => {
+      // Atualizar cache do React Query
+      queryClient.setQueryData(["anonymous-profile", user?.id], newProfile);
+
+      // Atualizar localStorage
+      localStorage.setItem(
         ANONYMOUS_PROFILE_STORAGE_KEY,
         JSON.stringify(newProfile)
       );
-      return newProfile;
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to create profile";
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    onError: (error) => {
+      console.error("Failed to create profile:", error);
+    },
+  });
 
-  /**
-   * Atualiza o perfil anônimo usando ProfileService
-   */
-  const updateProfile = async (nickname: string): Promise<AnonymousProfile> => {
-    setLoading(true);
-    setError(null);
-
-    try {
+  // Mutation para atualizar perfil
+  const updateProfileMutation = useMutation({
+    mutationFn: async (nickname: string) => {
       const updatedProfile = await profileService.updateProfile(nickname);
-      setProfile(updatedProfile);
-      window.localStorage.setItem(
+      return updatedProfile;
+    },
+    onSuccess: (updatedProfile) => {
+      // Atualizar cache do React Query
+      queryClient.setQueryData(["anonymous-profile", user?.id], updatedProfile);
+
+      // Atualizar localStorage
+      localStorage.setItem(
         ANONYMOUS_PROFILE_STORAGE_KEY,
         JSON.stringify(updatedProfile)
       );
-      return updatedProfile;
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to update profile";
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    onError: (error) => {
+      console.error("Failed to update profile:", error);
+    },
+  });
+
+  // Effect para monitorar mudanças de autenticação
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = forumClient.auth.onAuthStateChange(async (event) => {
+      // Invalidar query do usuário quando auth state mudar
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+
+      if (event === "SIGNED_OUT") {
+        // Limpar localStorage quando usuário deslogar
+        localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
+        // Limpar cache do perfil
+        queryClient.setQueryData(["anonymous-profile"], null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [queryClient]);
 
   /**
-   * Verifica se nickname está disponível usando ProfileService
+   * Funções wrapper para manter compatibilidade com a API anterior
    */
+  const createProfile = async (nickname: string): Promise<AnonymousProfile> => {
+    return createProfileMutation.mutateAsync(nickname);
+  };
+
+  const updateProfile = async (nickname: string): Promise<AnonymousProfile> => {
+    return updateProfileMutation.mutateAsync(nickname);
+  };
+
   const isNicknameAvailable = async (nickname: string): Promise<boolean> => {
     return profileService.isNicknameAvailable(nickname);
   };
 
-  /**
-   * Atualiza o perfil anônimo usando ProfileService
-   */
   const refreshProfile = async (): Promise<void> => {
-    if (!user) {
-      setProfile(null);
-      window.localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const fetchedProfile = await profileService.getCurrentProfile();
-      setProfile(fetchedProfile);
-      if (fetchedProfile) {
-        window.localStorage.setItem(
-          ANONYMOUS_PROFILE_STORAGE_KEY,
-          JSON.stringify(fetchedProfile)
-        );
-      } else {
-        window.localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to fetch profile");
-      setProfile(null);
-      window.localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
-    } finally {
-      setLoading(false);
-    }
+    await refetchProfile();
   };
 
-  // Effect para monitorar mudanças de autenticação
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-    };
+  // Estados combinados
+  const loading =
+    userLoading ||
+    profileLoading ||
+    createProfileMutation.isPending ||
+    updateProfileMutation.isPending;
 
-    getUser();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Effect para buscar perfil quando usuário muda
-  useEffect(() => {
-    if (user) {
-      refreshProfile();
-    } else {
-      setProfile(null);
-      window.localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
-      setLoading(false);
-    }
-  }, [user]);
+  const error =
+    userError?.message ||
+    profileError?.message ||
+    createProfileMutation.error?.message ||
+    updateProfileMutation.error?.message ||
+    null;
 
   const value: AnonymousProfileContextType = {
-    profile,
+    profile: profile ?? null,
     loading,
     error,
-    user,
+    user: user ?? null,
     refreshProfile,
     createProfile,
     updateProfile,
@@ -213,7 +228,8 @@ export const useAnonymousProfile = (): AnonymousProfileContextType => {
 export const useProfileSetup = () => {
   const { profile, loading, user } = useAnonymousProfile();
 
-  const needsSetup = !loading && user && !profile;
+  // Só considera que precisa de setup se não estiver loading e tiver user mas não tiver profile
+  const needsSetup = !loading && !!user && !profile;
   const isReady = !loading && !!profile;
 
   return {
