@@ -63,11 +63,10 @@ export function GroupThreads({ groupId, searchQuery }: IGroupThreads) {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-
       {/* Posts List - Scrollable Area */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 py-3 pb-0">
-          <ForumPostList filters={filters}  />
+          <ForumPostList filters={filters} />
         </div>
       </div>
 

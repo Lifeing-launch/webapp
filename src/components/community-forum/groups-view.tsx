@@ -13,6 +13,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useAnonymousProfile } from "@/hooks/use-anonymous-profile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, Users } from "lucide-react";
+import NewGroupModal from "./new-group-modal";
+
 export interface IGroupsViewProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -116,6 +118,7 @@ export const GroupsView = ({
   const [selectedGroup, setSelectedGroup] = useState<GroupWithDetails | null>(
     null
   );
+  const [openNewGroupModal, setOpenNewGroupModal] = useState(false);
   const { profile } = useAnonymousProfile();
 
   const {
@@ -123,6 +126,7 @@ export const GroupsView = ({
     isLoading,
     error,
     isFetched,
+    refetch: refetchGroups,
   } = useQuery({
     queryKey: ["groups"],
     queryFn: () => groupService.getGroups(),
@@ -133,6 +137,25 @@ export const GroupsView = ({
   );
   const publicGroups = groups?.filter((group) => group.group_type === "public");
 
+  const handleCreateGroup = () => {
+    setOpenNewGroupModal(true);
+  };
+
+  const handleGroupModalClose = () => {
+    setOpenNewGroupModal(false);
+  };
+
+  const handleGroupCreated = () => {
+    refetchGroups();
+  };
+
+  const handleOpenGroup = (group: { id: string; name: string }) => {
+    const foundGroup = groups?.find((g) => g.id === group.id);
+    if (foundGroup) {
+      setSelectedGroup(foundGroup);
+    }
+  };
+
   return (
     <>
       <div className="sticky top-0 z-20 bg-background border-b border-border px-4 py-3">
@@ -141,6 +164,7 @@ export const GroupsView = ({
           searchQuery={searchQuery}
           placeholder="Search groups"
           setSearchQuery={setSearchQuery}
+          buttonOnClick={handleCreateGroup}
         />
       </div>
 
@@ -213,6 +237,13 @@ export const GroupsView = ({
           <GroupThreads groupId={selectedGroup.id} searchQuery={searchQuery} />
         )}
       </div>
+
+      <NewGroupModal
+        open={openNewGroupModal}
+        onClose={handleGroupModalClose}
+        revalidate={handleGroupCreated}
+        openGroup={handleOpenGroup}
+      />
     </>
   );
 };
