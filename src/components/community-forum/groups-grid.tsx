@@ -1,6 +1,7 @@
 import React from "react";
 import { GroupCard } from "@/components/community-forum/group-card";
 import { GroupJoinRequestAlert } from "@/components/community-forum/group-join-request-alert";
+import { JoinRequestsModal } from "@/components/community-forum/join-requests-modal";
 import { GroupWithDetails } from "@/typing/forum";
 import { usePendingJoinRequests } from "@/hooks/use-forum";
 import { getQueryClient } from "@/components/providers/query-provider";
@@ -18,6 +19,10 @@ export function GroupsGrid({ groups, onGroupSelect }: GroupsGridProps) {
   const [loadingGroups, setLoadingGroups] = React.useState<Set<string>>(
     new Set()
   );
+
+  // Modal state
+  const [isJoinRequestsModalOpen, setIsJoinRequestsModalOpen] =
+    React.useState(false);
 
   // Fetch real pending join requests
   const {
@@ -81,9 +86,17 @@ export function GroupsGrid({ groups, onGroupSelect }: GroupsGridProps) {
   };
 
   const handleViewRequests = () => {
-    // TODO: Implementar lógica para visualizar pedidos
-    console.log("View join requests");
-    console.log("Pending requests:", pendingRequests);
+    setIsJoinRequestsModalOpen(true);
+  };
+
+  const handleRequestProcessed = () => {
+    // Invalidate cache to refresh data
+    queryClient.invalidateQueries({
+      queryKey: ["pending-join-requests"],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["groups"],
+    });
   };
 
   // Don't show join request alert if there are no requests or if loading/error
@@ -92,16 +105,6 @@ export function GroupsGrid({ groups, onGroupSelect }: GroupsGridProps) {
     !requestsError &&
     pendingRequests &&
     pendingRequests.length > 0;
-
-  // Debug logging
-  React.useEffect(() => {
-    console.log("Groups Grid - Pending requests state:", {
-      isLoading: isLoadingRequests,
-      error: requestsError,
-      data: pendingRequests,
-      count: pendingRequests?.length || 0,
-    });
-  }, [isLoadingRequests, requestsError, pendingRequests]);
 
   return (
     <div className="flex-1 bg-gray-50/50">
@@ -129,6 +132,14 @@ export function GroupsGrid({ groups, onGroupSelect }: GroupsGridProps) {
             </div>
           ))}
         </div>
+
+        {/* Join Requests Modal */}
+        <JoinRequestsModal
+          open={isJoinRequestsModalOpen}
+          onOpenChange={setIsJoinRequestsModalOpen}
+          requests={pendingRequests || []}
+          onRequestProcessed={handleRequestProcessed}
+        />
       </div>
     </div>
   );

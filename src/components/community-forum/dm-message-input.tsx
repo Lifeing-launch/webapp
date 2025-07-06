@@ -46,16 +46,16 @@ export function DMMessageInput({
             rows={3}
           />
         </div>
-        <Button
-          type="submit"
-          disabled={!message.trim() || disabled}
-          className="bg-primary hover:bg-primary/90 text-white shadow-sm"
-          size="default"
-        >
-          <Send className="h-4 w-4 mr-2" />
-          Send
-        </Button>
       </div>
+      <Button
+        type="submit"
+        disabled={!message.trim() || disabled}
+        className="bg-primary hover:bg-primary/90 text-white shadow-sm"
+        size="default"
+      >
+        <Send className="h-4 w-4 mr-2" />
+        Send
+      </Button>
     </form>
   );
 }

@@ -137,6 +137,32 @@ export class ProfileService {
       return false;
     }
   }
+
+  /**
+   * Search for anonymous profiles by nickname
+   */
+  async searchProfiles(searchQuery: string): Promise<AnonymousProfile[]> {
+    try {
+      if (!searchQuery.trim()) {
+        return [];
+      }
+
+      const { data, error } = await this.supabase
+        .from("anonymous_profiles")
+        .select("*")
+        .ilike("nickname", `%${searchQuery.trim()}%`)
+        .limit(10);
+
+      if (error) {
+        throw error;
+      }
+
+      return data || [];
+    } catch (err) {
+      console.error("Error searching profiles:", err);
+      return [];
+    }
+  }
 }
 
 export const profileService = new ProfileService();

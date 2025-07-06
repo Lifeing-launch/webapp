@@ -1,11 +1,11 @@
 import React from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { DirectMessage } from "@/typing/forum";
+import { MessageWithDetails } from "@/typing/forum";
 import { formatTimeAgo } from "@/utils/datetime";
 
 interface DMMessageCardProps {
-  message: DirectMessage;
+  message: MessageWithDetails;
 }
 
 /**
@@ -13,7 +13,7 @@ interface DMMessageCardProps {
  * Displays individual direct messages without likes or comments
  */
 export function DMMessageCard({ message }: DMMessageCardProps) {
-  const displayName = message.sender?.nickname || "Unknown User";
+  const displayName = message.sender_profile?.nickname || "Unknown User";
 
   return (
     <div

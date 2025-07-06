@@ -1,9 +1,9 @@
 import React from "react";
-import { DirectMessage } from "@/typing/forum";
+import { MessageWithDetails } from "@/typing/forum";
 import { DMMessageCard } from "./dm-message-card";
 
 interface DMMessagesListProps {
-  messages: DirectMessage[];
+  messages: MessageWithDetails[];
 }
 
 /**

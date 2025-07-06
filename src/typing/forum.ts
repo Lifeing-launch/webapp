@@ -274,7 +274,7 @@ export interface Group {
 
 /** @deprecated Use AnonymousProfile instead - keeping for backward compatibility */
 export interface DMContact {
-  id: number;
+  id: string;
   username: string;
   avatarColor: string;
   lastMessage?: string;

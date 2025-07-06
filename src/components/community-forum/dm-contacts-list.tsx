@@ -1,62 +1,80 @@
 import React from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { DMContact } from "@/typing/forum";
-import { User } from "lucide-react";
 
-export interface IDMContactsList {
+interface DMContactsListProps {
   contacts: DMContact[];
-  selectedContactId?: number;
-  onContactSelect: (contactId: number) => void;
+  selectedContactId?: string;
+  onContactSelect: (contactId: string) => void;
 }
 
 /**
  * Direct Messages Contacts List Component
- * Shows list of contacts for direct messaging
+ * Displays a list of users that have exchanged messages with the current user
  */
 export function DMContactsList({
   contacts,
   selectedContactId,
   onContactSelect,
-}: IDMContactsList) {
+}: DMContactsListProps) {
   return (
-    <div className="flex flex-col gap-4 py-3">
-      {contacts.map((contact) => (
-        <div
-          key={contact.id}
-          onClick={() => onContactSelect(contact.id)}
-          className={cn(
-            "flex items-center gap-1.5 p-0 cursor-pointer hover:opacity-80 transition-opacity",
-            contact.isActive && "opacity-100",
-            selectedContactId === contact.id && "font-semibold"
-          )}
-        >
-          <div className="h-5 w-5 flex-shrink-0 bg-primary rounded-full flex items-center justify-center">
-            <User className="w-3 h-3 text-white" />
-          </div>
-
-          {/* Contact Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span
-                className={cn(
-                  "text-sm truncate",
-                  selectedContactId === contact.id
-                    ? "text-primary font-semibold"
-                    : "text-zinc-900"
-                )}
-              >
-                {contact.username}
-              </span>
-              {/* {contact.unreadCount && contact.unreadCount > 0 ? (
-                <span className="bg-primary text-white text-xs rounded-full px-1.5 py-0.5  text-center leading-none">
-                  {contact.unreadCount}
-                </span>
-              ) : null} */}
-            </div>
-          </div>
+    <div className="h-full overflow-y-auto">
+      {contacts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-64 text-center p-4">
+          <p className="text-muted-foreground text-sm">
+            No conversations yet. Start a new conversation!
+          </p>
         </div>
-      ))}
+      ) : (
+        <div className="py-2">
+          {contacts.map((contact) => (
+            <button
+              key={contact.id}
+              onClick={() => onContactSelect(contact.id)}
+              className={cn(
+                "w-full flex items-center gap-3 p-3 hover:bg-accent rounded-lg transition-colors",
+                selectedContactId === contact.id && "bg-accent"
+              )}
+            >
+              {/* Avatar */}
+              <div className="h-6 w-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-medium">
+                {contact.username.slice(1, 3).toUpperCase()}
+              </div>
+
+              {/* Contact Info */}
+              <div className="flex-1 min-w-0 text-left">
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-semibold text-foreground truncate">
+                    {contact.username}
+                  </h4>
+                  {/* {contact.isActive && (
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  )} */}
+                </div>
+
+                {/* {contact.lastMessage && (
+                  <p className="text-xs text-muted-foreground truncate">
+                    {contact.lastMessage}
+                  </p>
+                )} */}
+
+                {/* {contact.lastMessageTime && (
+                  <span className="text-xs text-muted-foreground">
+                    {formatTimeAgo(contact.lastMessageTime)}
+                  </span>
+                )} */}
+              </div>
+
+              {/* Unread Count */}
+              {/* {contact.unreadCount && contact.unreadCount > 0 && (
+                <Badge variant="destructive" className="ml-2">
+                  {contact.unreadCount}
+                </Badge>
+              )} */}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
