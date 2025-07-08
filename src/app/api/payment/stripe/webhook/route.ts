@@ -20,13 +20,6 @@ export async function POST(request: NextRequest) {
     const sig = request.headers.get("stripe-signature");
     const rawBody = Buffer.from(await request.arrayBuffer());
 
-    console.log(
-      "Signing secret:",
-      JSON.stringify(process.env.STRIPE_WEBHOOK_SECRET)
-    );
-    console.log("Signature header:", sig);
-    console.log("Raw body:", rawBody);
-
     if (!sig) {
       console.error("Missing Stripe signature header");
       return NextResponse.json({ error: "Missing signature" }, { status: 400 });
