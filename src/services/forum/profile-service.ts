@@ -43,57 +43,47 @@ export class ProfileService {
   }
 
   async createProfile(nickname: string): Promise<AnonymousProfile> {
-    try {
-      const {
-        data: { user },
-      } = await this.supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await this.supabase.auth.getUser();
 
-      if (!user) {
-        throw new Error("User not authenticated");
-      }
-
-      const { data, error } = await this.supabase
-        .from("anonymous_profiles")
-        .insert({
-          user_id: user.id,
-          nickname: nickname.trim(),
-        })
-        .select()
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      return data;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to create profile";
-      throw new Error(errorMessage);
+    if (!user) {
+      throw new Error("User not authenticated");
     }
+
+    const { data, error } = await this.supabase
+      .from("anonymous_profiles")
+      .insert({
+        user_id: user.id,
+        nickname: nickname.trim(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      // Preserve the original Supabase error
+      throw error;
+    }
+
+    return data;
   }
 
   async updateProfile(nickname: string): Promise<AnonymousProfile> {
-    try {
-      const profile = await this.requireProfile();
+    const profile = await this.requireProfile();
 
-      const { data, error } = await this.supabase
-        .from("anonymous_profiles")
-        .update({ nickname: nickname.trim() })
-        .eq("id", profile.id)
-        .select()
-        .single();
+    const { data, error } = await this.supabase
+      .from("anonymous_profiles")
+      .update({ nickname: nickname.trim() })
+      .eq("id", profile.id)
+      .select()
+      .single();
 
-      if (error) {
-        throw error;
-      }
-
-      return data;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to update profile";
-      throw new Error(errorMessage);
+    if (error) {
+      // Preserve the original Supabase error
+      throw error;
     }
+
+    return data;
   }
 
   async deleteProfile(): Promise<void> {

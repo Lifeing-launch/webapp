@@ -4,33 +4,57 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
-    await checkUserIsAuthenticated();
+    const user = await checkUserIsAuthenticated();
 
-    const { resource_id, resource_type } = await request.json();
+    const { resource_id, resource_type, content } = await request.json();
 
-    if (!resource_id || !resource_type) {
+    if (!resource_type) {
       return NextResponse.json(
-        { error: "Missing resource_id or resource_type" },
+        { error: "Missing resource_type" },
         { status: 400 }
       );
     }
 
-    if (!["post", "comment"].includes(resource_type)) {
+    if (!["post", "comment", "nickname"].includes(resource_type)) {
       return NextResponse.json(
-        { error: "Invalid resource_type. Must be 'post' or 'comment'" },
+        {
+          error:
+            "Invalid resource_type. Must be 'post', 'comment', or 'nickname'",
+        },
         { status: 400 }
       );
+    }
+
+    if (resource_type === "nickname") {
+      if (!content) {
+        return NextResponse.json(
+          { error: "Missing content for nickname moderation" },
+          { status: 400 }
+        );
+      }
+    } else {
+      // Para posts e comments
+      if (!resource_id) {
+        return NextResponse.json(
+          { error: "Missing resource_id for post/comment moderation" },
+          { status: 400 }
+        );
+      }
     }
 
     const supabase = await createClient();
 
+    const requestBody = {
+      resource_type,
+      ...(resource_type === "nickname"
+        ? { content, user_id: user.id }
+        : { resource_id }),
+    };
+
     const { data, error } = await supabase.functions.invoke(
       "moderate-resource",
       {
-        body: {
-          resource_id,
-          resource_type,
-        },
+        body: requestBody,
       }
     );
 
@@ -42,10 +66,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (resource_type === "nickname") {
+      return NextResponse.json({
+        success: true,
+        isValid: data.status === "approved",
+        status: data.status,
+        message:
+          data.status === "approved"
+            ? "Nickname is valid"
+            : "Nickname contains inappropriate content",
+      });
+    }
+
     return NextResponse.json({
       success: true,
       message: `${resource_type} moderated successfully`,
-      data,
+      status: data.status,
     });
   } catch (error) {
     console.error("Moderation API error:", error);

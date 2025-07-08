@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       },
     });
 
-    const { resource_id, resource_type, content } = await req.json();
+    const { resource_id, resource_type, content, user_id } = await req.json();
 
     if (!resource_type) {
       return new Response(JSON.stringify({ error: "Missing resource_type" }), {
@@ -86,8 +86,18 @@ Deno.serve(async (req) => {
           }
         );
       }
+      if (!user_id) {
+        return new Response(
+          JSON.stringify({
+            error: "Missing user_id for nickname moderation",
+          }),
+          {
+            status: 400,
+          }
+        );
+      }
       resourceContent = content;
-      authorAnonId = resource_id; // Para nickname, resource_id é o anon_profile_id
+      authorAnonId = null; // Para nicknames, ainda não temos anon_profile_id
     } else {
       // Para posts e comments, busca na tabela
       if (!resource_id) {
@@ -129,20 +139,24 @@ Deno.serve(async (req) => {
         .throwOnError();
     }
 
-    // Log de moderação
+    // Log de moderação - tratamento diferente para nicknames
+    const moderationLogData = {
+      resource_type,
+      resource_id: resource_type === "nickname" ? user_id : resource_id,
+      action: status,
+      reason:
+        resource_type === "nickname"
+          ? `Nickname "${resourceContent}" ${status} by AI moderator`
+          : status === "rejected"
+          ? `${resource_type} rejected by AI moderator`
+          : `${resource_type} approved by AI moderator`,
+      ...(resource_type !== "nickname" && { reviewer_anon_id: authorAnonId }),
+    };
+
     await supabase
       .schema("forum")
       .from("moderation_log")
-      .insert({
-        resource_type,
-        resource_id: resource_type === "nickname" ? null : resource_id,
-        action: status,
-        reviewer_anon_id: authorAnonId,
-        reason:
-          status === "rejected"
-            ? `${resource_type} rejected by AI moderator`
-            : `${resource_type} approved by AI moderator`,
-      })
+      .insert(moderationLogData)
       .throwOnError();
 
     return new Response(
