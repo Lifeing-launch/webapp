@@ -18,7 +18,6 @@ import { stripeClient } from "@/services/subscription";
 export async function POST(request: NextRequest) {
   try {
     const sig = request.headers.get("stripe-signature");
-    // const rawBody = await request.text();
     const rawBody = Buffer.from(await request.arrayBuffer());
 
     console.log(
