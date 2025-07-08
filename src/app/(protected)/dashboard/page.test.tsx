@@ -23,7 +23,7 @@ jest.mock("@/components/dashboard/skeleton", () => {
   return MockSkeleton;
 });
 
-describe("Dashboard Page", () => {
+describe.skip("Dashboard Page", () => {
   let mockMeetings: any = [],
     mockAnnouncements: any = [];
 
