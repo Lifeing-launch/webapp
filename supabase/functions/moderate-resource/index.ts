@@ -148,8 +148,8 @@ Deno.serve(async (req) => {
         resource_type === "nickname"
           ? `Nickname "${resourceContent}" ${status} by AI moderator`
           : status === "rejected"
-          ? `${resource_type} rejected by AI moderator`
-          : `${resource_type} approved by AI moderator`,
+            ? `${resource_type} rejected by AI moderator`
+            : `${resource_type} approved by AI moderator`,
       ...(resource_type !== "nickname" && { reviewer_anon_id: authorAnonId }),
     };
 

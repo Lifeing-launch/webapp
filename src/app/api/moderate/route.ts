@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
         );
       }
     } else {
-      // Para posts e comments
       if (!resource_id) {
         return NextResponse.json(
           { error: "Missing resource_id for post/comment moderation" },

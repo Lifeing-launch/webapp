@@ -18,14 +18,14 @@ import {
   useAnonymousProfile,
   useProfileSetup,
 } from "@/hooks/use-anonymous-profile";
+import { classifyForumError } from "@/utils/forum-error-handler";
 
 export const NicknameSetupModal = () => {
   const router = useRouter();
   const [nickname, setNickname] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customError, setCustomError] = useState<string | null>(null);
-  const { createProfile, loading, error } = useAnonymousProfile();
-
+  const { createProfile, loading } = useAnonymousProfile();
   const { needsSetup } = useProfileSetup();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,30 +41,8 @@ export const NicknameSetupModal = () => {
     } catch (err: unknown) {
       console.error("Error creating profile:", err);
 
-      if (err instanceof Error) {
-        if (
-          err.name === "NicknameRejectedError" ||
-          err.message === "NICKNAME_REJECTED" ||
-          err.message.includes("NICKNAME_REJECTED")
-        ) {
-          setCustomError(
-            "This nickname contains inappropriate content. Please choose a different one."
-          );
-        } else if (
-          err.message.includes("duplicate key") ||
-          err.message.includes("unique constraint")
-        ) {
-          setCustomError("This nickname is already in use. Try another one.");
-        } else if (err.message.includes("Failed to moderate")) {
-          setCustomError("Unable to validate nickname. Please try again.");
-        } else {
-          setCustomError(
-            "An error occurred while creating your profile. Please try again."
-          );
-        }
-      } else {
-        setCustomError("An unexpected error occurred. Please try again.");
-      }
+      const { message } = classifyForumError(err);
+      setCustomError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -74,8 +52,14 @@ export const NicknameSetupModal = () => {
     router.push("/dashboard");
   };
 
+  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNickname(e.target.value);
+    if (customError) {
+      setCustomError(null);
+    }
+  };
+
   const isValidNickname = nickname.trim().length >= 3;
-  const displayError = customError || error;
 
   if (loading || !needsSetup) return null;
 
@@ -111,12 +95,7 @@ export const NicknameSetupModal = () => {
               <Input
                 id="nickname"
                 value={nickname}
-                onChange={(e) => {
-                  setNickname(e.target.value);
-                  if (customError) {
-                    setCustomError(null);
-                  }
-                }}
+                onChange={handleNicknameChange}
                 placeholder="Ex: Explorer123"
                 maxLength={30}
                 disabled={loading || isSubmitting}
@@ -127,9 +106,9 @@ export const NicknameSetupModal = () => {
               </p>
             </div>
 
-            {displayError && (
+            {customError && (
               <Alert variant="destructive">
-                <AlertDescription>{displayError}</AlertDescription>
+                <AlertDescription>{customError}</AlertDescription>
               </Alert>
             )}
 
