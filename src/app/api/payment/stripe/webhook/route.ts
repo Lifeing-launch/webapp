@@ -25,10 +25,7 @@ export async function POST(request: NextRequest) {
       JSON.stringify(process.env.STRIPE_WEBHOOK_SECRET)
     );
     console.log("Signature header:", sig);
-    console.log(
-      "First 200 bytes of raw body:",
-      rawBody.slice(0, 200).toString()
-    );
+    console.log("Raw body:", rawBody);
 
     if (!sig) {
       console.error("Missing Stripe signature header");
