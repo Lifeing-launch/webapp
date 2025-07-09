@@ -4,10 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { PostWithDetails, StatusEnum } from "@/typing/forum";
 import { PostActions } from "./post-actions";
-import { CommentSection } from "./comments/comment-section";
 import { formatTimeAgo } from "@/utils/datetime";
 import { User, Clock, AlertCircle } from "lucide-react";
-import * as Collapsible from "@radix-ui/react-collapsible";
 import {
   Tooltip,
   TooltipContent,
@@ -19,6 +17,8 @@ export interface IForumPostCard {
   post: PostWithDetails;
   onLike?: (postId: string) => void;
   onAddComment?: (postId: string, comment: string) => void;
+  onCommentClick?: () => void;
+  isDetailView?: boolean;
 }
 
 const getStatusStyles = (status: StatusEnum) => {
@@ -32,10 +32,14 @@ const getStatusStyles = (status: StatusEnum) => {
   }
 };
 
-export function ForumPostCard({ post, onLike }: IForumPostCard) {
+export function ForumPostCard({
+  post,
+  onLike,
+  onCommentClick,
+  isDetailView = false,
+}: IForumPostCard) {
   const [isLiked, setIsLiked] = useState(post.is_liked || false);
   const [likesCount, setLikesCount] = useState(post.likes_count || 0);
-  const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
 
   const status = post.status ?? "approved";
 
@@ -47,15 +51,22 @@ export function ForumPostCard({ post, onLike }: IForumPostCard) {
   }, [isLiked, post.id, onLike]);
 
   const handleCommentsToggle = useCallback(() => {
-    setIsCommentsExpanded(!isCommentsExpanded);
-  }, [isCommentsExpanded]);
+    if (isDetailView) {
+      // In detail view, do nothing as comments are handled separately
+      return;
+    } else {
+      // In list view, navigate to detail view
+      onCommentClick?.();
+    }
+  }, [isDetailView, onCommentClick]);
 
   return (
     <TooltipProvider delayDuration={200}>
       <div
         className={cn(
           "border-b border-gray-200 py-6 px-2 first:pt-4 transition-all",
-          getStatusStyles(status)
+          getStatusStyles(status),
+          isDetailView && "border-b-0"
         )}
       >
         <div className="flex gap-4">
@@ -125,18 +136,12 @@ export function ForumPostCard({ post, onLike }: IForumPostCard) {
               commentsCount={post.comments_count || 0}
               onLike={handleLike}
               onCommentClick={handleCommentsToggle}
-              isCommentsExpanded={isCommentsExpanded}
+              isCommentsExpanded={false}
               isLikeDisabled={status !== "approved"}
               rejected={status === "rejected"}
             />
           </div>
         </div>
-
-        <Collapsible.Root open={isCommentsExpanded}>
-          <Collapsible.Content className="data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp overflow-hidden">
-            <CommentSection postId={post.id} opened={isCommentsExpanded} />
-          </Collapsible.Content>
-        </Collapsible.Root>
       </div>
     </TooltipProvider>
   );

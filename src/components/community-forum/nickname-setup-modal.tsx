@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,20 +13,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { X } from "lucide-react";
 import {
   useAnonymousProfile,
   useProfileSetup,
 } from "@/hooks/use-anonymous-profile";
+import { classifyForumError } from "@/utils/forum-error-handler";
 
-/**
- * Modal for initial nickname setup
- * Appears when the user accesses the forum for the first time
- */
 export const NicknameSetupModal = () => {
+  const router = useRouter();
   const [nickname, setNickname] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { createProfile, loading, error } = useAnonymousProfile();
-
+  const [customError, setCustomError] = useState<string | null>(null);
+  const { createProfile, loading } = useAnonymousProfile();
   const { needsSetup } = useProfileSetup();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,28 +34,58 @@ export const NicknameSetupModal = () => {
     if (!nickname.trim()) return;
 
     setIsSubmitting(true);
+    setCustomError(null);
+
     try {
       await createProfile(nickname.trim());
     } catch (err: unknown) {
-      console.error(err);
+      console.error("Error creating profile:", err);
+
+      const { message } = classifyForumError(err);
+      setCustomError(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleClose = () => {
+    router.push("/dashboard");
+  };
+
+  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNickname(e.target.value);
+    if (customError) {
+      setCustomError(null);
+    }
+  };
+
   const isValidNickname = nickname.trim().length >= 3;
 
-  // Não mostrar modal se ainda está carregando ou não precisa de setup
   if (loading || !needsSetup) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <Card className="w-full max-w-md mx-4">
+      <Card className="w-full max-w-md mx-4 relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute right-2 top-2 h-6 w-6 rounded-full"
+          onClick={handleClose}
+          disabled={isSubmitting}
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </Button>
+
         <CardHeader className="text-center">
           <CardTitle>Welcome to Lifeing Forum!</CardTitle>
           <CardDescription>
             To start participating, choose a nickname that will be used
             anonymously in the forum. You can change it later.
+            <br />
+            <span className="text-xs text-muted-foreground/80 mt-1 block">
+              You can skip this step by clicking the X to return to home page
+            </span>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -65,7 +95,7 @@ export const NicknameSetupModal = () => {
               <Input
                 id="nickname"
                 value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
+                onChange={handleNicknameChange}
                 placeholder="Ex: Explorer123"
                 maxLength={30}
                 disabled={loading || isSubmitting}
@@ -76,14 +106,9 @@ export const NicknameSetupModal = () => {
               </p>
             </div>
 
-            {error && (
+            {customError && (
               <Alert variant="destructive">
-                <AlertDescription>
-                  {error ===
-                  'duplicate key value violates unique constraint "anonymous_profiles_nickname_key"'
-                    ? "This nickname is already in use. Try another one."
-                    : error}
-                </AlertDescription>
+                <AlertDescription>{customError}</AlertDescription>
               </Alert>
             )}
 

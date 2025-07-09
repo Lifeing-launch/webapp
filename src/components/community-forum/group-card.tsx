@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Check, LockKeyhole, Users, Crown, Loader2 } from "lucide-react";
+import { Check, LockKeyhole, Users, Crown, Loader2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -77,8 +77,8 @@ export function GroupCard({
   const handleJoinClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // Prevent action if already loading
-    if (isJoinLoading) return;
+    // Prevent action if already loading or has pending request
+    if (isJoinLoading || group.member_status === "pending") return;
 
     if (group.group_type === "private") {
       onRequestJoin?.();
@@ -87,10 +87,20 @@ export function GroupCard({
     }
   };
 
-  const cardState = group.isJoined ? "joined" : "default";
+  // Determine card state based on membership status
+  const getCardState = () => {
+    if (group.isJoined || group.is_member) return "joined";
+    if (group.member_status === "pending") return "pending";
+    return "default";
+  };
+
+  const cardState = getCardState();
 
   // Only make card clickable if user is joined to the group
   const cardClickHandler = group.isJoined ? onClick : undefined;
+
+  // Check if user has pending request
+  const hasPendingRequest = group.member_status === "pending";
 
   return (
     <div
@@ -153,17 +163,25 @@ export function GroupCard({
           {group.isJoined || group.is_owner ? (
             <Badge
               variant="secondary"
-              className="bg-lime-100 text-lime-800 rounded-lg"
+              className="bg-lime-100 text-lime-800 rounded-lg flex items-center gap-1"
             >
               <Check className="w-3 h-3" />
               Joined
+            </Badge>
+          ) : hasPendingRequest ? (
+            <Badge
+              variant="secondary"
+              className="bg-orange-100 text-orange-800 rounded-lg flex items-center gap-1"
+            >
+              <Clock className="w-3 h-3" />
+              Pending Approval
             </Badge>
           ) : (
             <Button
               size="sm"
               variant="default"
               onClick={handleJoinClick}
-              disabled={isJoinLoading}
+              disabled={isJoinLoading || hasPendingRequest}
               className="text-xs h-8 cursor-pointer disabled:cursor-not-allowed"
             >
               {isJoinLoading ? (

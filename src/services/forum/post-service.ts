@@ -37,7 +37,7 @@ export class PostService extends BaseForumService {
       categoryId?: string;
       onlyForum?: boolean;
     } = {}
-  ): Promise<PostWithDetails[]> {
+  ): Promise<{ posts: PostWithDetails[]; total: number }> {
     try {
       const {
         groupId,
@@ -48,14 +48,17 @@ export class PostService extends BaseForumService {
         categoryId,
       } = options;
 
-      let query = this.supabase.from("posts").select(`
+      let query = this.supabase.from("posts").select(
+        `
         *,
         author_profile:anonymous_profiles!posts_author_anon_id_fkey(id, nickname),
         group:groups(id, name, description),
         category:categories(id, name, description),
         tags:post_tags(tag:tags(id, name)),
         likes_count:likes(count)
-      `);
+      `,
+        { count: "exact" }
+      );
 
       if (options.onlyForum) {
         query = query.is("group_id", null);
@@ -81,7 +84,7 @@ export class PostService extends BaseForumService {
         }
 
         if (!postIds || postIds.length === 0) {
-          return [];
+          return { posts: [], total: 0 };
         }
 
         const postIdList = postIds.map((item) => item.post_id);
@@ -100,14 +103,14 @@ export class PostService extends BaseForumService {
         .order("created_at", { ascending: false })
         .range(offset, offset + limit - 1);
 
-      const { data: rawPosts, error } = await query;
+      const { data: rawPosts, error, count } = await query;
 
       if (error) {
         this.handleError(error, "fetch posts");
       }
 
       if (!rawPosts || rawPosts.length === 0) {
-        return [];
+        return { posts: [], total: count || 0 };
       }
 
       let userLikes: Set<string> = new Set();
@@ -125,7 +128,6 @@ export class PostService extends BaseForumService {
         userLikes = new Set(likesData?.map((like) => like.post_id) || []);
       }
 
-      // Buscar contagem de comentários com filtro aplicado
       const postIds = (rawPosts as SupabasePostResponse[]).map(
         (post) => post.id
       );
@@ -143,13 +145,20 @@ export class PostService extends BaseForumService {
         commentsQuery = commentsQuery.eq("status", "approved");
       }
 
+      if (profile) {
+        commentsQuery = commentsQuery.or(
+          `status.eq.approved,author_anon_id.eq.${profile.id}`
+        );
+      } else {
+        commentsQuery = commentsQuery.eq("status", "approved");
+      }
+
       const { data: commentsData, error: commentsError } = await commentsQuery;
 
       if (commentsError) {
         console.error("Error fetching comments count:", commentsError);
       }
 
-      // Contar comentários por post
       const commentsCount = new Map<string, number>();
       if (commentsData) {
         commentsData.forEach((comment) => {
@@ -191,7 +200,7 @@ export class PostService extends BaseForumService {
         } as PostWithDetails;
       });
 
-      return postsWithDetails;
+      return { posts: postsWithDetails, total: count || 0 };
     } catch (error) {
       this.handleError(error, "fetch posts");
     }

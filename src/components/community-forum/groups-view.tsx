@@ -122,20 +122,47 @@ export const GroupsView = ({
   const { profile } = useAnonymousProfile();
 
   const {
-    data: groups,
-    isLoading,
-    error,
-    isFetched,
-    refetch: refetchGroups,
+    data: allAvailableGroups,
+    isLoading: isLoadingAllGroups,
+    error: allGroupsError,
+    isFetched: isAllGroupsFetched,
+    refetch: refetchAllGroups,
   } = useQuery({
-    queryKey: ["groups"],
-    queryFn: () => groupService.getGroups(),
+    queryKey: ["groups", "all-available", searchQuery],
+    queryFn: () =>
+      groupService.getGroups({
+        search: searchQuery || undefined,
+      }),
   });
 
-  const myGroups = groups?.filter(
-    (group) => group.owner_anon_id === profile?.id
+  const {
+    data: myMemberGroups,
+    isLoading: isLoadingMyGroups,
+    refetch: refetchMyGroups,
+  } = useQuery({
+    queryKey: ["groups", "my-memberships"],
+    queryFn: () =>
+      groupService.getGroups({
+        joinedOnly: true,
+      }),
+    enabled: !!profile && !!selectedGroup,
+  });
+
+  const myGroups = myMemberGroups?.filter(
+    (group) =>
+      // Groups owned by the user (any type)
+      group.owner_anon_id === profile?.id ||
+      // Private groups where user is an approved member
+      (group.group_type === "private" && group.is_member)
   );
-  const publicGroups = groups?.filter((group) => group.group_type === "public");
+
+  const publicGroups = myMemberGroups?.filter(
+    (group) =>
+      // Public groups where user is approved member but not owner
+      group.group_type === "public" &&
+      group.owner_anon_id !== profile?.id &&
+      group.is_member
+  );
 
   const handleCreateGroup = () => {
     setOpenNewGroupModal(true);
@@ -146,11 +173,14 @@ export const GroupsView = ({
   };
 
   const handleGroupCreated = () => {
-    refetchGroups();
+    refetchAllGroups();
+    refetchMyGroups();
   };
 
   const handleOpenGroup = (group: { id: string; name: string }) => {
-    const foundGroup = groups?.find((g) => g.id === group.id);
+    const foundGroup =
+      myMemberGroups?.find((g) => g.id === group.id) ||
+      allAvailableGroups?.find((g) => g.id === group.id);
     if (foundGroup) {
       setSelectedGroup(foundGroup);
     }
@@ -186,13 +216,17 @@ export const GroupsView = ({
                         name: group.name,
                       })) || []
                     }
-                    onCategoryClick={(category) => {
+                    onCategoryClick={(categoryId) => {
                       setSelectedGroup(
-                        myGroups?.find((group) => group.id === category) || null
+                        myGroups?.find((group) => group.id === categoryId) ||
+                          null
                       );
                     }}
+                    isLoading={isLoadingMyGroups}
+                    emptyMessage="No private groups or owned groups"
                   />
                 </SidebarSection>
+
                 <SidebarSection title="Public Groups">
                   <CategoryList
                     activeCategory={selectedGroup?.id}
@@ -202,30 +236,29 @@ export const GroupsView = ({
                         name: group.name,
                       })) || []
                     }
-                    onCategoryClick={(category) => {
+                    onCategoryClick={(categoryId) => {
                       setSelectedGroup(
-                        publicGroups?.find((group) => group.id === category) ||
-                          null
+                        publicGroups?.find(
+                          (group) => group.id === categoryId
+                        ) || null
                       );
                     }}
+                    isLoading={isLoadingMyGroups}
+                    emptyMessage="No public groups joined"
                   />
                 </SidebarSection>
               </>
             ) : (
               <>
-                {/* Loading state */}
-                {isLoading || !isFetched ? (
+                {isLoadingAllGroups || !isAllGroupsFetched ? (
                   <GroupsGridSkeleton />
-                ) : error ? (
-                  /* Error state */
-                  <GroupsErrorState message="Error loading groups." />
-                ) : groups?.length === 0 ? (
-                  /* Empty state */
+                ) : allGroupsError ? (
+                  <GroupsErrorState message="Failed to load groups" />
+                ) : allAvailableGroups?.length === 0 ? (
                   <GroupsEmptyState />
                 ) : (
-                  /* Groups grid */
                   <GroupsGrid
-                    groups={groups || []}
+                    groups={allAvailableGroups || []}
                     onGroupSelect={setSelectedGroup}
                   />
                 )}
@@ -233,6 +266,7 @@ export const GroupsView = ({
             )}
           </div>
         </ForumSidebar>
+
         {selectedGroup && (
           <GroupThreads groupId={selectedGroup.id} searchQuery={searchQuery} />
         )}

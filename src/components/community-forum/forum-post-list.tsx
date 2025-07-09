@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { ForumPostCard } from "./forum-post-card";
-import { useForumPosts, UseForumPostsOptions } from "@/hooks/use-forum";
+import { PostWithDetails } from "@/typing/forum";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, MessageSquare } from "lucide-react";
+import { MessageSquare, ChevronDown, ArrowLeft } from "lucide-react";
 import { postService } from "@/services/forum";
+import { CommentSection } from "./comments/comment-section";
+import { Button } from "@/components/ui/button";
 
 export interface IForumPostList {
-  filters: UseForumPostsOptions;
+  posts: PostWithDetails[];
+  isLoading: boolean;
+  isFetchingNextPage: boolean;
+  hasNextPage: boolean;
+  onLoadMore: () => void;
 }
 
 /**
@@ -49,18 +55,6 @@ function ForumPostSkeleton() {
 }
 
 /**
- * Error state component for forum sections
- */
-function ForumErrorState({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-8 text-center">
-      <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
-      <p className="text-sm text-muted-foreground">{message}</p>
-    </div>
-  );
-}
-
-/**
  * Empty state component for the entire forum
  */
 function ForumEmptyState() {
@@ -79,14 +73,75 @@ function ForumEmptyState() {
 }
 
 /**
- * Display list of forum posts with interactive features
+ * Isolated post view with comments
  */
-export function ForumPostList({ filters }: IForumPostList) {
-  const {
-    posts: { data: posts, isLoading, error, isFetched },
-  } = useForumPosts(filters);
+function PostDetailView({
+  post,
+  onBack,
+}: {
+  post: PostWithDetails;
+  onBack: () => void;
+}) {
+  return (
+    <div className="h-full overflow-y-auto">
+      {/* Header with back button */}
+      <div className="sticky top-0 bg-white border-b border-gray-200 p-4 z-10">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to posts
+        </Button>
+      </div>
 
-  if (isLoading || !isFetched) {
+      {/* Post content */}
+      <div className="p-4">
+        <ForumPostCard
+          post={post}
+          onLike={() => postService.toggleLike(post.id)}
+          onAddComment={() => {}}
+          isDetailView={true}
+        />
+        {/* Comments section */}
+        <div className="mt-6 pl-4 border-l-2 border-gray-100">
+          <CommentSection postId={post.id} opened={true} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Display list of forum posts with infinite scroll
+ */
+export function ForumPostList({
+  posts,
+  isLoading,
+  isFetchingNextPage,
+  hasNextPage,
+  onLoadMore,
+}: IForumPostList) {
+  const [selectedPost, setSelectedPost] = useState<PostWithDetails | null>(
+    null
+  );
+
+  const handlePostSelect = (post: PostWithDetails) => {
+    setSelectedPost(post);
+  };
+
+  const handleBackToList = () => {
+    setSelectedPost(null);
+  };
+
+  // Show post detail view if a post is selected
+  if (selectedPost) {
+    return <PostDetailView post={selectedPost} onBack={handleBackToList} />;
+  }
+
+  if (isLoading && posts.length === 0) {
     return (
       <div className="h-full overflow-y-auto">
         <div className="space-y-0">
@@ -98,16 +153,7 @@ export function ForumPostList({ filters }: IForumPostList) {
     );
   }
 
-  if (error) {
-    return <ForumErrorState message="Error loading posts." />;
-  }
-
-  if (
-    posts?.length === 0 &&
-    !filters.searchQuery &&
-    !filters.tagId &&
-    !filters.categoryId
-  ) {
+  if (posts.length === 0) {
     return (
       <div className="h-full overflow-y-auto flex items-center justify-center">
         <ForumEmptyState />
@@ -117,24 +163,38 @@ export function ForumPostList({ filters }: IForumPostList) {
 
   return (
     <div className="h-full overflow-y-auto">
-      {posts?.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 text-center">
-          <p className="text-muted-foreground text-sm">
-            {filters.searchQuery || filters.tagId || filters.categoryId
-              ? "No posts found matching your criteria."
-              : "No posts available."}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-0">
-          {posts?.map((post) => (
-            <ForumPostCard
-              key={post.id}
-              post={post}
-              onLike={() => postService.toggleLike(post.id)}
-              onAddComment={() => {}}
-            />
-          ))}
+      <div className="space-y-0">
+        {posts.map((post) => (
+          <ForumPostCard
+            key={post.id}
+            post={post}
+            onLike={() => postService.toggleLike(post.id)}
+            onAddComment={() => {}}
+            onCommentClick={() => handlePostSelect(post)}
+          />
+        ))}
+      </div>
+
+      {/* Load More Button */}
+      {hasNextPage && (
+        <div className="flex justify-center py-6">
+          <button
+            onClick={onLoadMore}
+            disabled={isFetchingNextPage}
+            className="group flex items-center gap-2 px-6 py-3 text-sm font-medium text-zinc-600 hover:text-zinc-900 bg-white border border-zinc-200 rounded-lg hover:bg-zinc-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isFetchingNextPage ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <span>Loading more posts...</span>
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-4 w-4 group-hover:translate-y-0.5 transition-transform duration-200" />
+                <span>Load more posts</span>
+              </>
+            )}
+          </button>
         </div>
       )}
     </div>

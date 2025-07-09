@@ -18,16 +18,13 @@ interface AnonymousProfileContextType {
   createProfile: (nickname: string) => Promise<AnonymousProfile>;
   updateProfile: (nickname: string) => Promise<AnonymousProfile>;
   isNicknameAvailable: (nickname: string) => Promise<boolean>;
+  validateNickname: (nickname: string) => Promise<boolean>;
 }
 
 const AnonymousProfileContext = createContext<
   AnonymousProfileContextType | undefined
 >(undefined);
 
-/**
- * Provider para gerenciar o perfil anônimo do usuário
- * Agora usa React Query para gerenciar cache e estado
- */
 export const AnonymousProfileProvider = ({
   children,
 }: {
@@ -35,36 +32,47 @@ export const AnonymousProfileProvider = ({
 }) => {
   const queryClient = useQueryClient();
 
-  // Query para o usuário autenticado
+  // Use cached user from ProfileService to avoid redundant auth calls
   const {
-    data: user,
+    data: userData,
     isLoading: userLoading,
     error: userError,
   } = useQuery({
-    queryKey: ["auth-user"],
+    queryKey: ["cached-user"],
     queryFn: async () => {
-      const { data } = await forumClient.auth.getUser();
-      return data.user;
+      // This will use the cached user from ProfileService, reducing auth calls
+      const cachedProfile = await profileService.getCurrentProfile();
+
+      // If we have a profile, we definitely have a user
+      if (cachedProfile) {
+        // Get user from session (no network request) or cache
+        const { data } = await forumClient.auth.getSession();
+        return data.session?.user || null;
+      }
+
+      // Fallback: profile service will handle caching
+      const { data } = await forumClient.auth.getSession();
+      return data.session?.user || null;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    refetchInterval: 10 * 60 * 1000, // Verificar a cada 10 minutos
+    staleTime: 2 * 60 * 1000, // 2 minutes - shorter than ProfileService cache
+    refetchInterval: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Query para o perfil anônimo
+  // Use ProfileService cached method for profile
   const {
     data: profile,
     isLoading: profileLoading,
     error: profileError,
     refetch: refetchProfile,
   } = useQuery({
-    queryKey: ["anonymous-profile", user?.id],
+    queryKey: ["cached-anonymous-profile", userData?.id],
     queryFn: async () => {
-      if (!user) return null;
+      if (!userData) return null;
 
       try {
+        // This will use ProfileService cache, avoiding redundant calls
         const fetchedProfile = await profileService.getCurrentProfile();
 
-        // Atualizar localStorage com o perfil
         if (fetchedProfile) {
           localStorage.setItem(
             ANONYMOUS_PROFILE_STORAGE_KEY,
@@ -76,7 +84,6 @@ export const AnonymousProfileProvider = ({
 
         return fetchedProfile;
       } catch (error) {
-        // Se retornar 406 (não encontrado), retornar null sem erro
         if (error instanceof Error && error.message.includes("406")) {
           localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
           return null;
@@ -84,30 +91,53 @@ export const AnonymousProfileProvider = ({
         throw error;
       }
     },
-    enabled: !!user && !userLoading,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    enabled: !!userData && !userLoading,
+    staleTime: 2 * 60 * 1000, // 2 minutes - matches ProfileService cache frequency
     retry: (failureCount, error) => {
-      // Não fazer retry se for erro 406 (perfil não encontrado)
       if (error instanceof Error && error.message.includes("406")) {
         return false;
       }
       return failureCount < 2;
     },
-    // Não usar initialData ou placeholderData para forçar sempre verificar na base
-    // quando não houver cache do React Query
   });
 
-  // Mutation para criar perfil
   const createProfileMutation = useMutation({
     mutationFn: async (nickname: string) => {
+      // First, moderate the nickname
+      const moderationResponse = await fetch("/api/moderate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resource_type: "nickname",
+          content: nickname,
+        }),
+      });
+
+      if (!moderationResponse.ok) {
+        throw new Error("Failed to moderate nickname");
+      }
+
+      const moderationResult = await moderationResponse.json();
+
+      if (!moderationResult.isValid) {
+        const error = new Error("NICKNAME_REJECTED");
+        error.name = "NicknameRejectedError";
+        throw error;
+      }
+
+      // ProfileService will handle cache invalidation automatically
       const newProfile = await profileService.createProfile(nickname);
       return newProfile;
     },
     onSuccess: (newProfile) => {
-      // Atualizar cache do React Query
-      queryClient.setQueryData(["anonymous-profile", user?.id], newProfile);
+      // Update React Query cache
+      queryClient.setQueryData(
+        ["cached-anonymous-profile", userData?.id],
+        newProfile
+      );
 
-      // Atualizar localStorage
       localStorage.setItem(
         ANONYMOUS_PROFILE_STORAGE_KEY,
         JSON.stringify(newProfile)
@@ -118,17 +148,43 @@ export const AnonymousProfileProvider = ({
     },
   });
 
-  // Mutation para atualizar perfil
   const updateProfileMutation = useMutation({
     mutationFn: async (nickname: string) => {
+      // First, moderate the nickname
+      const moderationResponse = await fetch("/api/moderate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resource_type: "nickname",
+          content: nickname,
+        }),
+      });
+
+      if (!moderationResponse.ok) {
+        throw new Error("Failed to moderate nickname");
+      }
+
+      const moderationResult = await moderationResponse.json();
+
+      if (!moderationResult.isValid) {
+        const error = new Error("NICKNAME_REJECTED");
+        error.name = "NicknameRejectedError";
+        throw error;
+      }
+
+      // ProfileService will handle cache invalidation automatically
       const updatedProfile = await profileService.updateProfile(nickname);
       return updatedProfile;
     },
     onSuccess: (updatedProfile) => {
-      // Atualizar cache do React Query
-      queryClient.setQueryData(["anonymous-profile", user?.id], updatedProfile);
+      // Update React Query cache
+      queryClient.setQueryData(
+        ["cached-anonymous-profile", userData?.id],
+        updatedProfile
+      );
 
-      // Atualizar localStorage
       localStorage.setItem(
         ANONYMOUS_PROFILE_STORAGE_KEY,
         JSON.stringify(updatedProfile)
@@ -139,28 +195,27 @@ export const AnonymousProfileProvider = ({
     },
   });
 
-  // Effect para monitorar mudanças de autenticação
   useEffect(() => {
     const {
       data: { subscription },
     } = forumClient.auth.onAuthStateChange(async (event) => {
-      // Invalidar query do usuário quando auth state mudar
-      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+      // Invalidate both React Query and ProfileService caches
+      queryClient.invalidateQueries({ queryKey: ["cached-user"] });
+      queryClient.invalidateQueries({ queryKey: ["cached-anonymous-profile"] });
+
+      // Clear ProfileService cache on auth state change
+      profileService.clearAllCaches();
 
       if (event === "SIGNED_OUT") {
-        // Limpar localStorage quando usuário deslogar
         localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
-        // Limpar cache do perfil
-        queryClient.setQueryData(["anonymous-profile"], null);
+        queryClient.setQueryData(["cached-anonymous-profile"], null);
+        queryClient.setQueryData(["cached-user"], null);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [queryClient]);
 
-  /**
-   * Funções wrapper para manter compatibilidade com a API anterior
-   */
   const createProfile = async (nickname: string): Promise<AnonymousProfile> => {
     return createProfileMutation.mutateAsync(nickname);
   };
@@ -173,11 +228,37 @@ export const AnonymousProfileProvider = ({
     return profileService.isNicknameAvailable(nickname);
   };
 
+  const validateNickname = async (nickname: string): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/moderate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resource_type: "nickname",
+          content: nickname,
+        }),
+      });
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const result = await response.json();
+      return result.isValid;
+    } catch (error) {
+      console.error("Failed to validate nickname:", error);
+      return false;
+    }
+  };
+
   const refreshProfile = async (): Promise<void> => {
+    // Clear ProfileService cache before refetching
+    profileService.invalidateProfileCache();
     await refetchProfile();
   };
 
-  // Estados combinados
   const loading =
     userLoading ||
     profileLoading ||
@@ -195,11 +276,12 @@ export const AnonymousProfileProvider = ({
     profile: profile ?? null,
     loading,
     error,
-    user: user ?? null,
+    user: userData ?? null,
     refreshProfile,
     createProfile,
     updateProfile,
     isNicknameAvailable,
+    validateNickname,
   };
 
   return (
@@ -209,9 +291,6 @@ export const AnonymousProfileProvider = ({
   );
 };
 
-/**
- * Hook to use the anonymous profile context
- */
 export const useAnonymousProfile = (): AnonymousProfileContextType => {
   const context = useContext(AnonymousProfileContext);
   if (context === undefined) {
@@ -222,13 +301,9 @@ export const useAnonymousProfile = (): AnonymousProfileContextType => {
   return context;
 };
 
-/**
- * Hook to check if the profile needs setup
- */
 export const useProfileSetup = () => {
   const { profile, loading, user } = useAnonymousProfile();
 
-  // Só considera que precisa de setup se não estiver loading e tiver user mas não tiver profile
   const needsSetup = !loading && !!user && !profile;
   const isReady = !loading && !!profile;
 

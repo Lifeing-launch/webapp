@@ -59,14 +59,17 @@ export class CommentService extends BaseForumService {
           parent_comment_id: parentCommentId || null,
           status: "pending" as StatusEnum,
         })
-        .select()
+        .select(
+          `*, author_profile:anonymous_profiles!comments_author_anon_id_fkey(
+            id, nickname, created_at
+          )`
+        )
         .single();
 
       if (error) {
         this.handleError(error, "create comment");
       }
 
-      // Moderar comentário de forma assíncrona
       this.moderateComment(data.id);
 
       return data;

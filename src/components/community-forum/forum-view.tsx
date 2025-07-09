@@ -4,7 +4,7 @@ import { SidebarSection } from "@/components/community-forum/sidebar/sidebar-sec
 import { TagList } from "@/components/community-forum/sidebar/tag-list";
 import { CategoryList } from "@/components/community-forum/sidebar/category-list";
 import { ForumPostList } from "@/components/community-forum/forum-post-list";
-import { useForumPosts, UseForumPostsOptions } from "@/hooks/use-forum";
+import { useInfinitePosts } from "@/hooks/use-infinite-posts";
 import { useState, useCallback, useMemo } from "react";
 import NewPostModal from "./new-post-modal";
 
@@ -19,17 +19,29 @@ export interface IForumViewProps {
 
 export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
   const [openNewPost, setOpenNewPost] = useState(false);
-  const [filters, setFilters] = useState<UseForumPostsOptions>({
-    onlyForum: true,
-  });
+  const [filters, setFilters] = useState<{
+    searchQuery?: string;
+    tagId?: string;
+    categoryId?: string;
+  }>({});
 
   const memoizedFilters = useMemo(() => filters, [filters]);
 
   const {
+    posts,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
     tags,
     categories,
-    posts: { refetch: refetchPosts },
-  } = useForumPosts(memoizedFilters);
+    isLoadingTags,
+    isLoadingCategories,
+    refetch: refetchPosts,
+  } = useInfinitePosts({
+    ...memoizedFilters,
+    onlyForum: true,
+  });
 
   const handleTagClick = useCallback((tagId: string) => {
     setFilters((prev) => ({
@@ -69,8 +81,8 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
         <ForumSidebar activePage={activePage} setActivePage={setActivePage}>
           <SidebarSection title="Browse by tags">
             <TagList
-              tags={tags.data ?? []}
-              isLoading={tags.isLoading}
+              tags={tags}
+              isLoading={isLoadingTags}
               activeTag={filters.tagId}
               onTagClick={handleTagClick}
             />
@@ -79,23 +91,29 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
           <SidebarSection title="Browse by Categories">
             <CategoryList
               activeCategory={filters.categoryId}
-              categories={categories.data ?? []}
-              isLoading={categories.isLoading}
+              categories={categories}
+              isLoading={isLoadingCategories}
               onCategoryClick={handleCategoryClick}
             />
           </SidebarSection>
         </ForumSidebar>
         <div className="flex-1 overflow-y-auto">
           <div className="px-4 py-3 pb-0">
-            <ForumPostList filters={memoizedFilters} />
+            <ForumPostList
+              posts={posts}
+              isLoading={isLoading}
+              isFetchingNextPage={isFetchingNextPage}
+              hasNextPage={hasNextPage}
+              onLoadMore={fetchNextPage}
+            />
           </div>
         </div>
       </div>
       <NewPostModal
         open={openNewPost}
         onClose={handleNewPost}
-        tags={tags.data ?? []}
-        categories={categories.data ?? []}
+        tags={tags}
+        categories={categories}
         revalidate={refetchPosts}
       />
     </>
