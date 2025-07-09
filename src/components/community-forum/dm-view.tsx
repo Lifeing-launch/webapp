@@ -231,11 +231,11 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
                 onContactSelect={handleContactSelectWithTransform}
               />
 
-              <NewConversationPanel
+              {/* <NewConversationPanel
                 searchQuery={userSearchQuery}
                 onSearchChange={setUserSearchQuery}
                 onUserSelect={handleUserSelect}
-              />
+              /> */}
             </>
           )}
         </ForumSidebar>

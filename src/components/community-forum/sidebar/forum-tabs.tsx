@@ -14,7 +14,7 @@ export function ForumTabs({ activePage, setActivePage }: IForumTabs) {
   return (
     <div className="flex flex-row items-center px-1 h-9 border-b border-gray-300">
       {tabs.map((tab) => {
-        const isDisabled = tab === "Messages";
+        const isDisabled = tab === "Messagesss";
 
         return (
           <button
