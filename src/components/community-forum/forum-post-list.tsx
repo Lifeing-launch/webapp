@@ -1,12 +1,16 @@
 import React from "react";
 import { ForumPostCard } from "./forum-post-card";
-import { useForumPosts, UseForumPostsOptions } from "@/hooks/use-forum";
+import { PostWithDetails } from "@/typing/forum";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, MessageSquare } from "lucide-react";
+import { MessageSquare, ChevronDown } from "lucide-react";
 import { postService } from "@/services/forum";
 
 export interface IForumPostList {
-  filters: UseForumPostsOptions;
+  posts: PostWithDetails[];
+  isLoading: boolean;
+  isFetchingNextPage: boolean;
+  hasNextPage: boolean;
+  onLoadMore: () => void;
 }
 
 /**
@@ -49,18 +53,6 @@ function ForumPostSkeleton() {
 }
 
 /**
- * Error state component for forum sections
- */
-function ForumErrorState({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-8 text-center">
-      <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
-      <p className="text-sm text-muted-foreground">{message}</p>
-    </div>
-  );
-}
-
-/**
  * Empty state component for the entire forum
  */
 function ForumEmptyState() {
@@ -79,14 +71,16 @@ function ForumEmptyState() {
 }
 
 /**
- * Display list of forum posts with interactive features
+ * Display list of forum posts with infinite scroll
  */
-export function ForumPostList({ filters }: IForumPostList) {
-  const {
-    posts: { data: posts, isLoading, error, isFetched },
-  } = useForumPosts(filters);
-
-  if (isLoading || !isFetched) {
+export function ForumPostList({
+  posts,
+  isLoading,
+  isFetchingNextPage,
+  hasNextPage,
+  onLoadMore,
+}: IForumPostList) {
+  if (isLoading && posts.length === 0) {
     return (
       <div className="h-full overflow-y-auto">
         <div className="space-y-0">
@@ -98,16 +92,7 @@ export function ForumPostList({ filters }: IForumPostList) {
     );
   }
 
-  if (error) {
-    return <ForumErrorState message="Error loading posts." />;
-  }
-
-  if (
-    posts?.length === 0 &&
-    !filters.searchQuery &&
-    !filters.tagId &&
-    !filters.categoryId
-  ) {
+  if (posts.length === 0) {
     return (
       <div className="h-full overflow-y-auto flex items-center justify-center">
         <ForumEmptyState />
@@ -117,24 +102,37 @@ export function ForumPostList({ filters }: IForumPostList) {
 
   return (
     <div className="h-full overflow-y-auto">
-      {posts?.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 text-center">
-          <p className="text-muted-foreground text-sm">
-            {filters.searchQuery || filters.tagId || filters.categoryId
-              ? "No posts found matching your criteria."
-              : "No posts available."}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-0">
-          {posts?.map((post) => (
-            <ForumPostCard
-              key={post.id}
-              post={post}
-              onLike={() => postService.toggleLike(post.id)}
-              onAddComment={() => {}}
-            />
-          ))}
+      <div className="space-y-0">
+        {posts.map((post) => (
+          <ForumPostCard
+            key={post.id}
+            post={post}
+            onLike={() => postService.toggleLike(post.id)}
+            onAddComment={() => {}}
+          />
+        ))}
+      </div>
+
+      {/* Load More Button */}
+      {hasNextPage && (
+        <div className="flex justify-center py-6">
+          <button
+            onClick={onLoadMore}
+            disabled={isFetchingNextPage}
+            className="group flex items-center gap-2 px-6 py-3 text-sm font-medium text-zinc-600 hover:text-zinc-900 bg-white border border-zinc-200 rounded-lg hover:bg-zinc-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isFetchingNextPage ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <span>Loading more posts...</span>
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-4 w-4 group-hover:translate-y-0.5 transition-transform duration-200" />
+                <span>Load more posts</span>
+              </>
+            )}
+          </button>
         </div>
       )}
     </div>

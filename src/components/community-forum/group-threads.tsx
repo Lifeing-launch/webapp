@@ -1,9 +1,8 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ForumPostList } from "./forum-post-list";
-import { useForumPosts, UseForumPostsOptions } from "@/hooks/use-forum";
-import { postService } from "@/services/forum";
+import { useInfinitePosts } from "@/hooks/use-infinite-posts";
 import { Textarea } from "@/components/ui/textarea";
 
 export interface IGroupThreads {
@@ -13,43 +12,36 @@ export interface IGroupThreads {
 
 export function GroupThreads({ groupId, searchQuery }: IGroupThreads) {
   const [newPostText, setNewPostText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Create filters for this specific group
-  const filters = useMemo<UseForumPostsOptions>(
-    () => ({
-      groupId,
-      searchQuery: searchQuery || undefined,
-      limit: 100,
-    }),
-    [groupId, searchQuery]
-  );
 
   const {
-    posts: { refetch: refetchPosts },
-  } = useForumPosts(filters);
+    posts,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    createPost,
+    isCreatingPost,
+  } = useInfinitePosts({
+    groupId,
+    searchQuery: searchQuery || undefined,
+    onlyForum: false,
+  });
 
   const handleSendPost = useCallback(async () => {
-    if (!newPostText.trim() || isSubmitting) return;
+    if (!newPostText.trim() || isCreatingPost) return;
 
     try {
-      setIsSubmitting(true);
-
-      await postService.createPost({
+      await createPost({
         content: newPostText.trim(),
         groupId: groupId,
       });
 
       setNewPostText("");
-      // Refetch posts to show the new one
-      await refetchPosts();
     } catch (error) {
       console.error("Failed to create post:", error);
       // You could add toast notification here
-    } finally {
-      setIsSubmitting(false);
     }
-  }, [newPostText, isSubmitting, groupId, refetchPosts]);
+  }, [newPostText, isCreatingPost, groupId, createPost]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -66,7 +58,13 @@ export function GroupThreads({ groupId, searchQuery }: IGroupThreads) {
       {/* Posts List - Scrollable Area */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 py-3 pb-0">
-          <ForumPostList filters={filters} />
+          <ForumPostList
+            posts={posts}
+            isLoading={isLoading}
+            isFetchingNextPage={isFetchingNextPage}
+            hasNextPage={hasNextPage}
+            onLoadMore={fetchNextPage}
+          />
         </div>
       </div>
 
@@ -86,10 +84,10 @@ export function GroupThreads({ groupId, searchQuery }: IGroupThreads) {
               size="sm"
               className="gap-2"
               onClick={handleSendPost}
-              disabled={!newPostText.trim() || isSubmitting}
+              disabled={!newPostText.trim() || isCreatingPost}
             >
               <Send className="w-4 h-4" />
-              <span>{isSubmitting ? "Sending..." : "Send"}</span>
+              <span>{isCreatingPost ? "Sending..." : "Send"}</span>
             </Button>
           </div>
         </div>

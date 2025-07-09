@@ -32,31 +32,45 @@ export const AnonymousProfileProvider = ({
 }) => {
   const queryClient = useQueryClient();
 
+  // Use cached user from ProfileService to avoid redundant auth calls
   const {
-    data: user,
+    data: userData,
     isLoading: userLoading,
     error: userError,
   } = useQuery({
-    queryKey: ["auth-user"],
+    queryKey: ["cached-user"],
     queryFn: async () => {
-      const { data } = await forumClient.auth.getUser();
-      return data.user;
+      // This will use the cached user from ProfileService, reducing auth calls
+      const cachedProfile = await profileService.getCurrentProfile();
+
+      // If we have a profile, we definitely have a user
+      if (cachedProfile) {
+        // Get user from session (no network request) or cache
+        const { data } = await forumClient.auth.getSession();
+        return data.session?.user || null;
+      }
+
+      // Fallback: profile service will handle caching
+      const { data } = await forumClient.auth.getSession();
+      return data.session?.user || null;
     },
-    staleTime: 5 * 60 * 1000,
-    refetchInterval: 10 * 60 * 1000,
+    staleTime: 2 * 60 * 1000, // 2 minutes - shorter than ProfileService cache
+    refetchInterval: 5 * 60 * 1000, // 5 minutes
   });
 
+  // Use ProfileService cached method for profile
   const {
     data: profile,
     isLoading: profileLoading,
     error: profileError,
     refetch: refetchProfile,
   } = useQuery({
-    queryKey: ["anonymous-profile", user?.id],
+    queryKey: ["cached-anonymous-profile", userData?.id],
     queryFn: async () => {
-      if (!user) return null;
+      if (!userData) return null;
 
       try {
+        // This will use ProfileService cache, avoiding redundant calls
         const fetchedProfile = await profileService.getCurrentProfile();
 
         if (fetchedProfile) {
@@ -77,8 +91,8 @@ export const AnonymousProfileProvider = ({
         throw error;
       }
     },
-    enabled: !!user && !userLoading,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!userData && !userLoading,
+    staleTime: 2 * 60 * 1000, // 2 minutes - matches ProfileService cache frequency
     retry: (failureCount, error) => {
       if (error instanceof Error && error.message.includes("406")) {
         return false;
@@ -113,12 +127,16 @@ export const AnonymousProfileProvider = ({
         throw error;
       }
 
-      // Then create the profile
+      // ProfileService will handle cache invalidation automatically
       const newProfile = await profileService.createProfile(nickname);
       return newProfile;
     },
     onSuccess: (newProfile) => {
-      queryClient.setQueryData(["anonymous-profile", user?.id], newProfile);
+      // Update React Query cache
+      queryClient.setQueryData(
+        ["cached-anonymous-profile", userData?.id],
+        newProfile
+      );
 
       localStorage.setItem(
         ANONYMOUS_PROFILE_STORAGE_KEY,
@@ -156,12 +174,16 @@ export const AnonymousProfileProvider = ({
         throw error;
       }
 
-      // Then update the profile
+      // ProfileService will handle cache invalidation automatically
       const updatedProfile = await profileService.updateProfile(nickname);
       return updatedProfile;
     },
     onSuccess: (updatedProfile) => {
-      queryClient.setQueryData(["anonymous-profile", user?.id], updatedProfile);
+      // Update React Query cache
+      queryClient.setQueryData(
+        ["cached-anonymous-profile", userData?.id],
+        updatedProfile
+      );
 
       localStorage.setItem(
         ANONYMOUS_PROFILE_STORAGE_KEY,
@@ -177,11 +199,17 @@ export const AnonymousProfileProvider = ({
     const {
       data: { subscription },
     } = forumClient.auth.onAuthStateChange(async (event) => {
-      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+      // Invalidate both React Query and ProfileService caches
+      queryClient.invalidateQueries({ queryKey: ["cached-user"] });
+      queryClient.invalidateQueries({ queryKey: ["cached-anonymous-profile"] });
+
+      // Clear ProfileService cache on auth state change
+      profileService.clearAllCaches();
 
       if (event === "SIGNED_OUT") {
         localStorage.removeItem(ANONYMOUS_PROFILE_STORAGE_KEY);
-        queryClient.setQueryData(["anonymous-profile"], null);
+        queryClient.setQueryData(["cached-anonymous-profile"], null);
+        queryClient.setQueryData(["cached-user"], null);
       }
     });
 
@@ -226,6 +254,8 @@ export const AnonymousProfileProvider = ({
   };
 
   const refreshProfile = async (): Promise<void> => {
+    // Clear ProfileService cache before refetching
+    profileService.invalidateProfileCache();
     await refetchProfile();
   };
 
@@ -246,7 +276,7 @@ export const AnonymousProfileProvider = ({
     profile: profile ?? null,
     loading,
     error,
-    user: user ?? null,
+    user: userData ?? null,
     refreshProfile,
     createProfile,
     updateProfile,
