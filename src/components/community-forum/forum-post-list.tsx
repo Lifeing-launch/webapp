@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { ForumPostCard } from "./forum-post-card";
 import { PostWithDetails } from "@/typing/forum";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MessageSquare, ChevronDown } from "lucide-react";
+import { MessageSquare, ChevronDown, ArrowLeft } from "lucide-react";
 import { postService } from "@/services/forum";
+import { CommentSection } from "./comments/comment-section";
+import { Button } from "@/components/ui/button";
 
 export interface IForumPostList {
   posts: PostWithDetails[];
@@ -71,6 +73,48 @@ function ForumEmptyState() {
 }
 
 /**
+ * Isolated post view with comments
+ */
+function PostDetailView({
+  post,
+  onBack,
+}: {
+  post: PostWithDetails;
+  onBack: () => void;
+}) {
+  return (
+    <div className="h-full overflow-y-auto">
+      {/* Header with back button */}
+      <div className="sticky top-0 bg-white border-b border-gray-200 p-4 z-10">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to posts
+        </Button>
+      </div>
+
+      {/* Post content */}
+      <div className="p-4">
+        <ForumPostCard
+          post={post}
+          onLike={() => postService.toggleLike(post.id)}
+          onAddComment={() => {}}
+          isDetailView={true}
+        />
+        {/* Comments section */}
+        <div className="mt-6 pl-4 border-l-2 border-gray-100">
+          <CommentSection postId={post.id} opened={true} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Display list of forum posts with infinite scroll
  */
 export function ForumPostList({
@@ -80,6 +124,23 @@ export function ForumPostList({
   hasNextPage,
   onLoadMore,
 }: IForumPostList) {
+  const [selectedPost, setSelectedPost] = useState<PostWithDetails | null>(
+    null
+  );
+
+  const handlePostSelect = (post: PostWithDetails) => {
+    setSelectedPost(post);
+  };
+
+  const handleBackToList = () => {
+    setSelectedPost(null);
+  };
+
+  // Show post detail view if a post is selected
+  if (selectedPost) {
+    return <PostDetailView post={selectedPost} onBack={handleBackToList} />;
+  }
+
   if (isLoading && posts.length === 0) {
     return (
       <div className="h-full overflow-y-auto">
@@ -109,6 +170,7 @@ export function ForumPostList({
             post={post}
             onLike={() => postService.toggleLike(post.id)}
             onAddComment={() => {}}
+            onCommentClick={() => handlePostSelect(post)}
           />
         ))}
       </div>
