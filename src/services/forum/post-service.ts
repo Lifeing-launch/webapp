@@ -128,7 +128,6 @@ export class PostService extends BaseForumService {
         userLikes = new Set(likesData?.map((like) => like.post_id) || []);
       }
 
-      // Buscar contagem de comentários com filtro aplicado
       const postIds = (rawPosts as SupabasePostResponse[]).map(
         (post) => post.id
       );
@@ -146,13 +145,20 @@ export class PostService extends BaseForumService {
         commentsQuery = commentsQuery.eq("status", "approved");
       }
 
+      if (profile) {
+        commentsQuery = commentsQuery.or(
+          `status.eq.approved,author_anon_id.eq.${profile.id}`
+        );
+      } else {
+        commentsQuery = commentsQuery.eq("status", "approved");
+      }
+
       const { data: commentsData, error: commentsError } = await commentsQuery;
 
       if (commentsError) {
         console.error("Error fetching comments count:", commentsError);
       }
 
-      // Contar comentários por post
       const commentsCount = new Map<string, number>();
       if (commentsData) {
         commentsData.forEach((comment) => {
