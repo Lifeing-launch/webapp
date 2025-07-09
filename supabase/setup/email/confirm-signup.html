@@ -1,4 +1,115 @@
-<h2>Confirm your signup</h2>
+<!DOCTYPE html>
+<html lang="en">
 
-<p>Enter the code below to verify your email address</p>
-<p style="font-size: 50px">{{ .Token }}</p>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirm your registration</title>
+    <style>
+        body {
+            background: #f7f2f0;
+            margin: 0;
+            padding: 0;
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            color: #22223b;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-img {
+            width: 120px;
+            height: auto;
+            display: block;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px 0 rgba(34, 34, 59, 0.06);
+            padding: 2.5rem 2rem 2rem 2rem;
+            max-width: 420px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .heading {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.9rem;
+            color: #22223b;
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        .message {
+            font-size: 0.9rem;
+            line-height: 20px;
+            margin-bottom: 2rem;
+            color: #22223b;
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        .footer {
+            text-align: center;
+            color: #a1a1aa;
+            font-size: 0.8rem;
+            line-height: 20px;
+            margin-top: 2.5rem;
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        .support {
+            color: #8d6e99;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 500px) {
+            .card {
+                padding: 1.5rem 0.5rem 1.5rem 0.5rem;
+            }
+
+            .logo-img {
+                width: 90px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://res.cloudinary.com/dmf17sdoo/image/upload/v1751572392/lifeing-logo_yl7kd8.svg"
+                alt="Lifeing Logo" class="logo-img" />
+        </div>
+        <div class="card">
+            <div class="heading">Confirm your registration</div>
+            <div class="message">
+                Enter the code below to verify your email address:
+            </div>
+            <p style="font-size: 50px">{{ .Token }}</p>
+            <div class="message" style="margin-bottom:0.5rem;">
+                If you didn’t request this, feel free to ignore this message or <a
+                    href="mailto:support@lifeing.services" class="support">contact support</a>.
+            </div>
+        </div>
+        <div class="footer">
+            &copy; 2025 Lifeing. All rights reserved.<br />
+            You’re receiving this email because you signed up for Lifeing.
+        </div>
+    </div>
+</body>
+
+</html>
