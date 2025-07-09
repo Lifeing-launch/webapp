@@ -204,6 +204,8 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
     }
   };
 
+  const startConversation = false;
+
   return (
     <>
       {/* Header */}
@@ -231,11 +233,13 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
                 onContactSelect={handleContactSelectWithTransform}
               />
 
-              {/* <NewConversationPanel
-                searchQuery={userSearchQuery}
-                onSearchChange={setUserSearchQuery}
-                onUserSelect={handleUserSelect}
-              /> */}
+              {startConversation && (
+                <NewConversationPanel
+                  searchQuery={userSearchQuery}
+                  onSearchChange={setUserSearchQuery}
+                  onUserSelect={handleUserSelect}
+                />
+              )}
             </>
           )}
         </ForumSidebar>
