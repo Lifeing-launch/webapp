@@ -140,11 +140,10 @@ export const GroupsView = ({
     isLoading: isLoadingMyGroups,
     refetch: refetchMyGroups,
   } = useQuery({
-    queryKey: ["groups", "my-memberships", searchQuery],
+    queryKey: ["groups", "my-memberships"],
     queryFn: () =>
       groupService.getGroups({
         joinedOnly: true,
-        search: searchQuery || undefined,
       }),
     enabled: !!profile && !!selectedGroup,
   });
