@@ -151,12 +151,18 @@ export const GroupsView = ({
 
   const myGroups = myMemberGroups?.filter(
     (group) =>
-      group.owner_anon_id === profile?.id || group.group_type === "private"
+      // Groups owned by the user (any type)
+      group.owner_anon_id === profile?.id ||
+      // Private groups where user is an approved member
+      (group.group_type === "private" && group.is_member)
   );
 
   const publicGroups = myMemberGroups?.filter(
     (group) =>
-      group.group_type === "public" && group.owner_anon_id !== profile?.id
+      // Public groups where user is approved member but not owner
+      group.group_type === "public" &&
+      group.owner_anon_id !== profile?.id &&
+      group.is_member
   );
 
   const handleCreateGroup = () => {

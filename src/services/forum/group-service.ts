@@ -47,7 +47,7 @@ export class GroupService extends BaseForumService {
       const profile = await this.getCurrentProfile();
 
       if (joinedOnly && profile) {
-        // Fetch only groups where user is an approved member
+        // Fetch groups where user is an approved member only
         const { data: memberGroups } = await this.supabase
           .from("group_members")
           .select("group_id")
