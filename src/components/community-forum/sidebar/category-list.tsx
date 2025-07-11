@@ -8,6 +8,7 @@ export interface ICategoryList {
   activeCategory?: string;
   onCategoryClick: (category: string) => void;
   isLoading?: boolean;
+  emptyMessage?: string;
 }
 
 export function CategoryList({
@@ -15,6 +16,7 @@ export function CategoryList({
   activeCategory,
   onCategoryClick,
   isLoading,
+  emptyMessage = "No categories available",
 }: ICategoryList) {
   if (isLoading) {
     return (
@@ -25,6 +27,13 @@ export function CategoryList({
       </div>
     );
   }
+
+  if (categories.length === 0) {
+    return (
+      <div className="text-xs text-muted-foreground py-2">{emptyMessage}</div>
+    );
+  }
+
   return (
     <>
       {categories.map((category) => (

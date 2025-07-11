@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { CommentWithDetails, StatusEnum } from "@/typing/forum";
 import { formatTimeAgo } from "@/utils/datetime";
-import { Clock, AlertCircle } from "lucide-react";
+import { Clock, AlertCircle, User } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -39,7 +39,8 @@ export function CommentCard({ comment }: CommentCardProps) {
       >
         <Avatar className="h-10 w-10 flex-shrink-0">
           <AvatarFallback className={cn("text-white", "bg-primary")}>
-            {comment.author_profile?.nickname.slice(0, 2).toUpperCase() || "U"}
+            <User className="h-6 w-6" />
+            {/* {comment.author_profile?.nickname.slice(0, 2).toUpperCase() || "U"} */}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
@@ -54,10 +55,10 @@ export function CommentCard({ comment }: CommentCardProps) {
               <Tooltip>
                 <TooltipTrigger>
                   {status === "pending" && (
-                    <Clock className="h-4 w-4 text-amber-500" />
+                    <Clock className="h-3 w-3 text-muted-foreground" />
                   )}
                   {status === "rejected" && (
-                    <AlertCircle className="h-4 w-4 text-red-600" />
+                    <AlertCircle className="h-3 w-3 text-red-600" />
                   )}
                 </TooltipTrigger>
                 <TooltipContent>

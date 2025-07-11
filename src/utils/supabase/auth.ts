@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { createClient } from "./server";
+import { profileService } from "@/services/forum";
 
 export async function checkUserIsAuthenticated() {
   const supabase = await createClient();
@@ -21,4 +22,12 @@ export async function validateEdgeFunctionAuthentication(request: NextRequest) {
   if (apiKey !== process.env.EDGE_FUNCTION_API_KEY) {
     throw new Error("Unauthenticated edge function");
   }
+}
+
+/**
+ * Invalidate profile cache when auth state changes
+ * Call this after logout, login, or any auth state change
+ */
+export function invalidateProfileCache(): void {
+  profileService.clearAllCaches();
 }

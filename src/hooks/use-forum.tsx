@@ -2,67 +2,8 @@
 
 import * as React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  postService,
-  groupService,
-  profileService,
-  messageService,
-} from "@/services/forum";
-import { useMemo } from "react";
+import { groupService, profileService, messageService } from "@/services/forum";
 import { getQueryClient } from "@/components/providers/query-provider";
-
-export type UseForumPostsOptions = {
-  groupId?: string;
-  limit?: number;
-  offset?: number;
-  searchQuery?: string;
-  tagId?: string;
-  categoryId?: string;
-  onlyForum?: boolean;
-};
-
-export function useForumPosts(options: UseForumPostsOptions = {}) {
-  const { groupId, limit, offset, searchQuery, tagId, categoryId, onlyForum } =
-    options;
-
-  const postsQueryKey = useMemo(
-    () => [
-      "forum-posts",
-      { groupId, limit, offset, searchQuery, tagId, categoryId, onlyForum },
-    ],
-    [groupId, limit, offset, searchQuery, tagId, categoryId, onlyForum]
-  );
-
-  const posts = useQuery({
-    queryKey: postsQueryKey,
-    queryFn: () =>
-      postService.getPosts({
-        groupId,
-        limit,
-        offset,
-        searchQuery,
-        tagId: tagId ?? undefined,
-        categoryId: categoryId ?? undefined,
-        onlyForum,
-      }),
-  });
-
-  const tags = useQuery({
-    queryKey: ["tags"],
-    queryFn: () => postService.getTags(),
-  });
-
-  const categories = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => postService.getCategories(),
-  });
-
-  return {
-    posts,
-    tags,
-    categories,
-  };
-}
 
 /**
  * Hook to fetch all pending join requests for groups owned by current user
@@ -169,6 +110,22 @@ export function useDirectMessages() {
     queryFn: () => messageService.getTotalUnreadCount(),
     staleTime: 30 * 1000,
   });
+
+  // Auto-refresh messages periodically for selected contact
+  React.useEffect(() => {
+    if (!selectedContactId) return;
+
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries({
+        queryKey: ["dm-messages", selectedContactId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["dm-contacts"],
+      });
+    }, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [selectedContactId, queryClient]);
 
   const handleContactSelect = (contactId: string) => {
     setSelectedContactId(contactId);

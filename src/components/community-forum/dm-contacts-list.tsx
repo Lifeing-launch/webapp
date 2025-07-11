@@ -1,6 +1,8 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DMContact } from "@/typing/forum";
+// import { formatTimeAgo } from "@/utils/datetime";
+import { MessageCircle } from "lucide-react";
 
 interface DMContactsListProps {
   contacts: DMContact[];
@@ -21,8 +23,12 @@ export function DMContactsList({
     <div className="h-full overflow-y-auto">
       {contacts.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-center p-4">
-          <p className="text-muted-foreground text-sm">
-            No conversations yet. Start a new conversation!
+          <MessageCircle className="h-12 w-12 text-muted-foreground/50 mb-3" />
+          <h3 className="text-sm font-medium text-foreground mb-1">
+            No conversations yet
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Click &ldquo;New Conversation&rdquo; to start messaging
           </p>
         </div>
       ) : (
@@ -37,18 +43,25 @@ export function DMContactsList({
               )}
             >
               {/* Avatar */}
-              <div className="h-6 w-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-medium">
-                {contact.username.slice(1, 3).toUpperCase()}
+              <div
+                className={cn(
+                  "h-6 w-6 rounded-full text-white flex items-center justify-center text-xs font-medium flex-shrink-0",
+                  contact.avatarColor || "bg-primary"
+                )}
+              >
+                {contact.username.slice(0, 2).toUpperCase()}
               </div>
 
               {/* Contact Info */}
               <div className="flex-1 min-w-0 text-left">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center justify-between mb-1">
                   <h4 className="text-sm font-semibold text-foreground truncate">
-                    {contact.username}
+                    @{contact.username}
                   </h4>
-                  {/* {contact.isActive && (
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  {/* {contact.lastMessageTime && (
+                    <span className="text-xs text-muted-foreground">
+                      {formatTimeAgo(contact.lastMessageTime)}
+                    </span>
                   )} */}
                 </div>
 
@@ -57,15 +70,9 @@ export function DMContactsList({
                     {contact.lastMessage}
                   </p>
                 )} */}
-
-                {/* {contact.lastMessageTime && (
-                  <span className="text-xs text-muted-foreground">
-                    {formatTimeAgo(contact.lastMessageTime)}
-                  </span>
-                )} */}
               </div>
 
-              {/* Unread Count */}
+              {/* Unread Count Badge - TODO: Implement unread count */}
               {/* {contact.unreadCount && contact.unreadCount > 0 && (
                 <Badge variant="destructive" className="ml-2">
                   {contact.unreadCount}

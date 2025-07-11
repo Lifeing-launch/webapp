@@ -8,7 +8,7 @@
  * - ProfileService: Operações com perfil anônimo (centralizado)
  * - PostService: Operações com posts e likes + realtime
  * - CommentService: Operações com comentários + realtime
- * - MessageService: Operações com DMs + realtime
+ * - MessageService: Operações com DMs (CRUD apenas)
  * - GroupService: Operações com grupos (implementado)
  * - ThreadService: Operações com threads (a ser implementado)
  */
@@ -29,13 +29,11 @@ export { CommentService, commentService } from "./comment-service";
 export { MessageService, messageService } from "./message-service";
 export { GroupService, groupService } from "./group-service";
 
-// Utilitários de realtime
+// Utilitários de realtime (disponíveis para posts e comentários)
 export {
   subscribeToThreadPosts,
   subscribeToPostComments,
   subscribeToPostLikes,
-  subscribeToUserMessages,
-  subscribeToConversation,
   type RealtimeSubscription,
   type RealtimeLikePayload,
 } from "@/utils/supabase/realtime-config";
