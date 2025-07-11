@@ -111,32 +111,20 @@ export function useDirectMessages() {
     staleTime: 30 * 1000,
   });
 
-  // Setup realtime subscription for messages
+  // Auto-refresh messages periodically for selected contact
   React.useEffect(() => {
     if (!selectedContactId) return;
 
-    const setupRealtimeSubscription = async () => {
-      const subscription = await messageService.subscribeToConversation(
-        selectedContactId,
-        () => {
-          // Invalidate queries to refetch new messages
-          queryClient.invalidateQueries({
-            queryKey: ["dm-messages", selectedContactId],
-          });
-          queryClient.invalidateQueries({
-            queryKey: ["dm-contacts"],
-          });
-        }
-      );
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries({
+        queryKey: ["dm-messages", selectedContactId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["dm-contacts"],
+      });
+    }, 5000); // Refresh every 5 seconds
 
-      return () => {
-        if (subscription) {
-          subscription.unsubscribe();
-        }
-      };
-    };
-
-    setupRealtimeSubscription();
+    return () => clearInterval(interval);
   }, [selectedContactId, queryClient]);
 
   const handleContactSelect = (contactId: string) => {

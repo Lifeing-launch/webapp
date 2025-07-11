@@ -1,14 +1,9 @@
 import { BaseForumService } from "./base-forum-service";
 import { Message, MessageWithDetails, StatusEnum } from "@/typing/forum";
-import {
-  subscribeToUserMessages,
-  subscribeToConversation,
-  type RealtimeSubscription,
-} from "@/utils/supabase/realtime-config";
 
 /**
  * Serviço para operações com mensagens diretas (DMs)
- * Inclui funcionalidades de CRUD e realtime para mensagens
+ * Inclui funcionalidades de CRUD para mensagens
  */
 export class MessageService extends BaseForumService {
   /**
@@ -254,49 +249,6 @@ export class MessageService extends BaseForumService {
       return data;
     } catch (error) {
       this.handleError(error, "fetch message by ID");
-    }
-  }
-
-  // ===================================================================
-  // REALTIME METHODS
-  // ===================================================================
-
-  /**
-   * Subscribe para mensagens recebidas pelo usuário atual
-   */
-  async subscribeToUserMessages(
-    onNewMessage: (message: Record<string, unknown>) => void
-  ): Promise<RealtimeSubscription | null> {
-    try {
-      const profile = await this.getCurrentProfile();
-      if (!profile) return null;
-
-      return subscribeToUserMessages(profile.id, onNewMessage);
-    } catch (error) {
-      console.error("Error subscribing to user messages:", error);
-      return null;
-    }
-  }
-
-  /**
-   * Subscribe para conversa específica entre dois usuários
-   */
-  async subscribeToConversation(
-    contactProfileId: string,
-    onNewMessage: (message: Record<string, unknown>) => void
-  ): Promise<RealtimeSubscription | null> {
-    try {
-      const profile = await this.getCurrentProfile();
-      if (!profile) return null;
-
-      return subscribeToConversation(
-        profile.id,
-        contactProfileId,
-        onNewMessage
-      );
-    } catch (error) {
-      console.error("Error subscribing to conversation:", error);
-      return null;
     }
   }
 }
