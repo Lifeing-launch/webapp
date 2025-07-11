@@ -22,7 +22,8 @@ BEGIN
             NEW.id,
             NEW.raw_user_meta_data ->> 'email',
             NEW.raw_user_meta_data ->> 'firstName',
-            NEW.raw_user_meta_data ->> 'lastName'
+            NEW.raw_user_meta_data ->> 'lastName',
+            NEW.raw_user_meta_data ->> 'avatarUrl'
         );
     
     -- If user data is updated, update the profile
@@ -31,7 +32,8 @@ BEGIN
         SET
             email = NEW.raw_user_meta_data ->> 'email',
             first_name = NEW.raw_user_meta_data ->> 'firstName',
-            last_name = NEW.raw_user_meta_data ->> 'lastName'
+            last_name = NEW.raw_user_meta_data ->> 'lastName',
+            avatar_url = NEW.raw_user_meta_data ->> 'avatarUrl'
         WHERE id = NEW.id;
     
     -- If user is deleted, delete the profile

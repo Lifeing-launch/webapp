@@ -10,7 +10,7 @@ import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { CoachCard } from "@/components/coaching/coach-card";
 import { Coach } from "@/typing/strapi";
 
-const breadcrumbs: Breadcrumb[] = [{ label: "My Meetings" }];
+const breadcrumbs: Breadcrumb[] = [{ label: "Coaching" }];
 
 const CoachingPage = () => {
   const [coaches, setCoaches] = useState<Coach[]>([]);

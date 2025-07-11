@@ -1,7 +1,6 @@
 "use client";
 
-import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ChevronsUpDown, CreditCard, LogOut, UserRoundCog } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,12 +20,13 @@ import { signOutAction } from "@/utils/supabase/actions";
 import { createClient } from "@/utils/supabase/browser";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { UserAvatar } from "./user-avatar";
 
 export type UserMetadata = {
   firstName: string | null;
   lastName: string | null;
   email: string | null;
-  avatar: string | null;
+  avatarUrl: string | null;
 };
 
 export function NavUser() {
@@ -63,7 +63,7 @@ export function NavUser() {
         firstName: profileData.first_name,
         lastName: profileData.last_name,
         email: profileData.email,
-        avatar: profileData.avatar_url || "/fallback-avatar.png",
+        avatarUrl: profileData.avatar_url,
       });
     };
 
@@ -81,7 +81,6 @@ export function NavUser() {
     );
 
   const fullName = `${user?.firstName} ${user?.lastName}`;
-  const fallbackAvatar = `${user?.firstName?.[0]}${user?.lastName?.[0]}`;
 
   return (
     <SidebarMenu data-testid="nav-user">
@@ -92,12 +91,7 @@ export function NavUser() {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-full">
-                <AvatarImage src={user.avatar || undefined} alt={fullName} />
-                <AvatarFallback className="rounded-full">
-                  {fallbackAvatar}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar user={user} />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{fullName}</span>
                 <span className="truncate text-xs">{user.email}</span>
@@ -113,12 +107,7 @@ export function NavUser() {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-full">
-                  <AvatarImage src={user.avatar || undefined} alt={fullName} />
-                  <AvatarFallback className="rounded-full">
-                    {fallbackAvatar}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar user={user} />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{fullName}</span>
                   <span className="truncate text-xs">{user.email}</span>
@@ -127,10 +116,12 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
+              <Link href={"/account"}>
+                <DropdownMenuItem>
+                  <UserRoundCog />
+                  Account Settings
+                </DropdownMenuItem>
+              </Link>
               <Link href={"/subscription/manage"}>
                 <DropdownMenuItem>
                   <CreditCard />
