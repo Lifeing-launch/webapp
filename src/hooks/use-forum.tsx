@@ -111,6 +111,22 @@ export function useDirectMessages() {
     staleTime: 30 * 1000,
   });
 
+  // Auto-refresh messages periodically for selected contact
+  React.useEffect(() => {
+    if (!selectedContactId) return;
+
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries({
+        queryKey: ["dm-messages", selectedContactId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["dm-contacts"],
+      });
+    }, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [selectedContactId, queryClient]);
+
   const handleContactSelect = (contactId: string) => {
     setSelectedContactId(contactId);
     // Mark messages from this contact as read
