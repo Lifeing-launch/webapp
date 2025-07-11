@@ -14,6 +14,7 @@ import {
   Calendar,
   HeartHandshake,
   Podcast,
+  UserRoundCog,
   UsersRound,
 } from "lucide-react";
 import Image from "next/image";
@@ -27,6 +28,7 @@ export const sidebarIcons = {
   communityForum: <UsersRound />,
   resources: <BookMarked />,
   podcast: <Podcast />,
+  account: <UserRoundCog />,
 };
 
 const data = {
