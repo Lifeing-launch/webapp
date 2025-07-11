@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DMContact } from "@/typing/forum";
-import { formatTimeAgo } from "@/utils/datetime";
+// import { formatTimeAgo } from "@/utils/datetime";
 import { MessageCircle } from "lucide-react";
 
 interface DMContactsListProps {

@@ -5,11 +5,11 @@ import { DMMessagesList } from "@/components/community-forum/dm-messages-list";
 import { DMMessageInput } from "@/components/community-forum/dm-message-input";
 import { useDirectMessages, useAnonymousProfiles } from "@/hooks/use-forum";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserPlus, X } from "lucide-react";
+// import { UserPlus, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { MessageWithDetails, DMContact } from "@/typing/forum";
 import { profileService } from "@/services/forum";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 
 /**
  * Props para o componente DMView
@@ -203,7 +203,7 @@ function MessagesEmptyState({
 export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userSearchQuery, setUserSearchQuery] = useState("");
-  const [showNewConversation, setShowNewConversation] = useState(false);
+  // const [showNewConversation, setShowNewConversation] = useState(false);
   const [currentProfileId, setCurrentProfileId] = useState<string | null>(null);
   const [isSelectingNewContact, setIsSelectingNewContact] = useState(false);
   const [selectingUserId, setSelectingUserId] = useState<string | undefined>();
@@ -246,7 +246,7 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
       setNewContactProfile({ id: userId, nickname });
       await handleContactSelect(userId);
       setUserSearchQuery("");
-      setShowNewConversation(false);
+      // setShowNewConversation(false);
     } finally {
       setIsSelectingNewContact(false);
       setSelectingUserId(undefined);
@@ -338,7 +338,7 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
                 searchQuery={userSearchQuery}
                 onSearchChange={setUserSearchQuery}
                 onUserSelect={handleUserSelect}
-                onClose={() => setShowNewConversation(false)}
+                onClose={() => {}}
                 isSelecting={isSelectingNewContact}
                 selectedUserId={selectingUserId}
               />
