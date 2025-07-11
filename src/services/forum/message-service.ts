@@ -107,6 +107,11 @@ export class MessageService extends BaseForumService {
       const { receiverProfileId, content } = messageData;
       const profile = await this.requireProfile();
 
+      // Prevent sending messages to oneself
+      if (profile.id === receiverProfileId) {
+        throw new Error("Cannot send messages to yourself");
+      }
+
       const { data, error } = await this.supabase
         .from("messages")
         .insert({

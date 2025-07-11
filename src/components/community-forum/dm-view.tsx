@@ -5,9 +5,11 @@ import { DMMessagesList } from "@/components/community-forum/dm-messages-list";
 import { DMMessageInput } from "@/components/community-forum/dm-message-input";
 import { useDirectMessages, useAnonymousProfiles } from "@/hooks/use-forum";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserPlus } from "lucide-react";
-import { useState } from "react";
+import { UserPlus, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import { MessageWithDetails, DMContact } from "@/typing/forum";
+import { profileService } from "@/services/forum";
+import { Button } from "@/components/ui/button";
 
 /**
  * Props para o componente DMView
@@ -24,15 +26,20 @@ export interface IDMViewProps {
  */
 function transformToDMContact(
   message: MessageWithDetails,
-  currentProfileId?: string
+  currentProfileId: string
 ): DMContact {
+  // Determina quem é o contato baseado no perfil atual
   const isFromCurrentUser = message.sender_anon_id === currentProfileId;
   const contactProfile = isFromCurrentUser
     ? message.receiver_profile
     : message.sender_profile;
 
+  const contactId = isFromCurrentUser
+    ? message.receiver_anon_id
+    : message.sender_anon_id;
+
   return {
-    id: contactProfile.id,
+    id: contactId, // Usar o ID correto do contato
     username: contactProfile.nickname,
     avatarColor: "bg-primary",
     lastMessage: message.content,
@@ -68,19 +75,36 @@ function NewConversationPanel({
   searchQuery,
   onSearchChange,
   onUserSelect,
+  // onClose,
+  isSelecting,
+  selectedUserId,
 }: {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  onUserSelect: (userId: string) => void;
+  onUserSelect: (userId: string, nickname: string) => void;
+  onClose: () => void;
+  isSelecting: boolean;
+  selectedUserId?: string;
 }) {
   const { data: profiles, isLoading } = useAnonymousProfiles(searchQuery);
 
   return (
-    <div className="border-t border-border p-4">
-      <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-        <UserPlus className="h-4 w-4" />
-        Start New Conversation
-      </h3>
+    <div className="border-t border-border p-4 min-h-[7.4rem]">
+      {/* <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-medium flex items-center gap-2">
+          <UserPlus className="h-4 w-4" />
+          Start New Conversation
+        </h3>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="h-6 w-6 p-0"
+          disabled={isSelecting}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div> */}
 
       <input
         type="text"
@@ -88,9 +112,11 @@ function NewConversationPanel({
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
         className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20"
+        autoFocus
+        disabled={isSelecting}
       />
 
-      {searchQuery && (
+      {searchQuery && searchQuery.length >= 2 && (
         <div className="mt-2 max-h-40 overflow-y-auto">
           {isLoading ? (
             <div className="py-2 text-xs text-muted-foreground">
@@ -101,10 +127,18 @@ function NewConversationPanel({
               {profiles.map((profile) => (
                 <button
                   key={profile.id}
-                  onClick={() => onUserSelect(profile.id)}
-                  className="w-full text-left px-2 py-2 text-sm hover:bg-accent rounded-md"
+                  onClick={() => {
+                    onUserSelect(profile.id, profile.nickname);
+                  }}
+                  disabled={isSelecting}
+                  className="w-full text-left px-2 py-2 text-sm hover:bg-accent rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
                 >
-                  @{profile.nickname}
+                  <span>@{profile.nickname}</span>
+                  {isSelecting && selectedUserId === profile.id && (
+                    <span className="text-xs text-muted-foreground">
+                      Loading...
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -124,8 +158,10 @@ function NewConversationPanel({
  */
 function MessagesEmptyState({
   selectedContactId,
+  selectedContactName,
 }: {
   selectedContactId: string | null;
+  selectedContactName?: string;
 }) {
   if (!selectedContactId) {
     return (
@@ -147,10 +183,14 @@ function MessagesEmptyState({
     <div className="flex-1 flex items-center justify-center p-8 text-center">
       <div>
         <h3 className="text-lg font-medium text-foreground mb-2">
-          No messages yet
+          {selectedContactName
+            ? `Start a conversation with @${selectedContactName}`
+            : "No messages yet"}
         </h3>
         <p className="text-sm text-muted-foreground">
-          Be the first to send a message in this conversation.
+          {selectedContactName
+            ? "Send your first message to start chatting."
+            : "Be the first to send a message in this conversation."}
         </p>
       </div>
     </div>
@@ -163,6 +203,14 @@ function MessagesEmptyState({
 export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [showNewConversation, setShowNewConversation] = useState(false);
+  const [currentProfileId, setCurrentProfileId] = useState<string | null>(null);
+  const [isSelectingNewContact, setIsSelectingNewContact] = useState(false);
+  const [selectingUserId, setSelectingUserId] = useState<string | undefined>();
+  const [newContactProfile, setNewContactProfile] = useState<{
+    id: string;
+    nickname: string;
+  } | null>(null);
 
   const {
     contacts,
@@ -175,36 +223,77 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
     handleSendMessage,
   } = useDirectMessages();
 
-  const handleUserSelect = (userId: string) => {
-    handleContactSelect(userId);
-    setUserSearchQuery("");
-  };
+  // Buscar o perfil atual do usuário
+  useEffect(() => {
+    const fetchCurrentProfile = async () => {
+      try {
+        const profile = await profileService.getCurrentProfile();
+        if (profile) {
+          setCurrentProfileId(profile.id);
+        }
+      } catch (error) {
+        console.error("Error fetching current profile:", error);
+      }
+    };
+    fetchCurrentProfile();
+  }, []);
 
-  // Transformar contacts para o formato esperado pelo componente
-  const transformedContacts = contacts.map((contact) =>
-    transformToDMContact(contact)
-  );
-
-  const filteredContacts = transformedContacts.filter((contact) =>
-    contact.username.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleContactSelectWithTransform = (contactId: string) => {
-    // Encontrar o contact original pelo ID transformado
-    const originalContact = contacts.find(
-      (contact) => transformToDMContact(contact).id === contactId
-    );
-    if (originalContact) {
-      const isFromCurrentUser =
-        originalContact.sender_anon_id === selectedContactId;
-      const targetContactId = isFromCurrentUser
-        ? originalContact.receiver_anon_id
-        : originalContact.sender_anon_id;
-      handleContactSelect(targetContactId);
+  const handleUserSelect = async (userId: string, nickname: string) => {
+    setIsSelectingNewContact(true);
+    setSelectingUserId(userId);
+    try {
+      // Store the new contact profile
+      setNewContactProfile({ id: userId, nickname });
+      await handleContactSelect(userId);
+      setUserSearchQuery("");
+      setShowNewConversation(false);
+    } finally {
+      setIsSelectingNewContact(false);
+      setSelectingUserId(undefined);
     }
   };
 
-  const startConversation = false;
+  // Transformar contacts para o formato esperado pelo componente
+  const transformedContacts = currentProfileId
+    ? contacts.map((contact) => transformToDMContact(contact, currentProfileId))
+    : [];
+
+  // Add new contact if selected but no messages yet
+  if (newContactProfile && selectedContactId === newContactProfile.id) {
+    const existingContact = transformedContacts.find(
+      (c) => c.id === newContactProfile.id
+    );
+
+    if (!existingContact) {
+      transformedContacts.unshift({
+        id: newContactProfile.id,
+        username: newContactProfile.nickname,
+        avatarColor: "bg-primary",
+        lastMessage: "",
+        lastMessageTime: new Date().toISOString(),
+        unreadCount: 0,
+        isActive: true,
+      });
+    }
+  }
+
+  // Remover duplicatas baseadas no ID do contato
+  const uniqueContacts = transformedContacts.reduce((acc, contact) => {
+    const exists = acc.find((c) => c.id === contact.id);
+    if (!exists) {
+      acc.push(contact);
+    }
+    return acc;
+  }, [] as DMContact[]);
+
+  const filteredContacts = uniqueContacts.filter((contact) =>
+    contact.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Encontrar o nome do contato selecionado
+  const selectedContact = uniqueContacts.find(
+    (c) => c.id === selectedContactId
+  );
 
   return (
     <>
@@ -221,31 +310,54 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
       {/* Main Content Area */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <ForumSidebar activePage={activePage} setActivePage={setActivePage}>
+          {/* Botão para nova conversa */}
+          {/* <div className="p-4 border-b border-border">
+            <Button
+              onClick={() => setShowNewConversation(!showNewConversation)}
+              className="w-full"
+              variant="outline"
+              size="sm"
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              New Conversation
+            </Button>
+          </div> */}
+
           {isContactsLoading ? (
             <ContactsLoading />
           ) : (
             <>
               <DMContactsList
                 contacts={filteredContacts}
-                selectedContactId={
-                  selectedContactId ? selectedContactId : undefined
-                }
-                onContactSelect={handleContactSelectWithTransform}
+                selectedContactId={selectedContactId || undefined}
+                onContactSelect={handleContactSelect}
               />
 
-              {startConversation && (
-                <NewConversationPanel
-                  searchQuery={userSearchQuery}
-                  onSearchChange={setUserSearchQuery}
-                  onUserSelect={handleUserSelect}
-                />
-              )}
+              {/* {showNewConversation && ( */}
+              <NewConversationPanel
+                searchQuery={userSearchQuery}
+                onSearchChange={setUserSearchQuery}
+                onUserSelect={handleUserSelect}
+                onClose={() => setShowNewConversation(false)}
+                isSelecting={isSelectingNewContact}
+                selectedUserId={selectingUserId}
+              />
+              {/* )} */}
             </>
           )}
         </ForumSidebar>
 
         {/* Messages Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Selected Contact Header */}
+          {selectedContact && (
+            <div className="border-b border-border px-4 py-3">
+              <h2 className="text-lg font-semibold">
+                @{selectedContact.username}
+              </h2>
+            </div>
+          )}
+
           {/* Messages List */}
           <div className="flex-1 overflow-y-auto">
             {isMessagesLoading ? (
@@ -259,17 +371,23 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
                 <DMMessagesList messages={messages} />
               </div>
             ) : (
-              <MessagesEmptyState selectedContactId={selectedContactId} />
+              <MessagesEmptyState
+                selectedContactId={selectedContactId}
+                selectedContactName={selectedContact?.username}
+              />
             )}
           </div>
 
           {/* Message Input */}
-          <div className="border-t border-border px-4 py-3">
-            <DMMessageInput
-              onSendMessage={handleSendMessage}
-              disabled={!selectedContactId || isSending}
-            />
-          </div>
+          {selectedContactId && (
+            <div className="border-t border-border px-4 py-3">
+              <DMMessageInput
+                onSendMessage={handleSendMessage}
+                disabled={!selectedContactId || isSending}
+                recipientName={selectedContact?.username}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

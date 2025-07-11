@@ -254,6 +254,9 @@ export class ProfileService {
         return [];
       }
 
+      // Get current user's profile to exclude from results
+      const currentProfile = await this.getCurrentProfile();
+
       const { data, error } = await this.supabase
         .from("anonymous_profiles")
         .select("*")
@@ -264,7 +267,12 @@ export class ProfileService {
         throw error;
       }
 
-      return data || [];
+      // Filter out current user's profile
+      const filteredData = data?.filter(
+        (profile) => profile.id !== currentProfile?.id
+      );
+
+      return filteredData || [];
     } catch (err) {
       console.error("Error searching profiles:", err);
       return [];

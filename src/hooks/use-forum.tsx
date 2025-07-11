@@ -111,6 +111,34 @@ export function useDirectMessages() {
     staleTime: 30 * 1000,
   });
 
+  // Setup realtime subscription for messages
+  React.useEffect(() => {
+    if (!selectedContactId) return;
+
+    const setupRealtimeSubscription = async () => {
+      const subscription = await messageService.subscribeToConversation(
+        selectedContactId,
+        () => {
+          // Invalidate queries to refetch new messages
+          queryClient.invalidateQueries({
+            queryKey: ["dm-messages", selectedContactId],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["dm-contacts"],
+          });
+        }
+      );
+
+      return () => {
+        if (subscription) {
+          subscription.unsubscribe();
+        }
+      };
+    };
+
+    setupRealtimeSubscription();
+  }, [selectedContactId, queryClient]);
+
   const handleContactSelect = (contactId: string) => {
     setSelectedContactId(contactId);
     // Mark messages from this contact as read
