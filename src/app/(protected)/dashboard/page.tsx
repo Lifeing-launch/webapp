@@ -1,0 +1,123 @@
+"use client";
+
+import {
+  Announcement,
+  AnnouncementsCard,
+} from "@/components/dashboard/announcements";
+import { Breadcrumb } from "@/components/layout/header";
+import { MeetingCard } from "@/components/meetings/meeting-card";
+import PageTemplate from "@/components/layout/page-template";
+import DashboardSkeleton from "@/components/dashboard/skeleton";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { toast } from "sonner";
+import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
+import { Meeting } from "@/typing/strapi";
+import qs from "qs";
+
+const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard" }];
+
+const today = new Date();
+const inThirtyDays = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+const DashboardPage = () => {
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMeetings = async () => {
+      try {
+        const query = qs.stringify({
+          dateFrom: today,
+          dateTo: inThirtyDays,
+          rsvpOnly: true,
+        });
+
+        const res = await fetch(`/api/meetings?${query}`);
+        const data: { data?: Meeting[]; error?: string } = await res.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        setMeetings(data?.data || []);
+      } catch (err) {
+        toast.error("Error fetching meetings");
+        console.error("Error fetching meetings: ", err);
+      }
+    };
+
+    const fetchAnnouncements = async () => {
+      try {
+        const res = await fetch("/api/announcements");
+        const data: { data?: Announcement[]; error?: string } =
+          await res.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        setAnnouncements(data?.data || []);
+      } catch (err) {
+        toast.error("Error fetching announcements");
+        console.error("Error fetching announcements: ", err);
+      }
+    };
+
+    const fetchData = async () => {
+      await fetchMeetings();
+      await fetchAnnouncements();
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  let content = <></>;
+
+  if (isLoading) {
+    content = <DashboardSkeleton />;
+  } else {
+    content = (
+      <>
+        <div className="flex flex-col flex-1 gap-4 p-4 pt-0 w-full h-full lg:flex-row">
+          <section className="flex-1">
+            <h2 className="text-xl font-normal mb-2"> Upcoming meetings</h2>
+            <div className="flex flex-col gap-4">
+              {!meetings.length && (
+                <p className="text-sm">
+                  You have no upcoming meetings.{" "}
+                  <Link href="/meetings" className="text-primary">
+                    Explore and RSVP to upcoming meetings here.{" "}
+                  </Link>{" "}
+                </p>
+              )}
+              {meetings.map((meeting, i) => (
+                <MeetingCard key={i} meeting={meeting} showRsvp={false} />
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-normal mb-2"> Announcements </h2>
+            {announcements.length ? (
+              <AnnouncementsCard announcements={announcements} />
+            ) : (
+              <p className="text-sm"> There are no new announcements</p>
+            )}
+          </section>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <PageTemplate
+      title="Dashboard"
+      breadcrumbs={breadcrumbs}
+      headerIcon={sidebarIcons.dashboard}
+    >
+      {content}
+    </PageTemplate>
+  );
+};
+
+export default DashboardPage;
