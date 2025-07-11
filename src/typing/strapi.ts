@@ -62,7 +62,7 @@ export type Coach = {
   focus_areas: string[];
   booking_url: string;
   experience_in_years: number;
-  avatar: Image;
+  avatar?: Image;
 };
 
 export type SubscriptionPlanStatus = "DRAFT" | "ACTIVE" | "RETIRED";
