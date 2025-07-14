@@ -43,7 +43,7 @@ export class MessageService extends BaseForumService {
   }
 
   /**
-   * Busca lista de contatos (últimas conversas)
+   * Busca lista de contatos (últimas conversas) com contador de mensagens não lidas
    */
   async getContacts(): Promise<MessageWithDetails[]> {
     try {

@@ -1,14 +1,35 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DMContact } from "@/typing/forum";
-// import { formatTimeAgo } from "@/utils/datetime";
+import { formatTimeAgo } from "@/utils/datetime";
 import { MessageCircle } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { useUnreadCount } from "@/hooks/use-forum";
 
 interface DMContactsListProps {
   contacts: DMContact[];
   selectedContactId?: string;
   onContactSelect: (contactId: string) => void;
+}
+
+/**
+ * Component to show unread count for a contact
+ */
+function ContactUnreadCount({ contactId }: { contactId: string }) {
+  const { data: unreadCount } = useUnreadCount(contactId);
+
+  if (!unreadCount || unreadCount === 0) {
+    return null;
+  }
+
+  return (
+    <Badge
+      variant="destructive"
+      className="ml-2 h-5 w-5 flex items-center justify-center text-xs rounded-full p-0"
+    >
+      {unreadCount > 99 ? "99+" : unreadCount}
+    </Badge>
+  );
 }
 
 /**
@@ -59,26 +80,22 @@ export function DMContactsList({
                   <h4 className="text-sm font-semibold text-foreground truncate">
                     @{contact.username}
                   </h4>
-                  {/* {contact.lastMessageTime && (
+                  {contact.lastMessageTime && (
                     <span className="text-xs text-muted-foreground">
                       {formatTimeAgo(contact.lastMessageTime)}
                     </span>
-                  )} */}
+                  )}
                 </div>
 
-                {/* {contact.lastMessage && (
+                {contact.lastMessage && (
                   <p className="text-xs text-muted-foreground truncate">
                     {contact.lastMessage}
                   </p>
-                )} */}
+                )}
               </div>
 
-              {/* Unread Count Badge - TODO: Implement unread count */}
-              {contact.unreadCount && contact.unreadCount > 0 && (
-                <Badge variant="outline" className="ml-2">
-                  {contact.unreadCount}
-                </Badge>
-              )}
+              {/* Unread Count Badge */}
+              <ContactUnreadCount contactId={contact.id} />
             </button>
           ))}
         </div>

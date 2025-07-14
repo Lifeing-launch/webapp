@@ -72,7 +72,8 @@ export function useDirectMessages() {
   const contacts = useQuery({
     queryKey: ["dm-contacts"],
     queryFn: () => messageService.getContacts(),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000, // 30 seconds - shorter stale time to show new contacts/messages
+    refetchInterval: 10 * 1000, // Refetch every 10 seconds to catch new conversations
   });
 
   // Fetch messages for selected contact
@@ -81,7 +82,8 @@ export function useDirectMessages() {
     queryFn: () =>
       selectedContactId ? messageService.getMessages(selectedContactId) : [],
     enabled: !!selectedContactId,
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 5 * 1000, // 5 seconds - shorter stale time for active chat
+    refetchInterval: selectedContactId ? 3 * 1000 : false, // Refetch every 3 seconds when chat is open
   });
 
   // Send message mutation
@@ -92,6 +94,9 @@ export function useDirectMessages() {
       // Invalidate and refetch messages
       queryClient.invalidateQueries({ queryKey: ["dm-messages"] });
       queryClient.invalidateQueries({ queryKey: ["dm-contacts"] });
+      // Invalidate unread counts
+      queryClient.invalidateQueries({ queryKey: ["dm-total-unread"] });
+      queryClient.invalidateQueries({ queryKey: ["dm-unread-count"] });
     },
   });
 
@@ -101,6 +106,9 @@ export function useDirectMessages() {
       messageService.markMessagesAsRead(senderProfileId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["dm-contacts"] });
+      // Invalidate unread counts
+      queryClient.invalidateQueries({ queryKey: ["dm-total-unread"] });
+      queryClient.invalidateQueries({ queryKey: ["dm-unread-count"] });
     },
   });
 
@@ -108,32 +116,42 @@ export function useDirectMessages() {
   const totalUnreadCount = useQuery({
     queryKey: ["dm-total-unread"],
     queryFn: () => messageService.getTotalUnreadCount(),
-    staleTime: 30 * 1000,
+    staleTime: 5 * 1000, // 5 seconds
+    refetchInterval: 5 * 1000, // Refetch every 5 seconds for real-time unread count
   });
 
-  // Auto-refresh messages periodically for selected contact
+  // Mark messages as read periodically when viewing conversation
   React.useEffect(() => {
     if (!selectedContactId) return;
 
     const interval = setInterval(() => {
-      queryClient.invalidateQueries({
-        queryKey: ["dm-messages", selectedContactId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["dm-contacts"],
-      });
-    }, 5000); // Refresh every 5 seconds
+      // Mark messages as read when viewing conversation
+      markAsReadMutation.mutate(selectedContactId);
+    }, 5000); // Mark as read every 5 seconds
 
     return () => clearInterval(interval);
-  }, [selectedContactId, queryClient]);
+  }, [selectedContactId, markAsReadMutation]);
 
   const handleContactSelect = (contactId: string) => {
     setSelectedContactId(contactId);
-    // Mark messages from this contact as read
+    // Mark messages from this contact as read immediately
     if (contactId) {
       markAsReadMutation.mutate(contactId);
     }
   };
+
+  // Mark messages as read when new messages arrive while viewing conversation
+  React.useEffect(() => {
+    if (!selectedContactId || !messages.data || messages.data.length === 0)
+      return;
+
+    // Mark as read when new messages arrive
+    const timer = setTimeout(() => {
+      markAsReadMutation.mutate(selectedContactId);
+    }, 1000); // Small delay to ensure messages are loaded
+
+    return () => clearTimeout(timer);
+  }, [messages.data, selectedContactId, markAsReadMutation]);
 
   const handleClearSelection = () => {
     setSelectedContactId(null);
@@ -189,7 +207,8 @@ export function useUnreadCount(senderProfileId?: string) {
     queryFn: () =>
       senderProfileId ? messageService.getUnreadCount(senderProfileId) : 0,
     enabled: !!senderProfileId,
-    staleTime: 30 * 1000,
+    staleTime: 5 * 1000, // 5 seconds
+    refetchInterval: 5 * 1000, // Refetch every 5 seconds for real-time count
   });
 }
 
