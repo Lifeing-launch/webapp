@@ -40,8 +40,8 @@ export function DMMessageInput({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <div className="flex gap-2 items-end">
-        <div className="flex-1">
+      <div className="flex gap-2 items-start flex-col">
+        <div className="flex-1 w-full">
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}

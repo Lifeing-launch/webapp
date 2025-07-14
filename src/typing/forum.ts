@@ -272,7 +272,6 @@ export interface Group {
   isJoined?: boolean;
 }
 
-/** @deprecated Use AnonymousProfile instead - keeping for backward compatibility */
 export interface DMContact {
   id: string;
   username: string;

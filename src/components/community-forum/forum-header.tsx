@@ -10,8 +10,10 @@ export interface IForumHeader {
   searchQuery: string;
   placeholder?: string;
   hiddenButton?: boolean;
+  buttonIcon?: React.ReactNode;
   buttonOnClick?: () => void;
   setSearchQuery?: (query: string) => void;
+  searchDropdown?: React.ReactNode;
 }
 
 export function ForumHeader({
@@ -21,7 +23,9 @@ export function ForumHeader({
   hiddenButton = false,
   searchQuery,
   setSearchQuery,
+  buttonIcon = <Pen className="w-4 h-4" />,
   buttonOnClick,
+  searchDropdown,
 }: IForumHeader) {
   const [inputValue, setInputValue] = useState(searchQuery);
   const debouncedValue = useDebounce(inputValue, 500); // 500ms delay
@@ -43,14 +47,17 @@ export function ForumHeader({
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-3">
-        <div className="relative flex items-center gap-1 h-9 px-3 py-1 bg-white border border-border rounded-md shadow-sm w-full sm:w-72">
-          <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-          <Input
-            placeholder={placeholder}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            className="border-0 bg-transparent p-0 text-sm leading-5 placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
+        <div className="relative w-full sm:w-72">
+          <div className="relative flex items-center gap-1 h-9 px-3 py-1 bg-white border border-border rounded-md shadow-sm">
+            <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <Input
+              placeholder={placeholder}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              className="border-0 bg-transparent p-0 text-sm leading-5 placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+          </div>
+          {searchDropdown}
         </div>
 
         {!hiddenButton && (
@@ -58,7 +65,7 @@ export function ForumHeader({
             onClick={buttonOnClick}
             className="flex items-center justify-center gap-2 h-9 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm w-full sm:w-auto cursor-pointer"
           >
-            <Pen className="w-4 h-4" />
+            {buttonIcon}
             <span className="text-sm font-medium leading-5">{buttonText}</span>
           </Button>
         )}

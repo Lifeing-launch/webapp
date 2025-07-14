@@ -43,7 +43,7 @@ export class MessageService extends BaseForumService {
   }
 
   /**
-   * Busca lista de contatos (últimas conversas)
+   * Busca lista de contatos (últimas conversas) com contador de mensagens não lidas
    */
   async getContacts(): Promise<MessageWithDetails[]> {
     try {
@@ -249,6 +249,46 @@ export class MessageService extends BaseForumService {
       return data;
     } catch (error) {
       this.handleError(error, "fetch message by ID");
+    }
+  }
+
+  /**
+   * Busca mensagens por conteúdo
+   */
+  async searchMessages(query: string): Promise<MessageWithDetails[]> {
+    try {
+      const profile = await this.requireProfile();
+
+      if (!query || query.length < 2) {
+        return [];
+      }
+
+      const { data, error } = await this.supabase
+        .from("messages")
+        .select(
+          `
+          *,
+          sender_profile:anonymous_profiles!messages_sender_anon_id_fkey(
+            id, nickname, created_at
+          ),
+          receiver_profile:anonymous_profiles!messages_receiver_anon_id_fkey(
+            id, nickname, created_at
+          )
+        `
+        )
+        .or(`sender_anon_id.eq.${profile.id},receiver_anon_id.eq.${profile.id}`)
+        .eq("status", "approved")
+        .ilike("content", `%${query}%`)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) {
+        this.handleError(error, "search messages");
+      }
+
+      return data || [];
+    } catch (error) {
+      this.handleError(error, "search messages");
     }
   }
 }
