@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { DMContact } from "@/typing/forum";
 import { formatTimeAgo } from "@/utils/datetime";
 import { MessageCircle } from "lucide-react";
-import { Badge } from "../ui/badge";
 import { useUnreadCount } from "@/hooks/use-forum";
 
 interface DMContactsListProps {
@@ -13,7 +12,7 @@ interface DMContactsListProps {
 }
 
 /**
- * Component to show unread count for a contact
+ * Component to show unread count for a contact as a badge over the avatar
  */
 function ContactUnreadCount({ contactId }: { contactId: string }) {
   const { data: unreadCount } = useUnreadCount(contactId);
@@ -23,12 +22,9 @@ function ContactUnreadCount({ contactId }: { contactId: string }) {
   }
 
   return (
-    <Badge
-      variant="destructive"
-      className="ml-2 h-5 w-5 flex items-center justify-center text-xs rounded-full p-0"
-    >
+    <div className="absolute -top-1 -right-1 h-5 w-5 bg-destructive text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-background">
       {unreadCount > 99 ? "99+" : unreadCount}
-    </Badge>
+    </div>
   );
 }
 
@@ -60,18 +56,21 @@ export function DMContactsList({
               key={contact.id}
               onClick={() => onContactSelect(contact.id)}
               className={cn(
-                "w-full flex items-center gap-3 p-3 cursor-pointer rounded-lg transition-colors",
+                "w-full flex items-center gap-3 p-3 cursor-pointer rounded-lg transition-colors hover:bg-accent/50",
                 selectedContactId === contact.id && "bg-accent"
               )}
             >
-              {/* Avatar */}
-              <div
-                className={cn(
-                  "h-6 w-6 rounded-full text-white flex items-center justify-center text-xs font-medium flex-shrink-0",
-                  contact.avatarColor || "bg-primary"
-                )}
-              >
-                {contact.username.slice(0, 2).toUpperCase()}
+              {/* Avatar with Badge */}
+              <div className="relative flex-shrink-0">
+                <div
+                  className={cn(
+                    "h-10 w-10 rounded-full text-white flex items-center justify-center text-sm font-medium",
+                    contact.avatarColor || "bg-primary"
+                  )}
+                >
+                  {contact.username.slice(0, 2).toUpperCase()}
+                </div>
+                <ContactUnreadCount contactId={contact.id} />
               </div>
 
               {/* Contact Info */}
@@ -93,9 +92,6 @@ export function DMContactsList({
                   </p>
                 )}
               </div>
-
-              {/* Unread Count Badge */}
-              <ContactUnreadCount contactId={contact.id} />
             </button>
           ))}
         </div>
