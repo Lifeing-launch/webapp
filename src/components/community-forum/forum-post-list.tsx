@@ -85,7 +85,7 @@ function PostDetailView({
   return (
     <div className="h-full overflow-y-auto">
       {/* Header with back button */}
-      <div className="sticky top-0 bg-white border-b border-gray-200 p-4 z-10">
+      <div className="sticky top-0 bg-white border-b border-gray-200 p-0 z-10">
         <Button
           variant="ghost"
           size="sm"
@@ -145,7 +145,7 @@ export function ForumPostList({
     return (
       <div className="h-full overflow-y-auto">
         <div className="space-y-0">
-          {Array.from({ length: 3 }).map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <ForumPostSkeleton key={i} />
           ))}
         </div>

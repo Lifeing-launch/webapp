@@ -175,49 +175,47 @@ export function OrganizedGroupsGrid({
   };
 
   return (
-    <div className="flex-1 bg-gray-50/50 overflow-hidden">
-      <div className="h-full overflow-y-auto">
-        <div className="space-y-8 p-6">
-          {/* Alert for join requests */}
-          {shouldShowJoinRequestAlert && (
-            <GroupJoinRequestAlert
-              requestCount={pendingRequests.length}
-              onViewRequests={handleViewRequests}
-            />
-          )}
-
-          {/* Groups I Created */}
-          {renderGroupsSection("Groups I Created", organizedGroups.createdByMe)}
-
-          {/* Groups I Joined */}
-          {renderGroupsSection("Groups I Joined", organizedGroups.joinedGroups)}
-
-          {/* Available Groups */}
-          {renderGroupsSection(
-            "Available Groups",
-            organizedGroups.availableGroups
-          )}
-
-          {/* Empty state when no groups */}
-          {groups.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-64 text-center">
-              <div className="text-lg font-semibold text-foreground mb-2">
-                No Groups Found
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Try adjusting your search or create a new group to get started.
-              </p>
-            </div>
-          )}
-
-          {/* Join Requests Modal */}
-          <JoinRequestsModal
-            open={isJoinRequestsModalOpen}
-            onOpenChange={setIsJoinRequestsModalOpen}
-            requests={pendingRequests || []}
-            onRequestProcessed={handleRequestProcessed}
+    <div className="bg-gray-50/50 h-full">
+      <div className="space-y-8 p-1 pb-4">
+        {/* Alert for join requests */}
+        {shouldShowJoinRequestAlert && (
+          <GroupJoinRequestAlert
+            requestCount={pendingRequests.length}
+            onViewRequests={handleViewRequests}
           />
-        </div>
+        )}
+
+        {/* Groups I Created */}
+        {renderGroupsSection("Groups I Created", organizedGroups.createdByMe)}
+
+        {/* Groups I Joined */}
+        {renderGroupsSection("Groups I Joined", organizedGroups.joinedGroups)}
+
+        {/* Available Groups */}
+        {renderGroupsSection(
+          "Available Groups",
+          organizedGroups.availableGroups
+        )}
+
+        {/* Empty state when no groups */}
+        {groups.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <div className="text-lg font-semibold text-foreground mb-2">
+              No Groups Found
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Try adjusting your search or create a new group to get started.
+            </p>
+          </div>
+        )}
+
+        {/* Join Requests Modal */}
+        <JoinRequestsModal
+          open={isJoinRequestsModalOpen}
+          onOpenChange={setIsJoinRequestsModalOpen}
+          requests={pendingRequests || []}
+          onRequestProcessed={handleRequestProcessed}
+        />
       </div>
     </div>
   );

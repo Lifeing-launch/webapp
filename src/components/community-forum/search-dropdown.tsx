@@ -60,7 +60,7 @@ export function SearchDropdown({
                     onClick={() => onPersonSelect(person)}
                     className="w-full flex items-center gap-3 px-2 py-2 hover:bg-accent rounded-md transition-colors text-left"
                   >
-                    <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium flex-shrink-0">
+                    <div className="h-6 w-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium flex-shrink-0">
                       {person.nickname.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -68,7 +68,6 @@ export function SearchDropdown({
                         @{person.nickname}
                       </div>
                     </div>
-                    <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   </button>
                 ))}
               </div>
@@ -89,13 +88,9 @@ export function SearchDropdown({
                   <button
                     key={message.id}
                     onClick={() => onMessageSelect(message)}
-                    className="w-full flex items-start gap-3 px-2 py-2 hover:bg-accent rounded-md transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-2 py-2 hover:bg-accent rounded-md transition-colors text-left"
                   >
-                    <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium flex-shrink-0 mt-0.5">
-                      {message.sender_profile.nickname
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </div>
+                    <MessageCircle className="h-6 w-6 text-muted-foreground flex-shrink-0 mt-1" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-medium text-foreground truncate">
@@ -109,7 +104,6 @@ export function SearchDropdown({
                         {message.content}
                       </div>
                     </div>
-                    <MessageCircle className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
                   </button>
                 ))}
               </div>

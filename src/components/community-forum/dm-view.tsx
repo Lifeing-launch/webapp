@@ -314,7 +314,7 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
             <>
               {/* Selected Contact Header */}
               {selectedContact && (
-                <div className="border-b border-border px-1 py-3">
+                <div className="border-b border-border px-2 py-1">
                   <Button
                     variant="ghost"
                     size="sm"
