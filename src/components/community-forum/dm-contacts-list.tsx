@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { DMContact } from "@/typing/forum";
 // import { formatTimeAgo } from "@/utils/datetime";
 import { MessageCircle } from "lucide-react";
+import { Badge } from "../ui/badge";
 
 interface DMContactsListProps {
   contacts: DMContact[];
@@ -38,7 +39,7 @@ export function DMContactsList({
               key={contact.id}
               onClick={() => onContactSelect(contact.id)}
               className={cn(
-                "w-full flex items-center gap-3 p-3 hover:bg-accent rounded-lg transition-colors",
+                "w-full flex items-center gap-3 p-3 cursor-pointer rounded-lg transition-colors",
                 selectedContactId === contact.id && "bg-accent"
               )}
             >
@@ -73,11 +74,11 @@ export function DMContactsList({
               </div>
 
               {/* Unread Count Badge - TODO: Implement unread count */}
-              {/* {contact.unreadCount && contact.unreadCount > 0 && (
-                <Badge variant="destructive" className="ml-2">
+              {contact.unreadCount && contact.unreadCount > 0 && (
+                <Badge variant="outline" className="ml-2">
                   {contact.unreadCount}
                 </Badge>
-              )} */}
+              )}
             </button>
           ))}
         </div>

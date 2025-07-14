@@ -130,7 +130,13 @@ export function useDirectMessages() {
   const handleContactSelect = (contactId: string) => {
     setSelectedContactId(contactId);
     // Mark messages from this contact as read
-    markAsReadMutation.mutate(contactId);
+    if (contactId) {
+      markAsReadMutation.mutate(contactId);
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedContactId(null);
   };
 
   const handleSendMessage = async (content: string) => {
@@ -157,6 +163,7 @@ export function useDirectMessages() {
     sendError: sendMessageMutation.error,
     totalUnreadCount: totalUnreadCount.data || 0,
     handleContactSelect,
+    handleClearSelection,
     handleSendMessage,
   };
 }
@@ -184,4 +191,30 @@ export function useUnreadCount(senderProfileId?: string) {
     enabled: !!senderProfileId,
     staleTime: 30 * 1000,
   });
+}
+
+/**
+ * Hook to search for people and messages
+ */
+export function useSearch(searchQuery?: string) {
+  const peopleQuery = useQuery({
+    queryKey: ["search-people", searchQuery],
+    queryFn: () => profileService.searchProfiles(searchQuery || ""),
+    enabled: !!searchQuery && searchQuery.length >= 2,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+
+  const messagesQuery = useQuery({
+    queryKey: ["search-messages", searchQuery],
+    queryFn: () => messageService.searchMessages(searchQuery || ""),
+    enabled: !!searchQuery && searchQuery.length >= 2,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+
+  return {
+    people: peopleQuery.data || [],
+    messages: messagesQuery.data || [],
+    isLoading: peopleQuery.isLoading || messagesQuery.isLoading,
+    error: peopleQuery.error || messagesQuery.error,
+  };
 }
