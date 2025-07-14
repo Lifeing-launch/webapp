@@ -200,6 +200,33 @@ export class MessageService extends BaseForumService {
   }
 
   /**
+   * Verifica se há mensagens não lidas (mais performático que contar)
+   */
+  async hasUnreadMessages(): Promise<boolean> {
+    try {
+      const profile = await this.requireProfile();
+
+      const { data, error } = await this.supabase
+        .from("messages")
+        .select("id")
+        .eq("receiver_anon_id", profile.id)
+        .is("seen_at", null)
+        .eq("status", "approved")
+        .limit(1)
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        this.handleError(error, "check unread messages");
+      }
+
+      return !!data;
+    } catch (error) {
+      this.handleError(error, "check unread messages");
+      return false;
+    }
+  }
+
+  /**
    * Deleta uma mensagem (apenas o remetente pode deletar)
    */
   async deleteMessage(messageId: string): Promise<void> {

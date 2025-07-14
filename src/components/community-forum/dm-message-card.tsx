@@ -25,7 +25,7 @@ export function DMMessageCard({ message }: DMMessageCardProps) {
       {/* Avatar */}
       <Avatar className="h-10 w-10 flex-shrink-0">
         <AvatarFallback className={cn("text-white bg-primary")}>
-          {displayName.slice(1, 3).toUpperCase()}
+          {displayName.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
 
