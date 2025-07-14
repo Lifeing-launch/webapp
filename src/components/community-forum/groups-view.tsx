@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { GroupsGrid } from "@/components/community-forum/groups-grid";
+import { OrganizedGroupsGrid } from "@/components/community-forum/organized-groups-grid";
 import { GroupThreads } from "@/components/community-forum/group-threads";
 import { GroupWithDetails } from "@/typing/forum";
 import { ForumSidebar } from "@/components/community-forum/forum-sidebar";
@@ -88,23 +88,6 @@ function GroupsEmptyState() {
         Groups help organize conversations around specific topics. Be the first
         to create one!
       </p>
-    </div>
-  );
-}
-
-/**
- * Loading state component for groups grid
- */
-function GroupsGridSkeleton() {
-  return (
-    <div className="flex-1 bg-gray-50/50">
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <GroupCardSkeleton key={i} />
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
@@ -204,7 +187,7 @@ export const GroupsView = ({
           activePage={activePage}
           setActivePage={setActivePage}
         >
-          <div className="flex-1">
+          <div className="flex-1 min-h-0 overflow-hidden">
             {selectedGroup ? (
               <>
                 <SidebarSection title="My Groups">
@@ -251,13 +234,21 @@ export const GroupsView = ({
             ) : (
               <>
                 {isLoadingAllGroups || !isAllGroupsFetched ? (
-                  <GroupsGridSkeleton />
+                  <div className="flex-1 p-6">
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <GroupCardSkeleton key={i} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 ) : allGroupsError ? (
                   <GroupsErrorState message="Failed to load groups" />
                 ) : allAvailableGroups?.length === 0 ? (
                   <GroupsEmptyState />
                 ) : (
-                  <GroupsGrid
+                  <OrganizedGroupsGrid
                     groups={allAvailableGroups || []}
                     onGroupSelect={setSelectedGroup}
                   />
