@@ -1,5 +1,5 @@
 import React from "react";
-import { MessageCircle, User } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnonymousProfile, MessageWithDetails } from "@/typing/forum";
 import { formatTimeAgo } from "@/utils/datetime";

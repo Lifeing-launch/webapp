@@ -220,8 +220,9 @@ export const GroupsView = ({
                       }
                       onCategoryClick={(categoryId) => {
                         setSelectedGroup(
-                          createdGroups?.find((group) => group.id === categoryId) ||
-                            null
+                          createdGroups?.find(
+                            (group) => group.id === categoryId
+                          ) || null
                         );
                       }}
                       isLoading={isLoadingMyGroups}
