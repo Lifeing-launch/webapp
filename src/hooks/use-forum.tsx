@@ -97,6 +97,8 @@ export function useDirectMessages() {
       // Invalidate unread counts
       queryClient.invalidateQueries({ queryKey: ["dm-total-unread"] });
       queryClient.invalidateQueries({ queryKey: ["dm-unread-count"] });
+      // Invalidate notification indicator
+      queryClient.invalidateQueries({ queryKey: ["has-unread-messages"] });
     },
   });
 
@@ -109,6 +111,8 @@ export function useDirectMessages() {
       // Invalidate unread counts
       queryClient.invalidateQueries({ queryKey: ["dm-total-unread"] });
       queryClient.invalidateQueries({ queryKey: ["dm-unread-count"] });
+      // Invalidate notification indicator
+      queryClient.invalidateQueries({ queryKey: ["has-unread-messages"] });
     },
   });
 
@@ -236,4 +240,18 @@ export function useSearch(searchQuery?: string) {
     isLoading: peopleQuery.isLoading || messagesQuery.isLoading,
     error: peopleQuery.error || messagesQuery.error,
   };
+}
+
+/**
+ * Hook to check if user has unread messages (optimized for performance)
+ */
+export function useHasUnreadMessages() {
+  return useQuery({
+    queryKey: ["has-unread-messages"],
+    queryFn: () => messageService.hasUnreadMessages(),
+    staleTime: 10 * 1000, // 10 seconds
+    refetchInterval: 15 * 1000, // Refetch every 15 seconds for real-time updates
+    refetchIntervalInBackground: true, // Keep refetching even when tab is not active
+    refetchOnWindowFocus: true, // Refetch when user comes back to tab
+  });
 }

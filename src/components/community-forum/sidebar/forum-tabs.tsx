@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+import { useHasUnreadMessages } from "@/hooks/use-forum";
 
 export interface IForumTabs {
   activePage: "Forum" | "Groups" | "Messages";
@@ -10,11 +11,13 @@ export interface IForumTabs {
 
 export function ForumTabs({ activePage, setActivePage }: IForumTabs) {
   const tabs = ["Forum", "Groups", "Messages"];
+  const { data: hasUnreadMessages } = useHasUnreadMessages();
 
   return (
     <div className="flex flex-row items-center px-1 h-9 border-b border-gray-300">
       {tabs.map((tab) => {
         const isDisabled = tab === "Messagesss";
+        const showNotification = tab === "Messages" && hasUnreadMessages;
 
         return (
           <button
@@ -26,7 +29,7 @@ export function ForumTabs({ activePage, setActivePage }: IForumTabs) {
             }}
             disabled={isDisabled}
             className={cn(
-              "flex flex-row justify-center items-center px-3 py-1 gap-2 h-9 text-sm font-medium transition-colors rounded-md",
+              "relative flex flex-row justify-center items-center px-3 py-1 gap-2 h-9 text-sm font-medium transition-colors rounded-md",
               isDisabled
                 ? "text-zinc-400 cursor-not-allowed opacity-50"
                 : "cursor-pointer",
@@ -36,6 +39,9 @@ export function ForumTabs({ activePage, setActivePage }: IForumTabs) {
             )}
           >
             {tab}
+            {showNotification && (
+              <div className="absolute top-2 right-1 h-2 w-2 bg-red-500 rounded-full border border-white"></div>
+            )}
           </button>
         );
       })}
