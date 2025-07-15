@@ -1,5 +1,5 @@
 /**
- * @fileoverview Moderate a resource (post, comment, or nickname) using OpenAI.
+ * @fileoverview Moderate a resource (post, comment, nickname, group_name, or group_description) using OpenAI.
  */
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -76,11 +76,15 @@ Deno.serve(async (req) => {
     let resourceContent;
     let authorAnonId;
 
-    if (resource_type === "nickname") {
-      // Para nickname, o conteúdo vem diretamente no request
+    if (
+      ["nickname", "group_name", "group_description"].includes(resource_type)
+    ) {
+      // Para nickname e grupos, o conteúdo vem diretamente no request
       if (!content) {
         return new Response(
-          JSON.stringify({ error: "Missing content for nickname moderation" }),
+          JSON.stringify({
+            error: `Missing content for ${resource_type} moderation`,
+          }),
           {
             status: 400,
           }
@@ -89,7 +93,7 @@ Deno.serve(async (req) => {
       if (!user_id) {
         return new Response(
           JSON.stringify({
-            error: "Missing user_id for nickname moderation",
+            error: `Missing user_id for ${resource_type} moderation`,
           }),
           {
             status: 400,
@@ -97,7 +101,7 @@ Deno.serve(async (req) => {
         );
       }
       resourceContent = content;
-      authorAnonId = null; // Para nicknames, ainda não temos anon_profile_id
+      authorAnonId = null; // Para nicknames e grupos, ainda não temos anon_profile_id
     } else {
       // Para posts e comments, busca na tabela
       if (!resource_id) {
@@ -128,7 +132,7 @@ Deno.serve(async (req) => {
     const status = await moderate(resourceContent);
 
     // Atualiza o status apenas para posts e comments
-    if (resource_type !== "nickname") {
+    if (["post", "comment"].includes(resource_type)) {
       const table = resource_type === "comment" ? "comments" : "posts";
 
       await supabase
@@ -139,25 +143,27 @@ Deno.serve(async (req) => {
         .throwOnError();
     }
 
-    // Log de moderação - tratamento diferente para nicknames
-    const moderationLogData = {
-      resource_type,
-      resource_id: resource_type === "nickname" ? user_id : resource_id,
-      action: status,
-      reason:
-        resource_type === "nickname"
-          ? `Nickname "${resourceContent}" ${status} by AI moderator`
-          : status === "rejected"
-            ? `${resource_type} rejected by AI moderator`
-            : `${resource_type} approved by AI moderator`,
-      ...(resource_type !== "nickname" && { reviewer_anon_id: authorAnonId }),
-    };
+    // Log de moderação - não salva para grupos, conforme solicitado
+    if (!["group_name", "group_description"].includes(resource_type)) {
+      const moderationLogData = {
+        resource_type,
+        resource_id: resource_type === "nickname" ? user_id : resource_id,
+        action: status,
+        reason:
+          resource_type === "nickname"
+            ? `Nickname "${resourceContent}" ${status} by AI moderator`
+            : status === "rejected"
+              ? `${resource_type} rejected by AI moderator`
+              : `${resource_type} approved by AI moderator`,
+        ...(resource_type !== "nickname" && { reviewer_anon_id: authorAnonId }),
+      };
 
-    await supabase
-      .schema("forum")
-      .from("moderation_log")
-      .insert(moderationLogData)
-      .throwOnError();
+      await supabase
+        .schema("forum")
+        .from("moderation_log")
+        .insert(moderationLogData)
+        .throwOnError();
+    }
 
     return new Response(
       JSON.stringify({
