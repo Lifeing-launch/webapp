@@ -40,7 +40,7 @@ export function ForumTabs({ activePage, setActivePage }: IForumTabs) {
           >
             {tab}
             {showNotification && (
-              <div className="absolute top-2 right-1 h-2 w-2 bg-red-500 rounded-full border border-white"></div>
+              <div className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full border border-white"></div>
             )}
           </button>
         );

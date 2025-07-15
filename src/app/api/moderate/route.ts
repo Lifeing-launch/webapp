@@ -15,20 +15,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!["post", "comment", "nickname"].includes(resource_type)) {
+    if (
+      ![
+        "post",
+        "comment",
+        "nickname",
+        "group_name",
+        "group_description",
+      ].includes(resource_type)
+    ) {
       return NextResponse.json(
         {
           error:
-            "Invalid resource_type. Must be 'post', 'comment', or 'nickname'",
+            "Invalid resource_type. Must be 'post', 'comment', 'nickname', 'group_name', or 'group_description'",
         },
         { status: 400 }
       );
     }
 
-    if (resource_type === "nickname") {
+    if (
+      ["nickname", "group_name", "group_description"].includes(resource_type)
+    ) {
       if (!content) {
         return NextResponse.json(
-          { error: "Missing content for nickname moderation" },
+          { error: "Missing content for content-based moderation" },
           { status: 400 }
         );
       }
@@ -45,7 +55,9 @@ export async function POST(request: NextRequest) {
 
     const requestBody = {
       resource_type,
-      ...(resource_type === "nickname"
+      ...(["nickname", "group_name", "group_description"].includes(
+        resource_type
+      )
         ? { content, user_id: user.id }
         : { resource_id }),
     };
@@ -65,15 +77,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (resource_type === "nickname") {
+    if (
+      ["nickname", "group_name", "group_description"].includes(resource_type)
+    ) {
       return NextResponse.json({
         success: true,
         isValid: data.status === "approved",
         status: data.status,
         message:
           data.status === "approved"
-            ? "Nickname is valid"
-            : "Nickname contains inappropriate content",
+            ? `${resource_type} is valid`
+            : `${resource_type} contains inappropriate content`,
       });
     }
 

@@ -11,6 +11,54 @@ import { GroupTypeEnum } from "@/typing/forum";
 import { groupService } from "@/services/forum";
 import { useMutation } from "@tanstack/react-query";
 
+// Utility function to moderate content
+async function moderateContent(
+  content: string,
+  type: "group_name" | "group_description"
+) {
+  const response = await fetch("/api/moderate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      resource_type: type,
+      content,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Moderation failed");
+  }
+
+  return response.json();
+}
+
+// Function to moderate group name and description
+async function moderateGroup(name: string, description?: string) {
+  const moderationPromises = [
+    moderateContent(name, "group_name"),
+    description
+      ? moderateContent(description, "group_description")
+      : Promise.resolve({ status: "approved" }),
+  ];
+
+  const results = await Promise.all(moderationPromises);
+  const [nameResult, descriptionResult] = results;
+
+  const rejectedFields: string[] = [];
+  if (nameResult.status === "rejected") rejectedFields.push("name");
+  if (descriptionResult.status === "rejected")
+    rejectedFields.push("description");
+
+  return {
+    nameStatus: nameResult.status,
+    descriptionStatus: descriptionResult.status,
+    overallApproved: rejectedFields.length === 0,
+    rejectedFields,
+  };
+}
+
 interface NewGroupModalProps {
   open: boolean;
   onClose: () => void;
@@ -28,6 +76,7 @@ export const NewGroupModal = ({
   const [description, setDescription] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [moderationError, setModerationError] = useState<string | null>(null);
 
   const nameInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -37,8 +86,8 @@ export const NewGroupModal = ({
 
   const {
     mutate: createGroup,
-    isPending,
-    isError,
+    isPending: isCreating,
+    isError: isCreateError,
   } = useMutation({
     mutationFn: (data: {
       name: string;
@@ -53,8 +102,44 @@ export const NewGroupModal = ({
       setDescription("");
       setIsPrivate(false);
       setIsFocused(false);
+      setModerationError(null);
     },
   });
+
+  const { mutate: moderateGroupContent, isPending: isModerating } = useMutation(
+    {
+      mutationFn: ({
+        name,
+        description,
+      }: {
+        name: string;
+        description?: string;
+      }) => moderateGroup(name, description),
+      onSuccess: (moderationResult, variables) => {
+        if (moderationResult.overallApproved) {
+          // If moderation passes, create the group
+          createGroup({
+            name: variables.name,
+            description: variables.description,
+            groupType: isPrivate ? "private" : "public",
+          });
+        } else {
+          // If moderation fails, show error
+          const rejectedFields = moderationResult.rejectedFields.join(" and ");
+          setModerationError(
+            `The group ${rejectedFields} contains inappropriate content and cannot be used. Please modify the content and try again.`
+          );
+        }
+      },
+      onError: () => {
+        setModerationError(
+          "Unable to verify content at this time. Please try again later."
+        );
+      },
+    }
+  );
+
+  const isPending = isCreating || isModerating;
 
   // Auto-focus when modal opens
   useEffect(() => {
@@ -73,10 +158,13 @@ export const NewGroupModal = ({
       return;
     }
 
-    createGroup({
+    // Clear any previous errors
+    setModerationError(null);
+
+    // First moderate the content, then create if approved
+    moderateGroupContent({
       name: groupName.trim(),
       description: description.trim() || undefined,
-      groupType: isPrivate ? "private" : "public",
     });
   };
 
@@ -119,7 +207,11 @@ export const NewGroupModal = ({
                     ref={nameInputRef}
                     type="text"
                     value={groupName}
-                    onChange={(e) => setGroupName(e.target.value)}
+                    onChange={(e) => {
+                      setGroupName(e.target.value);
+                      // Clear moderation error when user starts typing
+                      if (moderationError) setModerationError(null);
+                    }}
                     placeholder="Group Name"
                     className="w-full h-12 px-4 py-3 text-base border border-gray-300 rounded-md focus:border-primary focus:ring-2 focus:ring-primary/20"
                     maxLength={maxNameLength}
@@ -149,7 +241,11 @@ export const NewGroupModal = ({
                       id="description"
                       ref={textareaRef}
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                      onChange={(e) => {
+                        setDescription(e.target.value);
+                        // Clear moderation error when user starts typing
+                        if (moderationError) setModerationError(null);
+                      }}
                       onFocus={() => setIsFocused(true)}
                       onBlur={() => setIsFocused(false)}
                       placeholder="Description"
@@ -184,8 +280,13 @@ export const NewGroupModal = ({
                   </Label>
                 </div>
 
-                {/* Error Message */}
-                {isError && (
+                {/* Error Messages */}
+                {moderationError && (
+                  <div className="text-red-500 font-normal text-sm leading-5 bg-red-50 p-3 rounded-md w-full">
+                    {moderationError}
+                  </div>
+                )}
+                {isCreateError && !moderationError && (
                   <div className="text-red-500 font-normal text-sm leading-5 bg-red-50 p-3 rounded-md w-full">
                     Error creating group, please try again.
                   </div>
@@ -200,7 +301,7 @@ export const NewGroupModal = ({
                   {isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Creating...
+                      {isModerating ? "Checking content..." : "Creating..."}
                     </>
                   ) : (
                     "Create Group"
