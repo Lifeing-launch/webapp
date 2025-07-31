@@ -95,6 +95,7 @@ export default function DashboardBanner() {
       }
 
       toast.success("Cover image updated!");
+      setProfile({ ...profile, dashboard_cover_img: image.url });
       await fetchAndSetProfile();
     } catch (error) {
       console.error("Error updating cover image:", error);
