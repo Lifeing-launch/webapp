@@ -27,12 +27,6 @@ export function AnnouncementsCard({ announcements }: IAnnouncementsCard) {
             <AnnouncementItem announcement={announcement} />
           </div>
         ))}
-        {announcements.map((announcement, i) => (
-          <div className="flex border-b last:border-b-0 py-4" key={i}>
-            <Megaphone width={30} className="text-primary mt-0 mr-2" />
-            <AnnouncementItem announcement={announcement} />
-          </div>
-        ))}
       </CardContent>
     </Card>
   );

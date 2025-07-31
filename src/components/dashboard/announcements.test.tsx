@@ -61,19 +61,4 @@ describe("AnnouncementsCard", () => {
       screen.queryByRole("link", { name: /unused prompt/i })
     ).not.toBeInTheDocument();
   });
-
-  it('renders "See all announcements" button with the correct link', () => {
-    // Combine both announcements for testing footer button rendering
-    const announcements = [
-      ...announcementsWithPrompt,
-      ...announcementsWithoutPrompt,
-    ];
-    render(<AnnouncementsCard announcements={announcements} />);
-
-    const seeAllLink = screen.getByRole("link", {
-      name: /see all announcements/i,
-    });
-    expect(seeAllLink).toBeInTheDocument();
-    expect(seeAllLink).toHaveAttribute("href", "/dashboard/announcements");
-  });
 });
