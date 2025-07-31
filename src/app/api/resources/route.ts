@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   const queryParams = qs.parse(new URL(request.url).search, {
     ignoreQueryPrefix: true,
   });
-  const { page, q: searchQuery, type, category } = queryParams;
+  const { page, pageSize, q: searchQuery, type, category } = queryParams;
 
   // TODO: Type this correctly
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   if (page) {
     strapiQueryObj["pagination"] = {
       page: page,
-      pageSize: DEFAULT_PAGE_SIZE,
+      pageSize: pageSize || DEFAULT_PAGE_SIZE,
       withCount: true,
     };
   }

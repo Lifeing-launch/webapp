@@ -4,7 +4,11 @@ import { useRef, useState } from "react";
 import { CldImage } from "next-cloudinary";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { CloudinaryImageData, UploadWidget } from "./upload-widget";
+import {
+  CLOUDINARY_UPLOAD_CONFIG,
+  CloudinaryImageData,
+  UploadWidget,
+} from "../cloudinary/upload-widget";
 import { FallbackAvatar } from "./fallback-avatar";
 
 interface IProfilePicture {
@@ -69,7 +73,11 @@ export const ProfilePicture = ({
       >
         Update photo
       </Button>
-      <UploadWidget onUpload={handleImageUpload} ref={uploadWidgetRef} />
+      <UploadWidget
+        onUpload={handleImageUpload}
+        ref={uploadWidgetRef}
+        config={CLOUDINARY_UPLOAD_CONFIG.profilePicture}
+      />
     </div>
   );
 };
