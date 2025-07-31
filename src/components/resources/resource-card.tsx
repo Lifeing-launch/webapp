@@ -19,6 +19,7 @@ interface IResourceCard {
   resource: Resource;
   className?: string;
   hasBookmarked?: boolean;
+  hideBookmark?: boolean;
   category?: ResourceCategory;
 }
 
@@ -40,6 +41,7 @@ function AudioResourceCard({
   resource,
   className,
   hasBookmarked = false,
+  hideBookmark = false,
 }: IResourceCard) {
   return (
     <Card
@@ -65,12 +67,14 @@ function AudioResourceCard({
             <p> {resource.description} </p>
           </CardContent>
         </div>
-        <div>
-          <BookmarkButton
-            resourceId={resource.id}
-            hasBookmarked={hasBookmarked}
-          />
-        </div>
+        {!hideBookmark && (
+          <div>
+            <BookmarkButton
+              resourceId={resource.id}
+              hasBookmarked={hasBookmarked}
+            />
+          </div>
+        )}
       </div>
 
       {resource.url && (
@@ -86,6 +90,7 @@ function VisualResourceCard({
   resource,
   className,
   hasBookmarked = false,
+  hideBookmark = false,
 }: IResourceCard) {
   const getResourceHref = () => {
     if (resource.type === "article") {
@@ -122,12 +127,14 @@ function VisualResourceCard({
             </CardContent>
           </div>
         </div>
-        <div>
-          <BookmarkButton
-            resourceId={resource.id}
-            hasBookmarked={hasBookmarked}
-          />
-        </div>
+        {!hideBookmark && (
+          <div>
+            <BookmarkButton
+              resourceId={resource.id}
+              hasBookmarked={hasBookmarked}
+            />
+          </div>
+        )}
       </Card>
     </Link>
   );

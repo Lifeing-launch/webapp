@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
         $in: [],
       },
     },
+    sort: "when:asc",
   };
 
   if (dateTo) {
@@ -54,6 +55,10 @@ export async function GET(request: NextRequest) {
     if (!meetingIds.length) return NextResponse.json({ meetings: [] });
 
     strapiQueryObj["filters"]["id"]["$in"] = meetingIds;
+    strapiQueryObj["pagination"] = {
+      page: 1,
+      pageSize: 2,
+    };
   }
 
   const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
