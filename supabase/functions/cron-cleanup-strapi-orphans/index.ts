@@ -8,6 +8,7 @@ Deno.serve(async (req) => {
   try {
     const url = `${NEXT_PUBLIC_SITE_URL}${CLEANUP_ENDPOINT}`;
     const res = await fetch(url.toString(), {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: EDGE_FUNCTION_API_KEY,
