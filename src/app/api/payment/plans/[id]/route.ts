@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
-import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
 import { getStrapiBaseUrl } from "@/utils/urls";
 
 export async function GET(
@@ -12,12 +11,6 @@ export async function GET(
     params: Promise<{ id: string }>;
   }
 ) {
-  try {
-    await checkUserIsAuthenticated();
-  } catch {
-    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-  }
-
   const { id } = await params;
 
   const queryObj = {

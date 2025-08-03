@@ -1,15 +1,8 @@
-import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { SubscriptionService } from "@/services/subscription";
 
 export async function POST(request: NextRequest) {
-  try {
-    await checkUserIsAuthenticated();
-  } catch {
-    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-  }
-
   try {
     const { subscriptionId, newPriceId } = await request.json();
 

@@ -1,5 +1,5 @@
 import { strapiFetch } from "@/utils/fetch";
-import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getAuthenticatedUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 import { getStrapiBaseUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
@@ -8,14 +8,7 @@ import qs from "qs";
 const DEFAULT_PAGE_SIZE = 10;
 
 export async function GET(request: NextRequest) {
-  let user;
-
-  try {
-    user = await checkUserIsAuthenticated();
-  } catch {
-    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-  }
-
+  const user = getAuthenticatedUser(request);
   const supabase = await createClient();
 
   const { data: subscription } = await supabase

@@ -1,5 +1,5 @@
 import { stripeClient } from "@/services/subscription";
-import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getAuthenticatedUser } from "@/utils/supabase/auth";
 import { getSiteUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,13 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 const CARD_ONLY_PAYMENT_METHOD_CONFIG = "pmc_1RdQB1GRqtxHfTeQKRWXlRkX";
 
 export async function POST(request: NextRequest) {
-  let user;
-
-  try {
-    user = await checkUserIsAuthenticated();
-  } catch {
-    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-  }
+  const user = getAuthenticatedUser(request);
 
   try {
     const { email, id: userId } = user;

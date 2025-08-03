@@ -1,4 +1,4 @@
-import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getSupabaseUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,8 +19,8 @@ interface ValidationResult {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const user = await checkUserIsAuthenticated();
     const supabase = await createClient();
+    const user = await getSupabaseUser(supabase);
 
     const body: UpdateAccountRequest = await request.json();
 

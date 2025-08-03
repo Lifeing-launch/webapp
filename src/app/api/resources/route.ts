@@ -2,21 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
 import { createClient } from "@/utils/supabase/server";
-import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getAuthenticatedUser } from "@/utils/supabase/auth";
 import { getStrapiBaseUrl } from "@/utils/urls";
 
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_CATEGORY = "visual";
 
 export async function GET(request: NextRequest) {
-  let user;
-
-  try {
-    user = await checkUserIsAuthenticated();
-  } catch {
-    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-  }
-
+  const user = getAuthenticatedUser(request);
   const supabase = await createClient();
 
   const queryParams = qs.parse(new URL(request.url).search, {

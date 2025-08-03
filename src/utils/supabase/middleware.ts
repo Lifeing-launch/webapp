@@ -3,7 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { AUTH_PATHS, PUBLIC_PATHS } from "../constants";
 
 export async function updateSession(request: NextRequest) {
-  if (isPublicPath(request.nextUrl.pathname)) {
+  const { pathname } = request.nextUrl;
+
+  if (!isPublicPath(pathname)) {
     return NextResponse.next();
   }
 
@@ -43,45 +45,57 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname, origin } = request.nextUrl;
-  const signedIn = Boolean(user);
+  const { origin } = request.nextUrl;
+  const signedIn = !!user;
 
-  if (!signedIn && !isAuthPath(pathname)) {
-    // Not signed in and accessing non-auth path → send to login
-    return NextResponse.redirect(`${origin}/login`);
-  }
+  // Handle protected API routes
+  if (isProtectedAPIPath(pathname)) {
+    if (!signedIn) {
+      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+    }
 
-  if (!signedIn && isAuthPath(pathname)) {
-    // Signed in and accessing auth path → let them through
+    // Set user info in headers for API routes to avoid redundant auth calls
+    supabaseResponse.headers.set("x-user-id", user.id);
+    supabaseResponse.headers.set("x-user-email", user.email || "");
+
     return supabaseResponse;
   }
 
-  // Signed in and on an auth page (login/signup) → send to dashboard
-  if (signedIn && isAuthPath(pathname)) {
-    return NextResponse.redirect(`${origin}/dashboard`);
+  if (!signedIn) {
+    if (!isAuthPath(pathname)) {
+      // Not signed in and accessing non-auth path → send to login
+      return NextResponse.redirect(`${origin}/login`);
+    } else {
+      // Not signed in and accessing auth path → let them through
+      return supabaseResponse;
+    }
   }
 
-  // Check active subscription
-  const { data: sub } = await supabase
+  // From this point on, user is signed in
+
+  // Check active subscription for protected pages
+  const { data: subscription } = await supabase
     .from("active_subscriptions")
     .select("stripe_subscription_id")
-    .eq("user_id", user!.id)
-    .single();
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-  const hasSubscription = Boolean(sub);
   const onPlansPage = pathname === "/plans";
+  const shouldRedirectToPlans = !subscription && !onPlansPage;
+  const shouldRedirectToDashboard = onPlansPage || isAuthPath(pathname);
 
-  if (!hasSubscription && !onPlansPage) {
-    // No subscription → send to plans
+  if (shouldRedirectToPlans) {
     return NextResponse.redirect(`${origin}/plans`);
   }
 
-  if (hasSubscription && onPlansPage) {
-    // Has subscription but still on plans → send to dashboard
+  if (shouldRedirectToDashboard) {
     return NextResponse.redirect(`${origin}/dashboard`);
   }
 
-  // Everything’s in order → let request proceed
+  // Set user info in headers for server components
+  supabaseResponse.headers.set("x-user-id", user.id);
+  supabaseResponse.headers.set("x-user-email", user.email || "");
+
   return supabaseResponse;
 }
 
@@ -95,4 +109,9 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some(({ path, exact }) =>
     exact ? pathname === path : pathname.startsWith(path)
   );
+}
+
+function isProtectedAPIPath(pathname: string): boolean {
+  // Any API route that's not in the public API paths is protected
+  return pathname.startsWith("/api") && !isPublicPath(pathname);
 }
