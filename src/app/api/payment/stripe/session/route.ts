@@ -8,9 +8,8 @@ import { NextRequest, NextResponse } from "next/server";
 const CARD_ONLY_PAYMENT_METHOD_CONFIG = "pmc_1RdQB1GRqtxHfTeQKRWXlRkX";
 
 export async function POST(request: NextRequest) {
-  const user = getAuthenticatedUser(request);
-
   try {
+    const user = getAuthenticatedUser(request);
     const { email, id: userId } = user;
 
     // Get priceId and plan from request body.

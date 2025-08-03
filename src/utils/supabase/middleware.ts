@@ -5,7 +5,7 @@ import { AUTH_PATHS, PUBLIC_PATHS } from "../constants";
 export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (!isPublicPath(pathname)) {
+  if (isPublicPath(pathname)) {
     return NextResponse.next();
   }
 

@@ -7,58 +7,60 @@ import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 
 export async function GET(request: NextRequest) {
-  const user = getAuthenticatedUser(request);
-  const supabase = await createClient();
+  try {
+    const user = getAuthenticatedUser(request);
+    const supabase = await createClient();
 
-  const { searchParams } = new URL(request.url);
-  const rsvpOnly = searchParams.get("rsvpOnly");
-  const dateFrom = searchParams.get("dateFrom") || new Date().toISOString();
-  const dateTo = searchParams.get("dateTo");
+    const { searchParams } = new URL(request.url);
+    const rsvpOnly = searchParams.get("rsvpOnly");
+    const dateFrom = searchParams.get("dateFrom") || new Date().toISOString();
+    const dateTo = searchParams.get("dateTo");
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const strapiQueryObj: any = {
-    filters: {
-      when: {
-        $gte: dateFrom,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const strapiQueryObj: any = {
+      filters: {
+        when: {
+          $gte: dateFrom,
+        },
+        id: {
+          $in: [],
+        },
       },
-      id: {
-        $in: [],
-      },
-    },
-    sort: "when:asc",
-  };
+      sort: "when:asc",
+    };
 
-  if (dateTo) {
-    strapiQueryObj.filters.when["$lte"] = dateTo;
-  }
-
-  if (rsvpOnly) {
-    // 1. Get meeting IDs the user RSVP'd to
-    const { data: rsvps, error: rsvpError } = await supabase
-      .from("rsvps")
-      .select("meeting_id")
-      .eq("user_id", user.id);
-
-    if (rsvpError) {
-      console.error("An error occurred while fetching rsvps", rsvpError);
-      return NextResponse.json({ error: rsvpError.message }, { status: 500 });
+    if (dateTo) {
+      strapiQueryObj.filters.when["$lte"] = dateTo;
     }
 
-    const meetingIds = rsvps.map((rsvp) => rsvp.meeting_id);
-    if (!meetingIds.length) return NextResponse.json({ meetings: [] });
+    if (rsvpOnly) {
+      // 1. Get meeting IDs the user RSVP'd to
+      const { data: rsvps, error: rsvpError } = await supabase
+        .from("rsvps")
+        .select("meeting_id")
+        .eq("user_id", user.id);
 
-    strapiQueryObj["filters"]["id"]["$in"] = meetingIds;
-    strapiQueryObj["pagination"] = {
-      page: 1,
-      pageSize: 2,
-    };
-  }
+      if (rsvpError) {
+        console.error("An error occurred while fetching rsvps", rsvpError);
+        return NextResponse.json({ error: rsvpError.message }, { status: 500 });
+      }
 
-  const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
-  const strapiUrl = `${getStrapiBaseUrl()}/meetings?${strapiQuery}`;
+      const meetingIds = rsvps.map((rsvp) => rsvp.meeting_id);
+      if (!meetingIds.length) return NextResponse.json({ meetings: [] });
 
-  // Fetch future meetings in bulk from Strapi
-  try {
+      strapiQueryObj["filters"]["id"]["$in"] = meetingIds;
+      strapiQueryObj["pagination"] = {
+        page: 1,
+        pageSize: 2,
+      };
+    }
+
+    const strapiQuery = qs.stringify(strapiQueryObj, {
+      encodeValuesOnly: true,
+    });
+    const strapiUrl = `${getStrapiBaseUrl()}/meetings?${strapiQuery}`;
+
+    // Fetch future meetings in bulk from Strapi
     const data = await strapiFetch(strapiUrl);
     return NextResponse.json(data);
   } catch (err) {
