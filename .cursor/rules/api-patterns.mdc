@@ -1,0 +1,175 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Padrões de API Routes
+
+## Estrutura e Organização
+
+### Estrutura de Pastas
+```
+src/app/api/
+├── announcements/      # Feature-based organization
+├── coaches/
+├── meetings/
+├── resources/
+│   └── [slug]/        # Dynamic routes
+├── payment/
+│   ├── plans/
+│   └── stripe/
+│       └── webhook/
+└── utility/           # Operações utilitárias
+    └── cleanup/
+```
+
+### Nomenclatura de Routes
+- **Recursos**: Plural (ex: `/api/meetings`, `/api/resources`)
+- **Dynamic Routes**: Use `[param]` (ex: `[slug]`, `[id]`)
+- **Nested Resources**: Organize hierarquicamente
+
+## Padrões de Route Handlers
+
+### Template Base
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+
+export async function GET(request: NextRequest) {
+  try {
+    await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  }
+
+  try {
+    // Lógica principal
+    const data = await fetchData();
+    return NextResponse.json(data);
+  } catch (err) {
+    console.error("Error description:", err);
+    return NextResponse.json(
+      { error: "User-friendly error message" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Dynamic Routes
+```typescript
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;
+  // Use slug na lógica
+}
+```
+
+## Integração com APIs Externas
+
+### Strapi CMS
+- Use `strapiFetch()` para chamadas ao Strapi
+- Queries com `qs.stringify()` para filtros complexos
+- Implementação: [Fetch Utils](mdc:src/utils/fetch.ts)
+
+```typescript
+import qs from "qs";
+import { strapiFetch } from "@/utils/fetch";
+import { getStrapiBaseUrl } from "@/utils/urls";
+
+const strapiQueryObj = {
+  filters: {
+    is_published: { $eq: true },
+    category: { $eq: "visual" }
+  },
+  populate: "*",
+  pagination: { pageSize: 10 }
+};
+
+const strapiQuery = qs.stringify(strapiQueryObj, { encodeValuesOnly: true });
+const strapiUrl = `${getStrapiBaseUrl()}/resources?${strapiQuery}`;
+const data = await strapiFetch(strapiUrl);
+```
+
+### Stripe Integration
+- Use `stripeClient` from [subscription service](mdc:src/services/subscription.ts)
+- Webhook handlers organizados em `handlers/`
+- Validation de signatures obrigatória
+
+## Query Parameters
+
+### Parsing de Query Params
+```typescript
+import qs from "qs";
+
+// Para Next.js URLSearchParams
+const { searchParams } = new URL(request.url);
+const page = searchParams.get("page");
+
+// Para queries complexas
+const queryParams = qs.parse(new URL(request.url).search, {
+  ignoreQueryPrefix: true,
+});
+```
+
+### Paginação
+- Use `page` e `pageSize` como padrões
+- Return metadata de paginação quando aplicável
+- Exemplo: `{ data: [...], meta: { pagination: {...} } }`
+
+## Error Handling
+
+### Padrões de Erro
+```typescript
+// Cliente não autenticado
+return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+
+// Dados não encontrados
+return NextResponse.json({ error: "Resource not found" }, { status: 404 });
+
+// Erro interno
+return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+
+// Bad request
+return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
+```
+
+### Logging
+- Sempre log errors com contexto
+- Use console.error para erros críticos
+- Include user-friendly messages no response
+
+## Webhook Handlers
+
+### Estrutura de Webhooks
+- Organize handlers em `handlers/` subdirectory
+- Use helper functions para operações comuns
+- Validate signatures e payloads
+
+### Stripe Webhooks
+- Implementação: [Webhook Route](mdc:src/app/api/payment/stripe/webhook/route.ts)
+- Handlers específicos por evento
+- Error handling robusto
+
+## Edge Functions e Utilitários
+
+### Authentication para Edge Functions
+```typescript
+import { validateEdgeFunctionAuthentication } from "@/utils/supabase/auth";
+
+export async function POST(request: NextRequest) {
+  try {
+    await validateEdgeFunctionAuthentication(request);
+  } catch {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+}
+```
+
+## Referencias
+- [Resources API](mdc:src/app/api/resources/route.ts)
+- [Meetings API](mdc:src/app/api/meetings/route.ts)
+- [Stripe Webhook](mdc:src/app/api/payment/stripe/webhook/route.ts)
+- [Fetch Utils](mdc:src/utils/fetch.ts)

@@ -1,0 +1,143 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Diretrizes de Estilização
+
+## Sistema de Design Tokens
+
+### Cores e Temas
+O projeto usa um sistema de design tokens baseado em CSS custom properties com suporte a tema claro e escuro:
+
+- **Cores primárias**: `oklch()` color space para melhor controle
+- **Variáveis CSS**: Sistema de tokens em `:root` e `.dark`
+- **Semantic naming**: `--color-primary`, `--color-destructive`, etc.
+
+### Design Tokens Principais
+```css
+:root {
+  --radius: 0.5rem;
+  --color-primary: oklch(0.41 0.0956 131.06);
+  --color-secondary: oklch(0.967 0.001 286.375);
+  --color-destructive: oklch(0.577 0.245 27.325);
+  /* ... mais tokens */
+}
+```
+
+## Tailwind CSS 4
+
+### Configuração
+- **Versão**: Tailwind CSS 4 (nova geração)
+- **Configuração**: [tailwind.config.ts](mdc:tailwind.config.ts)
+- **Animações customizadas**: `caret-blink` para cursores
+- **Plugins**: `tw-animate-css` para animações avançadas
+
+### Padrões de Classes
+1. **Responsive Design**: Mobile-first approach
+2. **Dark Mode**: Usando `dark:` variant classes
+3. **Container Queries**: `@container` support
+4. **Grid layouts**: Uso extensivo de CSS Grid
+
+### Classes Utilitárias Customizadas
+```css
+/* Focus styles consistentes */
+.outline-ring/50 /* Para focus visibility */
+
+/* Estilos de artigo */
+.article-body h1 { @apply text-4xl mb-4; }
+.article-body p { @apply mb-4; }
+/* ... mais estilos de conteúdo */
+```
+
+## Design System Components
+
+### Padrão de Estilização
+- **Base classes**: Definidas em cada componente
+- **Variants**: Usando CVA (Class Variance Authority)
+- **Merge strategy**: `tailwind-merge` para resolver conflitos
+- **Utility function**: `cn()` para combinar classes
+
+### Exemplo de Variantes
+```typescript
+const buttonVariants = cva(
+  "base classes", // classes base
+  {
+    variants: {
+      variant: {
+        default: "primary styling",
+        destructive: "danger styling",
+        outline: "border styling",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 px-3",
+        lg: "h-10 px-6",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+```
+
+## Padrões de Layout
+
+### Flexbox e Grid
+- **Flexbox**: Para layouts 1D (direção única)
+- **CSS Grid**: Para layouts 2D complexos
+- **Gap properties**: Usar `gap-*` classes consistentemente
+- **Container queries**: Para componentes responsivos
+
+### Spacing System
+- **Padding/Margin**: Usar escala consistente (1, 2, 3, 4, 6, 8, etc.)
+- **Gap**: Preferir `gap-*` sobre margin quando possível
+- **Container spacing**: `px-6` para padding horizontal padrão
+
+### Responsive Breakpoints
+Usar breakpoints padrão do Tailwind:
+- `sm:` - 640px+
+- `md:` - 768px+
+- `lg:` - 1024px+
+- `xl:` - 1280px+
+
+## Melhores Práticas
+
+### 1. Sempre usar cn() utility
+```typescript
+import { cn } from "@/lib/utils";
+
+// ✅ Correto
+className={cn("base-classes", customClasses, className)}
+
+// ❌ Evitar
+className={`base-classes ${customClasses} ${className}`}
+```
+
+### 2. Design Tokens First
+```typescript
+// ✅ Usar tokens do sistema
+"bg-primary text-primary-foreground"
+
+// ❌ Cores hardcoded
+"bg-blue-500 text-white"
+```
+
+### 3. Consistent Focus States
+```typescript
+// ✅ Usar padrão consistente
+"focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+```
+
+### 4. Dark Mode Support
+```typescript
+// ✅ Sempre considerar dark mode
+"bg-background text-foreground dark:bg-card"
+```
+
+Referências:
+- [src/app/globals.css](mdc:src/app/globals.css) - Estilos globais e tokens
+- [src/lib/utils.ts](mdc:src/lib/utils.ts) - Utility function cn()
+- [tailwind.config.ts](mdc:tailwind.config.ts) - Configuração do Tailwind

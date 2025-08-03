@@ -1,0 +1,259 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Padrões de Estilo e Design
+
+## Design System
+
+### shadcn/ui Base
+- **Configuração**: [components.json](mdc:components.json)
+- **Style**: "new-york" variant
+- **CSS Variables**: Habilitado para flexibilidade de temas
+- **Base Color**: neutral
+- **Icons**: Lucide React
+
+### Estrutura de Componentes UI
+```
+src/components/ui/
+├── [primitives]/       # Componentes base do shadcn/ui
+├── custom/            # Componentes customizados do projeto
+│   ├── banner.tsx
+│   ├── date-input.tsx
+│   ├── input.tsx
+│   └── pagination-with-links.tsx
+└── ...
+```
+
+## Tailwind CSS Patterns
+
+### CSS Variables e Temas
+- **Definição**: [globals.css](mdc:src/app/globals.css)
+- **Light/Dark Mode**: CSS variables para cores dinâmicas
+- **Semantic Colors**: `primary`, `secondary`, `muted`, `destructive`
+
+```css
+:root {
+  --primary: #805b87;
+  --primary-foreground: oklch(0.982 0.018 155.826);
+  --secondary: oklch(0.967 0.001 286.375);
+  /* ... outras variáveis */
+}
+```
+
+### Utility Classes
+```typescript
+import { cn } from "@/lib/utils";
+
+// Merge de classes com conflicts resolution
+<div className={cn("default-classes", conditionalClasses, className)} />
+```
+
+### Responsive Design
+- **Mobile First**: Base styles para mobile, breakpoints para desktop
+- **Breakpoints**: `sm:`, `md:`, `lg:`, `xl:`, `2xl:`
+- **Sidebar**: Design responsivo com mobile drawer
+
+## Component Styling Patterns
+
+### Base Component Structure
+```typescript
+export interface IComponent {
+  className?: string;
+  variant?: "default" | "primary" | "secondary";
+  size?: "sm" | "md" | "lg";
+}
+
+export const Component = ({ className, variant = "default", size = "md" }: IComponent) => {
+  return (
+    <div
+      className={cn(
+        // Base styles
+        "flex items-center justify-center rounded-md font-medium",
+        // Variant styles
+        {
+          "bg-primary text-primary-foreground": variant === "primary",
+          "bg-secondary text-secondary-foreground": variant === "secondary",
+          "bg-background text-foreground": variant === "default",
+        },
+        // Size styles
+        {
+          "h-8 px-3 text-sm": size === "sm",
+          "h-10 px-4": size === "md",
+          "h-12 px-6 text-lg": size === "lg",
+        },
+        className
+      )}
+    >
+      {/* content */}
+    </div>
+  );
+};
+```
+
+### Custom Components
+- **Location**: `src/components/ui/custom/`
+- **Extend**: Base shadcn/ui components
+- **Example**: [Banner Component](mdc:src/components/ui/custom/banner.tsx)
+
+```typescript
+export interface IBanner {
+  message: string;
+  type?: "error" | "warning" | "info";
+}
+
+export const Banner = ({ message, type = "info" }: IBanner) => {
+  let bannerStyles;
+  switch (type) {
+    case "warning":
+      bannerStyles = "bg-yellow-500 text-black";
+      break;
+    case "error":
+      bannerStyles = "bg-red-800 text-white";
+      break;
+    default:
+      bannerStyles = "bg-blue-300 text-black";
+  }
+
+  return (
+    <aside className={cn("relative flex items-center py-3 pr-8 pl-6 text-center", bannerStyles)}>
+      <p className="text-sm w-full">{message}</p>
+    </aside>
+  );
+};
+```
+
+## Layout Patterns
+
+### Page Layout
+- **PageTemplate**: Componente base para páginas consistentes
+- **Header**: AppHeader com breadcrumbs e ícones
+- **Sidebar**: AppSidebar para navegação
+
+### Grid e Flexbox
+```css
+/* Grid layouts */
+.grid-auto-fit {
+  @apply grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4;
+}
+
+/* Flex patterns */
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.flex-between {
+  @apply flex items-center justify-between;
+}
+```
+
+## Content Styling
+
+### Article Body
+- **Classes**: `.article-body` para conteúdo dinâmico
+- **Elements**: Heading hierarchy, paragraphs, lists, code blocks
+- **Implementation**: [globals.css](mdc:src/app/globals.css)
+
+```css
+.article-body h1 { @apply text-4xl mb-4; }
+.article-body h2 { @apply text-3xl mb-2; }
+.article-body p { @apply mb-4; }
+.article-body code { @apply font-mono bg-gray-100 px-1 py-0.5 rounded text-sm; }
+```
+
+## Animation e Transitions
+
+### CSS Animations
+- **Library**: tw-animate-css import
+- **Hover Effects**: Use `hover:` prefix
+- **Focus States**: Use `focus:` prefix para acessibilidade
+
+### Loading States
+```typescript
+// Skeleton components
+<div className="animate-pulse">
+  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+</div>
+```
+
+## Form Styling
+
+### Input Components
+- **Base**: shadcn/ui Input component
+- **Custom**: [Custom Input](mdc:src/components/ui/custom/input.tsx)
+- **Validation**: Error states com border-destructive
+
+### Button Variants
+```typescript
+const buttonVariants = {
+  default: "bg-primary text-primary-foreground hover:bg-primary/90",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+  outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+  ghost: "hover:bg-accent hover:text-accent-foreground",
+  link: "text-primary underline-offset-4 hover:underline",
+};
+```
+
+## Accessibility
+
+### Focus Management
+- **Ring**: Use `focus:ring-2 focus:ring-primary`
+- **Color Contrast**: Ensure WCAG compliance
+- **Screen Readers**: Use `sr-only` class quando necessário
+
+### Semantic Colors
+```css
+/* Status indicators */
+.status-success { @apply text-green-600 bg-green-50; }
+.status-warning { @apply text-yellow-600 bg-yellow-50; }
+.status-error { @apply text-red-600 bg-red-50; }
+.status-info { @apply text-blue-600 bg-blue-50; }
+```
+
+## Mobile First Design
+
+### Responsive Patterns
+```typescript
+// Stack on mobile, side-by-side on desktop
+<div className="flex flex-col md:flex-row gap-4">
+
+// Hide on mobile, show on desktop
+<div className="hidden md:block">
+
+// Mobile drawer, desktop sidebar
+<div className="md:hidden">
+  {/* Mobile drawer */}
+</div>
+<div className="hidden md:block">
+  {/* Desktop sidebar */}
+</div>
+```
+
+### Touch Targets
+- **Minimum Size**: 44px for touch interfaces
+- **Spacing**: Adequate margin between interactive elements
+
+## Performance
+
+### CSS Optimization
+- **Purge**: Tailwind purges unused styles in production
+- **Critical CSS**: Above-the-fold styles inline
+- **Preload**: Font files com `rel="preload"`
+
+### Dark Mode Support
+```css
+.dark {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  /* ... outras variáveis dark */
+}
+```
+
+## Referencias
+- [Global CSS](mdc:src/app/globals.css)
+- [Components Config](mdc:components.json)
+- [Banner Component](mdc:src/components/ui/custom/banner.tsx)
+- [Page Template](mdc:src/components/layout/page-template.tsx)
