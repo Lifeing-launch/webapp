@@ -104,10 +104,12 @@ const DashboardPage = () => {
     };
 
     const fetchData = async () => {
-      await fetchMeetings();
-      await fetchAnnouncements();
-      await fetchVisualResources();
-      await fetchAudioResources();
+      await Promise.allSettled([
+        fetchMeetings(),
+        fetchAnnouncements(),
+        fetchVisualResources(),
+        fetchAudioResources(),
+      ]);
       setIsLoading(false);
     };
 
