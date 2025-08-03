@@ -78,6 +78,7 @@ export function SignupForm({
                   name="password"
                   placeholder="********"
                   className="text-sm"
+                  minLength={8}
                   required
                 />
               </div>
@@ -89,6 +90,7 @@ export function SignupForm({
                   name="cPassword"
                   placeholder="********"
                   className="text-sm"
+                  minLength={8}
                   required
                 />
               </div>
