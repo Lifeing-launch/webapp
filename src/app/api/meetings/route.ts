@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getStrapiBaseUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
+import { Meeting } from "@/typing/strapi";
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,6 +14,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const rsvpOnly = searchParams.get("rsvpOnly");
+    const hydrateRsvp = searchParams.get("hydrateRsvp") === "true";
     const dateFrom = searchParams.get("dateFrom") || new Date().toISOString();
     const dateTo = searchParams.get("dateTo");
 
@@ -62,6 +64,28 @@ export async function GET(request: NextRequest) {
 
     // Fetch future meetings in bulk from Strapi
     const data = await strapiFetch(strapiUrl);
+
+    // If hydrateRsvp is requested, enrich meetings with RSVP status
+    if (hydrateRsvp && data.data) {
+      // Fetch user's RSVPs
+      const { data: rsvps } = await supabase
+        .from("rsvps")
+        .select("meeting_id")
+        .eq("user_id", user.id)
+        .throwOnError();
+
+      // Create a Set of RSVP'd meeting IDs for efficient lookup
+      const rsvpedMeetingIds = new Set(
+        rsvps?.map((rsvp) => Number(rsvp.meeting_id)) || []
+      );
+
+      // Enrich meetings with hasRsvped status
+      data.data = data.data.map((meeting: Meeting) => ({
+        ...meeting,
+        hasRsvped: rsvpedMeetingIds.has(meeting.id),
+      }));
+    }
+
     return NextResponse.json(data);
   } catch (err) {
     console.error("An error occurred while fetching strapi meetings", err);
