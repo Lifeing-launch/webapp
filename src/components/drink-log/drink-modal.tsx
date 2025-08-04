@@ -114,7 +114,10 @@ export default function DrinkModal({
         <DialogHeader>
           <DialogTitle>Log a drink</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-hidden flex flex-col"
+        >
           <div className="flex-1 overflow-y-auto px-1 space-y-4">
             {/* Full width fields */}
             <div className="space-y-2">
@@ -243,7 +246,10 @@ export default function DrinkModal({
                   </SelectTrigger>
                   <SelectContent>
                     {catalog?.triggers.map((trigger) => (
-                      <SelectItem key={trigger.id} value={trigger.id.toString()}>
+                      <SelectItem
+                        key={trigger.id}
+                        value={trigger.id.toString()}
+                      >
                         {trigger.name}
                       </SelectItem>
                     ))}
@@ -266,7 +272,10 @@ export default function DrinkModal({
                 </SelectTrigger>
                 <SelectContent>
                   {catalog?.locations.map((location) => (
-                    <SelectItem key={location.id} value={location.id.toString()}>
+                    <SelectItem
+                      key={location.id}
+                      value={location.id.toString()}
+                    >
                       {location.name}
                     </SelectItem>
                   ))}
