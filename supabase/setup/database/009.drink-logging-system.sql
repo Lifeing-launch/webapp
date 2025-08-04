@@ -141,4 +141,23 @@ CREATE POLICY goals_select ON drink_log.goals
 CREATE POLICY goals_insert ON drink_log.goals
   FOR INSERT WITH CHECK (user_id = auth.uid());
 CREATE POLICY goals_update ON drink_log.goals
-  FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid()); 
+  FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+
+-- Enable RLS for goals_history table
+ALTER TABLE drink_log.goals_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY goals_history_select ON drink_log.goals_history
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM drink_log.goals 
+      WHERE goals.id = goals_history.goal_id 
+      AND goals.user_id = auth.uid()
+    )
+  );
+CREATE POLICY goals_history_insert ON drink_log.goals_history
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM drink_log.goals 
+      WHERE goals.id = goals_history.goal_id 
+      AND goals.user_id = auth.uid()
+    )
+  ); 
