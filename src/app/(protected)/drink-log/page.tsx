@@ -7,7 +7,7 @@ import { Wine } from "lucide-react";
 export default async function DrinkLogPage({
   searchParams,
 }: {
-  searchParams: { view?: string };
+  searchParams: Promise<{ view?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -18,7 +18,8 @@ export default async function DrinkLogPage({
     redirect("/login");
   }
 
-  const view = searchParams.view || "week";
+  const resolvedSearchParams = await searchParams;
+  const view = resolvedSearchParams.view || "week";
 
   return (
     <PageTemplate
