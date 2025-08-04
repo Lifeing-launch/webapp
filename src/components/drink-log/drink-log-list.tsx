@@ -31,8 +31,13 @@ export default function DrinkLogList({ view }: DrinkLogListProps) {
   }, [view]);
 
   useEffect(() => {
-    fetchEntries();
-  }, [fetchEntries]);
+    // Don't fetch entries for calendar view here
+    if (view !== "calendar") {
+      fetchEntries();
+    } else {
+      setIsLoading(false);
+    }
+  }, [fetchEntries, view]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -53,7 +58,7 @@ export default function DrinkLogList({ view }: DrinkLogListProps) {
   }
 
   if (view === "calendar") {
-    return <CalendarView entries={entries} onDelete={handleDelete} />;
+    return <CalendarView onDelete={handleDelete} />;
   }
 
   if (entries.length === 0) {

@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const view = searchParams.get("view") || "week";
     const date = searchParams.get("date");
+    const year = searchParams.get("year");
+    const month = searchParams.get("month");
 
     let query = supabase
       .schema("drink_log")
@@ -46,13 +48,28 @@ export async function GET(request: NextRequest) {
       const yearStart = new Date(now.getFullYear(), 0, 1);
       query = query.gte("drank_at", yearStart.toISOString());
     } else if (view === "day" && date) {
-      const dayStart = new Date(date);
-      dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(date);
-      dayEnd.setHours(23, 59, 59, 999);
+      // Parse the date string and create start/end in local timezone
+      const [year, month, day] = date.split("-").map(Number);
+      const dayStart = new Date(year, month - 1, day, 0, 0, 0, 0);
+      const dayEnd = new Date(year, month - 1, day, 23, 59, 59, 999);
       query = query
         .gte("drank_at", dayStart.toISOString())
         .lte("drank_at", dayEnd.toISOString());
+    } else if (view === "calendar" && year && month) {
+      // Fetch entries for a specific month
+      const monthStart = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const monthEnd = new Date(
+        parseInt(year),
+        parseInt(month),
+        0,
+        23,
+        59,
+        59,
+        999
+      );
+      query = query
+        .gte("drank_at", monthStart.toISOString())
+        .lte("drank_at", monthEnd.toISOString());
     }
 
     const { data, error } = await query;
