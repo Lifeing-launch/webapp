@@ -22,6 +22,10 @@ export default function DrinkLogHeader({ onDataChange }: DrinkLogHeaderProps) {
         if (response.ok) {
           const data = await response.json();
           setGoals(data);
+          // Open goals modal if user has no goals set
+          if (!data) {
+            setIsGoalsModalOpen(true);
+          }
         }
       } catch (error) {
         console.error("Error fetching goals:", error);

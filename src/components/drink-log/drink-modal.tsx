@@ -48,11 +48,21 @@ export default function DrinkModal({
     drink_type_id: "",
     drink_brand_id: "",
     quantity: "1",
+    volume_ml: "",
     mood_id: "",
     trigger_id: "",
     location_id: "",
     notes: "",
   });
+
+  const handleDrinkTypeChange = (value: string) => {
+    setFormData({
+      ...formData,
+      drink_type_id: value,
+      drink_brand_id: "",
+    });
+    setSelectedDrinkType(value);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +75,9 @@ export default function DrinkModal({
         body: JSON.stringify({
           ...formData,
           quantity: parseInt(formData.quantity),
+          volume_ml: formData.volume_ml
+            ? parseInt(formData.volume_ml)
+            : undefined,
         }),
       });
 
@@ -77,6 +90,7 @@ export default function DrinkModal({
           drink_type_id: "",
           drink_brand_id: "",
           quantity: "1",
+          volume_ml: "",
           mood_id: "",
           trigger_id: "",
           location_id: "",
@@ -118,14 +132,7 @@ export default function DrinkModal({
             <Label htmlFor="drinkType">Drink Type</Label>
             <Select
               value={formData.drink_type_id}
-              onValueChange={(value) => {
-                setFormData({
-                  ...formData,
-                  drink_type_id: value,
-                  drink_brand_id: "",
-                });
-                setSelectedDrinkType(value);
-              }}
+              onValueChange={handleDrinkTypeChange}
               required
             >
               <SelectTrigger id="drinkType" className="w-full">
@@ -175,6 +182,24 @@ export default function DrinkModal({
               }
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="volume">Volume (ml)</Label>
+            <Input
+              id="volume"
+              type="number"
+              min="0"
+              value={formData.volume_ml}
+              onChange={(e) =>
+                setFormData({ ...formData, volume_ml: e.target.value })
+              }
+              placeholder="e.g., 250"
+            />
+            <p className="text-xs text-muted-foreground">
+              Optional: Enter the actual volume consumed for more accurate
+              standard drink calculations
+            </p>
           </div>
 
           <div className="space-y-2">

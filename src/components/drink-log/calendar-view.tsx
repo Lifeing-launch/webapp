@@ -43,7 +43,8 @@ export default function CalendarView({ entries, onDelete }: CalendarViewProps) {
           onSelect={setSelectedDate}
           className="rounded-md"
           modifiers={{
-            hasEntry: (date) => date ? datesWithEntries.includes(date.toDateString()) : false,
+            hasEntry: (date) =>
+              date ? datesWithEntries.includes(date.toDateString()) : false,
           }}
           modifiersClassNames={{
             hasEntry: "has-drink-entry",

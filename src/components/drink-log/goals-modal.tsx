@@ -27,9 +27,9 @@ export default function GoalsModal({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [goals, setGoals] = useState({
-    daily_goal: initialGoals?.daily_goal || 2,
-    weekly_goal: initialGoals?.weekly_goal || 14,
-    monthly_goal: initialGoals?.monthly_goal || 60,
+    daily_goal: initialGoals?.daily_goal || 1,
+    weekly_goal: initialGoals?.weekly_goal || 5,
+    monthly_goal: initialGoals?.monthly_goal || 20,
   });
 
   // Auto-calculate weekly and monthly based on daily
@@ -41,24 +41,20 @@ export default function GoalsModal({
     });
   };
 
-  // Auto-calculate daily and monthly based on weekly
+  // Manual change for weekly (no auto-calculation)
   const handleWeeklyChange = (weekly: number) => {
-    const daily = Math.round(weekly / 7);
-    setGoals({
-      daily_goal: daily,
+    setGoals((prev) => ({
+      ...prev,
       weekly_goal: weekly,
-      monthly_goal: daily * 30,
-    });
+    }));
   };
 
-  // Auto-calculate daily and weekly based on monthly
+  // Manual change for monthly (no auto-calculation)
   const handleMonthlyChange = (monthly: number) => {
-    const daily = Math.round(monthly / 30);
-    setGoals({
-      daily_goal: daily,
-      weekly_goal: daily * 7,
+    setGoals((prev) => ({
+      ...prev,
       monthly_goal: monthly,
-    });
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,7 +102,7 @@ export default function GoalsModal({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                This will automatically calculate weekly and monthly goals
+                Changing this will automatically update weekly and monthly goals
               </p>
             </div>
 
@@ -123,7 +119,7 @@ export default function GoalsModal({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                This will automatically calculate daily and monthly goals
+                You can manually adjust this value
               </p>
             </div>
 
@@ -140,7 +136,7 @@ export default function GoalsModal({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                This will automatically calculate daily and weekly goals
+                You can manually adjust this value
               </p>
             </div>
 

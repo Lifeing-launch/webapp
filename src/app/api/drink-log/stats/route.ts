@@ -47,11 +47,21 @@ export async function GET(request: NextRequest) {
       goalLimit = goals?.daily_goal || 0;
     }
 
-    // Get entries for the period
+    // Get entries for the period with drink type details
     const { data: entries } = await supabase
       .schema("drink_log")
       .from("entries")
-      .select("quantity, drank_at")
+      .select(
+        `
+        quantity, 
+        drank_at, 
+        volume_ml,
+        drink_types!inner(
+          standard_volume_ml,
+          alcohol_percentage
+        )
+      `
+      )
       .eq("user_id", user.id)
       .gte("drank_at", startDate.toISOString())
       .order("drank_at", { ascending: false });
@@ -59,30 +69,76 @@ export async function GET(request: NextRequest) {
     // Calculate stats
     const drinksLogged =
       entries?.reduce((sum, entry) => sum + entry.quantity, 0) || 0;
-    const standardDrinks = Math.round(drinksLogged * 1.5); // Simplified conversion
-    const remainingDrinks = Math.max(0, goalLimit - drinksLogged);
 
-    // Calculate streak (days without drinking)
+    // Calculate standard drinks based on actual volume and alcohol content
+    const standardDrinks =
+      entries?.reduce((sum, entry) => {
+        const drinkType = Array.isArray(entry.drink_types)
+          ? entry.drink_types[0]
+          : entry.drink_types;
+
+        const volume = entry.volume_ml || drinkType.standard_volume_ml;
+        const alcoholPercentage = drinkType.alcohol_percentage;
+        const standardDrinksForEntry =
+          (volume * alcoholPercentage) / (14 * 100);
+
+        return sum + standardDrinksForEntry * entry.quantity;
+      }, 0) || 0;
+
+    // Round standard drinks to 2 decimal places
+    const roundedStandardDrinks = Math.round(standardDrinks * 100) / 100;
+
+    // Round remaining drinks to whole numbers (no partial drinks)
+    const remainingDrinks = Math.max(0, Math.round(goalLimit - drinksLogged));
+
+    // Calculate streak (consecutive days without drinking)
     const { data: allEntries } = await supabase
       .schema("drink_log")
       .from("entries")
       .select("drank_at")
       .eq("user_id", user.id)
       .order("drank_at", { ascending: false })
-      .limit(30);
+      .limit(100); // Get more entries to calculate streak properly
 
     let currentStreak = 0;
     if (allEntries && allEntries.length > 0) {
-      const lastDrinkDate = new Date(allEntries[0].drank_at);
-      const daysSinceLastDrink = Math.floor(
-        (now.getTime() - lastDrinkDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-      currentStreak = daysSinceLastDrink;
+      // Get unique dates when user drank
+      const drinkDates = [
+        ...new Set(
+          allEntries.map((entry) => new Date(entry.drank_at).toDateString())
+        ),
+      ]
+        .sort()
+        .reverse();
+
+      // Calculate consecutive days without drinking
+      const today = new Date().toDateString();
+      const currentDate = new Date();
+      let streakDays = 0;
+
+      while (true) {
+        const dateString = currentDate.toDateString();
+
+        // If we've found a day when user drank, break the streak
+        if (drinkDates.includes(dateString)) {
+          break;
+        }
+
+        // If we're past today, don't count future days
+        if (dateString === today) {
+          break;
+        }
+
+        streakDays++;
+        currentDate.setDate(currentDate.getDate() - 1);
+      }
+
+      currentStreak = streakDays;
     }
 
     return NextResponse.json({
       drinksLogged,
-      standardDrinks,
+      standardDrinks: roundedStandardDrinks,
       remainingDrinks,
       currentStreak,
     });

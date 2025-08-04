@@ -17,10 +17,7 @@ interface Stats {
   currentStreak: number;
 }
 
-export default function DrinkStats({
-  view,
-  refreshKey,
-}: DrinkStatsProps) {
+export default function DrinkStats({ view, refreshKey }: DrinkStatsProps) {
   const [stats, setStats] = useState<Stats>({
     drinksLogged: 0,
     standardDrinks: 0,
@@ -72,7 +69,9 @@ export default function DrinkStats({
             <p className="text-sm text-muted-foreground">
               Standard Drinks Equivalent
             </p>
-            <p className="text-2xl font-bold">{stats.standardDrinks}</p>
+            <p className="text-2xl font-bold">
+              {stats.standardDrinks.toFixed(2)} units
+            </p>
           </div>
         </div>
 
@@ -81,7 +80,7 @@ export default function DrinkStats({
           <Martini className="h-6 w-6 text-muted-foreground flex-shrink-0" />
           <div>
             <p className="text-sm text-muted-foreground">Remaining Drinks</p>
-            <p className="text-2xl font-bold">{stats.remainingDrinks}</p>
+            <p className="text-2xl font-bold">{stats.remainingDrinks} drinks</p>
           </div>
         </div>
 
