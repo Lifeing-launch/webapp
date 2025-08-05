@@ -15,7 +15,7 @@ const today = new Date();
 const inThirtyDays = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
 
 function getRequestDataFromResult<T>(
-  result: PromiseSettledResult<any>,
+  result: PromiseSettledResult<{ data?: T[] }>,
   context: string
 ): T[] {
   if (result.status === "fulfilled") {

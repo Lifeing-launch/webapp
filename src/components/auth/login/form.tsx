@@ -6,7 +6,6 @@ import React from "react";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/form/submit-button";
 import { loginAction } from "@/utils/supabase/actions";
 import { FormMessage } from "@/components/form/message";

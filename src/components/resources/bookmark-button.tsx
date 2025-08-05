@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, Loader2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/browser";
+import { useUser } from "@/components/providers/user-provider";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ export default function BookmarkButton({
   resourceId,
   hasBookmarked,
 }: BookmarkButtonProps) {
+  const { user } = useUser();
   const [isBookmarked, setIsBookmarked] = useState(hasBookmarked);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,10 +31,7 @@ export default function BookmarkButton({
       : "Failed to bookmark";
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not found");
+      if (!user) throw new Error("User not authenticated");
 
       if (isBookmarked) {
         const { error } = await supabase

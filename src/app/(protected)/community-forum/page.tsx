@@ -5,7 +5,6 @@ import PageTemplate from "@/components/layout/page-template";
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { WelcomeBanner } from "@/components/community-forum/welcome-banner";
 import { AnonymousProfileProvider } from "@/hooks/use-anonymous-profile";
-import QueryProvider from "@/components/providers/query-provider";
 
 import { GroupsView } from "@/components/community-forum/groups-view";
 import { DMView } from "@/components/community-forum/dm-view";
@@ -81,11 +80,9 @@ function CommunityForum() {
 
 function CommunityForumPage() {
   return (
-    <QueryProvider>
-      <AnonymousProfileProvider>
-        <CommunityForum />
-      </AnonymousProfileProvider>
-    </QueryProvider>
+    <AnonymousProfileProvider>
+      <CommunityForum />
+    </AnonymousProfileProvider>
   );
 }
 

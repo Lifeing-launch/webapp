@@ -1,15 +1,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserMetadata } from "./nav-user";
 import { FallbackAvatar } from "@/components/account/fallback-avatar";
+import { UserProfile } from "@/typing/supabase";
 
-export const UserAvatar = ({ user }: { user: UserMetadata }) => {
-  const userInitials = `${user?.firstName?.[0] || "?"}${user?.lastName?.[0] || "?"}`;
-  const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
+export const UserAvatar = ({ user }: { user: UserProfile }) => {
+  const userInitials = `${user?.first_name?.[0] || "?"}${user?.last_name?.[0] || "?"}`;
+  const fullName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim();
 
   return (
     <Avatar className="h-8 w-8 rounded-full overflow-hidden">
       <AvatarImage
-        src={user.avatarUrl || undefined}
+        src={user.avatar_url || undefined}
         alt={fullName}
         className="object-cover w-full h-full"
       />

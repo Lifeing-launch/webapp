@@ -5,8 +5,7 @@ import {
   CLOUDINARY_UPLOAD_CONFIG,
   UploadWidget,
 } from "../cloudinary/upload-widget";
-import { createClient } from "@/utils/supabase/browser";
-import { UserProfile } from "@/typing/supabase";
+import { useUser } from "@/components/providers/user-provider";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { ImageIcon } from "lucide-react";
@@ -29,43 +28,9 @@ const QUOTES = [
 ];
 
 export default function DashboardBanner() {
-  const [profile, setProfile] = useState<Partial<UserProfile> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { profile, loading, refetchProfile } = useUser();
   const [quoteIdx, setQuoteIdx] = useState(0);
   const uploadWidgetRef = useRef<() => void | null>(null);
-
-  // Helper to fetch and set profile safely
-  const fetchAndSetProfile = async () => {
-    const supabase = createClient();
-
-    try {
-      const { data: authData, error: authError } =
-        await supabase.auth.getUser();
-
-      if (authError) {
-        throw new Error(authError.message);
-      }
-
-      const { data: profileData } = await supabase
-        .from("user_profiles")
-        .select("first_name, dashboard_cover_img")
-        .eq("id", authData.user.id)
-        .single()
-        .throwOnError();
-
-      setProfile(profileData);
-    } catch (error) {
-      console.error(error);
-      setProfile({ first_name: "", dashboard_cover_img: null });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fetch user profile
-  useEffect(() => {
-    fetchAndSetProfile();
-  }, []);
 
   // Cycle through quotes
   useEffect(() => {
@@ -95,8 +60,7 @@ export default function DashboardBanner() {
       }
 
       toast.success("Cover image updated!");
-      setProfile({ ...profile, dashboard_cover_img: image.url });
-      await fetchAndSetProfile();
+      await refetchProfile();
     } catch (error) {
       console.error("Error updating cover image:", error);
       toast.error("Failed to update cover image");
@@ -109,7 +73,7 @@ export default function DashboardBanner() {
 
   return (
     <div className="relative w-full h-48 md:h-64 overflow-hidden flex items-end mb-6">
-      {isLoading ? (
+      {loading ? (
         <div className="absolute inset-0 bg-muted" />
       ) : (
         <Image

@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button";
 import { AuthFormProps } from "@/typing/interfaces";
 import { ProfilePicture } from "./profile-picture";
 import { HintLabel } from "@/components/form/hint-label";
-import { createClient } from "@/utils/supabase/browser";
-import { forumClient } from "@/utils/supabase/forum";
+import { useUser } from "@/components/providers/user-provider";
 import { toast } from "sonner";
 import { AccountSettingsSkeleton } from "./skeleton";
 
-interface UserProfile {
+interface Profile {
   firstName: string;
   lastName: string;
   email: string;
@@ -21,13 +20,15 @@ interface UserProfile {
   avatarUrl: string;
 }
 
-interface UserData {
-  profile: UserProfile;
-  currentDisplayName: string;
-}
-
 export function AccountSettings({ className, ...props }: AuthFormProps) {
-  const [profile, setProfile] = useState<UserProfile>({
+  const {
+    profile: userProfile,
+    currentDisplayName,
+    loading: userLoading,
+    refetchProfile,
+  } = useUser();
+
+  const [profile, setProfile] = useState<Profile>({
     firstName: "",
     lastName: "",
     email: "",
@@ -37,24 +38,18 @@ export function AccountSettings({ className, ...props }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
 
-  // Load current user profile
   useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const userData = await fetchUserData();
-        setProfile(userData.profile);
-      } catch (error) {
-        console.error("Error loading user profile:", error);
-        toast.error("Failed to load user profile");
-      } finally {
-        setInitialLoading(false);
-      }
-    };
-
-    loadUserData();
-  }, []);
+    if (userProfile) {
+      setProfile({
+        firstName: userProfile.first_name || "",
+        lastName: userProfile.last_name || "",
+        email: userProfile.email || "",
+        displayName: currentDisplayName,
+        avatarUrl: userProfile.avatar_url || "",
+      });
+    }
+  }, [userProfile, currentDisplayName]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,23 +59,20 @@ export function AccountSettings({ className, ...props }: AuthFormProps) {
       // Prepare update data - only include changed fields
       const updateData: Record<string, string> = {};
 
-      // Get current data for comparison
-      const userData = await fetchUserData();
-
       // Check for changes in profile fields
-      if (profile.firstName !== userData.profile.firstName) {
+      if (profile.firstName !== userProfile?.first_name) {
         updateData.firstName = profile.firstName;
       }
-      if (profile.lastName !== userData.profile.lastName) {
+      if (profile.lastName !== userProfile?.last_name) {
         updateData.lastName = profile.lastName;
       }
-      if (profile.email !== userData.profile.email) {
+      if (profile.email !== userProfile?.email) {
         updateData.email = profile.email;
       }
-      if (profile.avatarUrl !== userData.profile.avatarUrl) {
+      if (profile.avatarUrl !== userProfile?.avatar_url) {
         updateData.avatarUrl = profile.avatarUrl;
       }
-      if (profile.displayName !== userData.currentDisplayName) {
+      if (profile.displayName !== currentDisplayName) {
         updateData.displayName = profile.displayName;
       }
 
@@ -118,9 +110,7 @@ export function AccountSettings({ className, ...props }: AuthFormProps) {
       setPassword("");
       setConfirmPassword("");
 
-      // Refresh current data after successful update
-      const updatedUserData = await fetchUserData();
-      setProfile(updatedUserData.profile);
+      refetchProfile();
     } catch (error) {
       console.error("Error updating account:", error);
       toast.error(
@@ -131,7 +121,7 @@ export function AccountSettings({ className, ...props }: AuthFormProps) {
     }
   };
 
-  if (initialLoading) {
+  if (userLoading) {
     return <AccountSettingsSkeleton />;
   }
 
@@ -267,55 +257,4 @@ export function AccountSettings({ className, ...props }: AuthFormProps) {
       </form>
     </div>
   );
-}
-
-// Abstracted function to fetch user data
-async function fetchUserData(): Promise<UserData> {
-  const supabase = createClient();
-
-  // Get the logged-in user's ID
-  const { data: authData, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !authData?.user) {
-    throw new Error("Failed to get authenticated user");
-  }
-
-  const userId = authData.user.id;
-
-  // Query the user_profiles table for basic profile data
-  const { data: profileData } = await supabase
-    .from("user_profiles")
-    .select("first_name, last_name, email, avatar_url")
-    .eq("id", userId)
-    .single()
-    .throwOnError();
-
-  // Query the anonymous_profiles table for display name using forumClient
-  let currentDisplayName = "";
-  try {
-    const { data: anonymousProfileData } = await forumClient
-      .from("anonymous_profiles")
-      .select("nickname")
-      .eq("user_id", userId)
-      .maybeSingle()
-      .throwOnError();
-
-    currentDisplayName = anonymousProfileData?.nickname || "";
-  } catch {
-    // Don't treat missing anonymous profile as an error - it might not exist yet
-    // This will be handled gracefully by setting currentDisplayName to empty string
-  }
-
-  const profile: UserProfile = {
-    firstName: profileData.first_name || "",
-    lastName: profileData.last_name || "",
-    email: profileData.email || "",
-    avatarUrl: profileData.avatar_url || "",
-    displayName: currentDisplayName,
-  };
-
-  return {
-    profile,
-    currentDisplayName,
-  };
 }
