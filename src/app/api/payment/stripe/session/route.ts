@@ -1,11 +1,15 @@
 import { stripeClient } from "@/services/subscription";
 import { getAuthenticatedUser } from "@/utils/supabase/auth";
 import { getSiteUrl } from "@/utils/urls";
+import { getEnvironmentConfig } from "@/utils/environment";
 import { NextRequest, NextResponse } from "next/server";
 
-// TODO: Change value based on environment - test/prod
-// See https://dashboard.stripe.com/test/settings/payment_methods/
-const CARD_ONLY_PAYMENT_METHOD_CONFIG = "pmc_1RdQB1GRqtxHfTeQKRWXlRkX";
+// Payment method configurations for different environments
+const CARD_ONLY_PAYMENT_METHOD_CONFIG = getEnvironmentConfig({
+  development: "pmc_1RdQB1GRqtxHfTeQKRWXlRkX", // See https://dashboard.stripe.com/test/settings/payment_methods/
+  staging: "pmc_1RdQB1GRqtxHfTeQKRWXlRkX", // See https://dashboard.stripe.com/test/settings/payment_methods/
+  production: "pmc_1RdQA3GRqtxHfTeQholINNKn", // See https://dashboard.stripe.com/settings/payment_methods/
+});
 
 export async function POST(request: NextRequest) {
   try {
