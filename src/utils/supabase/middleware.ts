@@ -82,7 +82,8 @@ export async function updateSession(request: NextRequest) {
 
   const onPlansPage = pathname === "/plans";
   const shouldRedirectToPlans = !subscription && !onPlansPage;
-  const shouldRedirectToDashboard = subscription && isAuthPath(pathname);
+  const shouldRedirectToDashboard =
+    subscription && (isAuthPath(pathname) || onPlansPage);
 
   if (shouldRedirectToPlans) {
     return NextResponse.redirect(`${origin}/plans`);
