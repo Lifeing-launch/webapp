@@ -33,33 +33,42 @@ export default async function DashboardPage() {
     visualResourcesResult,
     audioResourcesResult,
   ] = await Promise.allSettled([
-    // Meetings
+    // Meetings - no caching (time-sensitive)
     serverFetch(
       `/api/meetings?${qs.stringify({
         dateFrom: today,
         dateTo: inThirtyDays,
         rsvpOnly: true,
-      })}`
+      })}`,
+      {},
+      false,
+      0 // No cache for meetings
     ),
-    // Announcements
-    serverFetch("/api/announcements"),
-    // Visual Resources
+    // Announcements - no caching (time-sensitive)
+    serverFetch("/api/announcements", {}, false, 0),
+    // Visual Resources - use caching for bookmarked content
     serverFetch(
       `/api/resources?${qs.stringify({
         page: 1,
         pageSize: 2,
         type: "bookmark",
         category: "visual",
-      })}`
+      })}`,
+      {},
+      false,
+      0 // No cache for bookmark queries
     ),
-    // Audio Resources
+    // Audio Resources - use caching for bookmarked content
     serverFetch(
       `/api/resources?${qs.stringify({
         page: 1,
         pageSize: 2,
         type: "bookmark",
         category: "audio",
-      })}`
+      })}`,
+      {},
+      false,
+      0 // No cache for bookmark queries
     ),
   ]);
 

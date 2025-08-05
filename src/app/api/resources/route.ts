@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
+import { CACHE_DURATIONS } from "@/utils/constants";
 import { createClient } from "@/utils/supabase/server";
 import { getAuthenticatedUser } from "@/utils/supabase/auth";
 import { getStrapiBaseUrl } from "@/utils/urls";
@@ -17,6 +18,17 @@ export async function GET(request: NextRequest) {
       ignoreQueryPrefix: true,
     });
     const { page, pageSize, q: searchQuery, type, category } = queryParams;
+
+    // Determine cache duration based on query type
+    let cacheDuration: number | undefined;
+
+    // Don't cache bookmark queries (user-specific data)
+    if (type === "bookmark") {
+      cacheDuration = CACHE_DURATIONS.NO_CACHE;
+    } else {
+      // Cache regular resource queries
+      cacheDuration = CACHE_DURATIONS.RESOURCES;
+    }
 
     // TODO: Type this correctly
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,8 +109,21 @@ export async function GET(request: NextRequest) {
     });
     const strapiUrl = `${getStrapiBaseUrl()}/resources?${strapiQuery}`;
 
-    const data = await strapiFetch(strapiUrl);
-    return NextResponse.json(data);
+    const data = await strapiFetch(strapiUrl, cacheDuration);
+
+    // Set cache headers based on query type
+    const response = NextResponse.json(data);
+    if (cacheDuration && cacheDuration > 0) {
+      response.headers.set(
+        "Cache-Control",
+        `public, max-age=${cacheDuration}, s-maxage=${cacheDuration}`
+      );
+    } else {
+      // No caching for bookmark queries
+      response.headers.set("Cache-Control", "no-cache, no-store");
+    }
+
+    return response;
   } catch (err) {
     console.error("An error occurred while fetching strapi resources", err);
     return NextResponse.json(

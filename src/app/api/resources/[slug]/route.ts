@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { strapiFetch } from "@/utils/fetch";
+import { CACHE_DURATIONS } from "@/utils/constants";
 import { getStrapiBaseUrl } from "@/utils/urls";
 
 export async function GET(
@@ -38,8 +39,16 @@ export async function GET(
   const strapiUrl = `${getStrapiBaseUrl()}/resources?${strapiQuery}`;
 
   try {
-    const data = await strapiFetch(strapiUrl);
-    return NextResponse.json(data);
+    const data = await strapiFetch(strapiUrl, CACHE_DURATIONS.ARTICLES);
+
+    // Set cache headers for browser caching
+    const response = NextResponse.json(data);
+    response.headers.set(
+      "Cache-Control",
+      `public, max-age=${CACHE_DURATIONS.ARTICLES}, s-maxage=${CACHE_DURATIONS.ARTICLES}`
+    );
+
+    return response;
   } catch (err) {
     console.error("An error occurred while fetching strapi resources", err);
     return NextResponse.json(

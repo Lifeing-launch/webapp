@@ -3,11 +3,16 @@
 import { cookies } from "next/headers";
 import { getSiteUrl } from "./urls";
 
-export const strapiFetch = async (strapiUrl: string) => {
+export const strapiFetch = async (
+  strapiUrl: string,
+  cacheDuration?: number
+) => {
   const strapiResp = await fetch(strapiUrl, {
     headers: {
       Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
     },
+    // Use Next.js fetch caching
+    next: cacheDuration ? { revalidate: cacheDuration } : { revalidate: 0 },
   });
 
   let strapiData;
@@ -27,7 +32,8 @@ export const strapiFetch = async (strapiUrl: string) => {
 export const serverFetch = async (
   url: string,
   options: RequestInit = {},
-  isFullUrl = false
+  isFullUrl = false,
+  cacheDuration?: number
 ) => {
   const endpoint = isFullUrl ? url : `${getSiteUrl()}${url}`;
   const defaultHeaders = {
@@ -40,7 +46,8 @@ export const serverFetch = async (
       ...defaultHeaders,
       ...options.headers,
     },
-    cache: "no-cache",
+    // Use Next.js fetch caching instead of no-cache
+    next: cacheDuration ? { revalidate: cacheDuration } : { revalidate: 0 },
   });
 
   let data;
