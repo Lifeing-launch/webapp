@@ -16,6 +16,7 @@ import {
   Podcast,
   UserRoundCog,
   UsersRound,
+  Wine,
 } from "lucide-react";
 import Image from "next/image";
 import NavGroup from "./nav-group";
@@ -26,6 +27,7 @@ export const sidebarIcons = {
   meetings: <Calendar />,
   coachingProgram: <BookOpen />,
   communityForum: <UsersRound />,
+  drinkLog: <Wine />,
   resources: <BookMarked />,
   podcast: <Podcast />,
   account: <UserRoundCog />,
@@ -67,6 +69,13 @@ const data = {
         icon: sidebarIcons.podcast,
       },
     ],
+    programs: [
+      {
+        title: "Drink Log",
+        url: "/drink-log",
+        icon: sidebarIcons.drinkLog,
+      },
+    ],
   },
 };
 
@@ -91,6 +100,7 @@ const AppSidebar = () => {
       </SidebarHeader>
       <SidebarContent>
         <NavGroup title="My Lifeing" items={data.navItems.myLifeing} />
+        <NavGroup title="Programs" items={data.navItems.programs} />
         <NavGroup title="Resources" items={data.navItems.resources} />
       </SidebarContent>
       <SidebarFooter>
