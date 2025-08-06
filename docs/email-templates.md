@@ -116,6 +116,37 @@ Follow the [Supabase Auth Email Templates guide](https://supabase.com/docs/guide
 - Go to Authentication → Email Templates in your Supabase dashboard
 - Paste the compiled HTML into the template editor
 
+### Redirect URL Configuration
+
+**Important**: When using dynamic URLs (like Vercel preview URLs) in email templates with `{{ .RedirectTo }}`, you must configure the redirect URLs in your Supabase project settings.
+
+#### Required Configuration
+
+1. Go to your Supabase dashboard → Authentication → URL Configuration
+2. Add the following redirect URLs to the allow list:
+
+**For Development:**
+
+- `http://localhost:3000/**`
+
+**For Vercel Preview Deployments:**
+
+- `https://*-lifeing.vercel.app/**`
+
+**For Staging:**
+
+- `https://staging.lifeing.services/**`
+
+**For Production:**
+
+- `https://lifeing.services/**`
+
+#### Why This Is Needed
+
+When using `{{ .RedirectTo }}` in email templates, Supabase validates that the redirect URL is in the allow list before sending the email. Without this configuration, users will be redirected to localhost or the default Site URL instead of the dynamic Vercel URL.
+
+For more details, see the [Supabase Redirect URLs documentation](https://supabase.com/docs/guides/auth/redirect-urls).
+
 ### Available Variables
 
 Supabase provides these template variables for dynamic content:
