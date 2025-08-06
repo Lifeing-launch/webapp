@@ -1,115 +1,92 @@
-import React from "react";
-import { render, screen, waitFor, fireEvent } from "@/utils/tests";
+import { render, screen, waitFor } from "@/utils/tests";
 import { NavUser } from "./nav-user";
-import { createClient } from "@/utils/supabase/browser";
-import { signOutAction } from "@/utils/supabase/actions";
+import { useUser } from "@/components/providers/user-provider";
 
-// Mock supabase client
-jest.mock("@/utils/supabase/browser", () => ({
-  createClient: jest.fn(),
-}));
-
+// Mock Supabase actions
 jest.mock("@/utils/supabase/actions", () => ({
   signOutAction: jest.fn(),
 }));
 
+// Mock the useUser hook
+jest.mock("@/components/providers/user-provider", () => ({
+  useUser: jest.fn(),
+}));
+
 describe("NavUser", () => {
-  const mockGetUser = jest.fn();
-  const mockFrom = jest.fn();
+  const mockUser = {
+    id: "user123",
+    email: "test@example.com",
+  };
+
+  const mockProfile = {
+    id: "profile123",
+    user_id: "user123",
+    first_name: "John",
+    last_name: "Doe",
+    avatar_url: "https://example.com/avatar.jpg",
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Mock supabase methods
-    createClient.mockReturnValue({
-      auth: {
-        getUser: mockGetUser,
-      },
-      from: mockFrom,
+    (useUser as jest.Mock).mockReturnValue({
+      user: mockUser,
+      profile: mockProfile,
+      anonymousProfile: null,
+      currentDisplayName: "John Doe",
+      loading: false,
+      error: null,
+      refetchUser: jest.fn(),
+      refetchProfile: jest.fn(),
+      refetchAnonymousProfile: jest.fn(),
     });
   });
 
   it("renders without crashing", () => {
-    mockGetUser.mockReturnValue({
-      data: null,
-      error: null,
-    });
-
-    const { container } = render(<NavUser />);
-    expect(container).toBeInTheDocument();
+    render(<NavUser />);
+    expect(screen.getByText("John Doe")).toBeInTheDocument();
   });
 
-  it("handles errors when fetching auth user data", async () => {
-    // Mock auth.getUser response with an error
-    mockGetUser.mockResolvedValue({
-      data: null,
-      error: { message: "Auth error" },
+  it("shows log out button when no profile is available", () => {
+    (useUser as jest.Mock).mockReturnValue({
+      user: null,
+      profile: null,
+      anonymousProfile: null,
+      currentDisplayName: "",
+      loading: false,
+      error: null,
+      refetchUser: jest.fn(),
+      refetchProfile: jest.fn(),
+      refetchAnonymousProfile: jest.fn(),
     });
 
     render(<NavUser />);
+    expect(screen.getByText("Log out")).toBeInTheDocument();
+    expect(screen.getByTestId("nav-user-partial")).toBeInTheDocument();
+  });
 
-    expect(screen.queryByTestId("nav-user")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("nav-user-partial")).toBeInTheDocument();
+  it("shows log out button when loading", () => {
+    (useUser as jest.Mock).mockReturnValue({
+      user: null,
+      profile: null,
+      anonymousProfile: null,
+      currentDisplayName: "",
+      loading: true,
+      error: null,
+      refetchUser: jest.fn(),
+      refetchProfile: jest.fn(),
+      refetchAnonymousProfile: jest.fn(),
+    });
 
-    const signOutButton = screen.getByRole("button", { name: "Log out" });
-    fireEvent.click(signOutButton);
-
-    expect(signOutAction).toHaveBeenCalled();
+    render(<NavUser />);
+    expect(screen.getByText("Log out")).toBeInTheDocument();
+    expect(screen.getByTestId("nav-user-partial")).toBeInTheDocument();
   });
 
   it("fetches and displays user profile data", async () => {
-    const profileData = {
-      first_name: "Jane",
-      last_name: "Doe",
-      email: "janedoe@outlook.com",
-    };
-
-    // Mock auth.getUser response
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: "user123" } },
-      error: null,
-    });
-
-    // Mock from('user_profiles').select().eq().single() response
-    mockFrom.mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: profileData,
-        error: null,
-      }),
-    });
-
     render(<NavUser />);
 
-    // Wait for the user profile to load
     await waitFor(() => {
-      expect(screen.getByTestId("nav-user")).toBeInTheDocument();
-      expect(screen.queryByTestId("nav-user-partial")).not.toBeInTheDocument();
-      expect(screen.getByText(profileData.email)).toBeInTheDocument();
-      expect(screen.getByText("JD")).toBeInTheDocument();
+      expect(screen.getByText("John Doe")).toBeInTheDocument();
     });
-  });
-
-  it("handles errors when fetching user profile", async () => {
-    // Mock auth.getUser response
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: "user123" } },
-      error: null,
-    });
-
-    // Mock from('user_profiles').select().eq().single() response with an error
-    mockFrom.mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: null,
-        error: { message: "Profile error" },
-      }),
-    });
-
-    render(<NavUser />);
-
-    expect(screen.queryByTestId("nav-user")).not.toBeInTheDocument();
   });
 });

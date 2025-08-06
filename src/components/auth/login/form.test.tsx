@@ -61,13 +61,14 @@ describe("LoginForm", () => {
     expect(signUpLink).toHaveAttribute("href", "/signup");
   });
 
-  it("renders the 'Login with Facebook' button", () => {
-    render(<LoginForm />);
-    const facebookButton = screen.getByRole("button", {
-      name: /login with facebook/i,
-    });
-    expect(facebookButton).toBeInTheDocument();
-  });
+  // Facebook login button is currently commented out in the component
+  // it("renders the 'Login with Facebook' button", () => {
+  //   render(<LoginForm />);
+  //   const facebookButton = screen.getByRole("button", {
+  //     name: /login with facebook/i,
+  //   });
+  //   expect(facebookButton).toBeInTheDocument();
+  // });
 
   it("without required fields loginAction is not called on form submission ", () => {
     render(<LoginForm />);
