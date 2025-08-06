@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { getAuthenticatedUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await checkUserIsAuthenticated();
+    const user = getAuthenticatedUser(request);
 
     const { resource_id, resource_type, content } = await request.json();
 

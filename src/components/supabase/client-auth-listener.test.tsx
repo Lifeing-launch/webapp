@@ -1,10 +1,10 @@
 import { render } from "@testing-library/react";
-import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/utils/supabase/browser";
 import ClientAuthListener from "./client-auth-listener";
 
-jest.mock("next/navigation", () => ({
-  useRouter: jest.fn(),
+jest.mock("@tanstack/react-query", () => ({
+  useQueryClient: jest.fn(),
 }));
 
 jest.mock("@/utils/supabase/browser", () => ({
@@ -13,13 +13,15 @@ jest.mock("@/utils/supabase/browser", () => ({
 
 describe("ClientAuthListener", () => {
   it("subscribes to auth state changes on mount", () => {
-    const mockRefresh = jest.fn();
+    const mockInvalidateQueries = jest.fn();
     const mockUnsubscribe = jest.fn();
     const mockOnAuthStateChange = jest.fn(() => ({
       data: { subscription: { unsubscribe: mockUnsubscribe } },
     }));
 
-    (useRouter as jest.Mock).mockReturnValue({ refresh: mockRefresh });
+    (useQueryClient as jest.Mock).mockReturnValue({
+      invalidateQueries: mockInvalidateQueries,
+    });
     (createClient as jest.Mock).mockReturnValue({
       auth: { onAuthStateChange: mockOnAuthStateChange },
     });
@@ -30,22 +32,24 @@ describe("ClientAuthListener", () => {
     expect(mockOnAuthStateChange).toHaveBeenCalledWith(expect.any(Function));
   });
 
-  it("calls router.refresh on SIGNED_IN or SIGNED_OUT events", () => {
-    const mockRefresh = jest.fn();
+  it("calls queryClient.invalidateQueries on SIGNED_IN or SIGNED_OUT events", () => {
+    const mockInvalidateQueries = jest.fn();
     const mockOnAuthStateChange = jest.fn((callback) => {
       callback("SIGNED_IN");
       callback("SIGNED_OUT");
       return { data: { subscription: { unsubscribe: jest.fn() } } };
     });
 
-    (useRouter as jest.Mock).mockReturnValue({ refresh: mockRefresh });
+    (useQueryClient as jest.Mock).mockReturnValue({
+      invalidateQueries: mockInvalidateQueries,
+    });
     (createClient as jest.Mock).mockReturnValue({
       auth: { onAuthStateChange: mockOnAuthStateChange },
     });
 
     render(<ClientAuthListener />);
 
-    expect(mockRefresh).toHaveBeenCalledTimes(2);
+    expect(mockInvalidateQueries).toHaveBeenCalledTimes(2);
   });
 
   it("unsubscribes from auth state changes on unmount", () => {
@@ -54,7 +58,9 @@ describe("ClientAuthListener", () => {
       data: { subscription: { unsubscribe: mockUnsubscribe } },
     }));
 
-    (useRouter as jest.Mock).mockReturnValue({ refresh: jest.fn() });
+    (useQueryClient as jest.Mock).mockReturnValue({
+      invalidateQueries: jest.fn(),
+    });
     (createClient as jest.Mock).mockReturnValue({
       auth: { onAuthStateChange: mockOnAuthStateChange },
     });

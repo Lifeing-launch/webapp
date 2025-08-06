@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useSubscription } from "@/components/providers/subscription-provider";
 
 interface IChangePlanButton {
   currentSubscriptionId: string;
@@ -15,7 +15,7 @@ const ChangePlanButton = ({
   priceId,
 }: IChangePlanButton) => {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const { refetchSubscription } = useSubscription();
 
   async function handleChangePlan() {
     setLoading(true);
@@ -29,7 +29,7 @@ const ChangePlanButton = ({
         }),
       });
       if (!res.ok) throw new Error();
-      router.refresh();
+      await refetchSubscription();
       toast.info("Your plan has been changed successfully!");
     } catch {
       toast.error("An error occurred while changing your plan");

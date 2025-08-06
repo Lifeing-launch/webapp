@@ -4,7 +4,6 @@ import { Breadcrumb } from "@/components/layout/header";
 import { MeetingCard } from "@/components/meetings/meeting-card";
 import PageTemplate from "@/components/layout/page-template";
 import { formatDate } from "@/utils/datetime";
-import { createClient } from "@/utils/supabase/browser";
 import React, { useEffect, useState } from "react";
 import MeetingsSkeleton from "@/components/meetings/skeleton";
 import { toast } from "sonner";
@@ -18,11 +17,11 @@ import qs from "qs";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "My Meetings" }];
 
-type EnrichedMeeting = Meeting & { hasRsvped?: boolean };
+type HydratedMeeting = Meeting & { hasRsvped?: boolean };
 
 type GroupedMessage = {
   when: string;
-  meetings: EnrichedMeeting[];
+  meetings: HydratedMeeting[];
   noMeetingMessage?: string;
 };
 
@@ -55,51 +54,27 @@ const MeetingsPage = () => {
   });
 
   useEffect(() => {
-    const supabase = createClient();
-
     const fetchData = async () => {
       setIsLoading(true);
 
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!user) {
-          throw new Error("Unauthorized");
-        }
-
         const query = qs.stringify({
           dateFrom: dateRange.from.toISOString(),
           dateTo: dateRange.to?.toISOString(),
+          hydrateRsvp: true,
         });
 
-        // Fetch all future meetings
+        // Fetch meetings with RSVP status hydrated from backend
         const res = await fetch(`/api/meetings?${query}`);
-        const data: { data?: Meeting[]; error?: string } = await res.json();
+        const data: { data?: HydratedMeeting[]; error?: string } =
+          await res.json();
 
         if (data.error) {
           throw new Error(data.error);
         } else {
-          const meetings = data.data;
-
-          // Fetch RSVPs for the current user
-          const { data: rsvps } = await supabase
-            .from("rsvps")
-            .select("meeting_id")
-            .eq("user_id", user.id);
-
-          // Map RSVP data to meetings
-          const rsvpedMeetingIds = new Set(
-            rsvps?.map((rsvp) => Number(rsvp.meeting_id))
-          );
-          const enrichedMeetings = (meetings || []).map((meeting) => ({
-            ...meeting,
-            hasRsvped: rsvpedMeetingIds.has(meeting.id),
-          }));
-
+          const meetings = data.data || [];
           setGroupedMeetings(
-            enrichedMeetings.length ? groupMeetingsByDate(enrichedMeetings) : []
+            meetings.length ? groupMeetingsByDate(meetings) : []
           );
         }
       } catch (err) {
@@ -176,7 +151,7 @@ const MeetingsPage = () => {
 
 export default MeetingsPage;
 
-const groupMeetingsByDate = (meetings: EnrichedMeeting[]) => {
+const groupMeetingsByDate = (meetings: HydratedMeeting[]) => {
   const meetingsByDate = meetings.reduce(
     (acc, meeting) => {
       const dateKey = formatDate(new Date(meeting.when));
@@ -186,7 +161,7 @@ const groupMeetingsByDate = (meetings: EnrichedMeeting[]) => {
       acc[dateKey].push(meeting);
       return acc;
     },
-    {} as Record<string, EnrichedMeeting[]>
+    {} as Record<string, HydratedMeeting[]>
   );
 
   const grouped: GroupedMessage[] = [];

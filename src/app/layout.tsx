@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientAuthListener from "@/components/supabase/client-auth-listener";
 import { Toaster } from "sonner";
+import QueryProvider from "@/components/providers/query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Toaster richColors />
-        <ClientAuthListener />
-        {children}
+        <QueryProvider>
+          <Toaster richColors />
+          <ClientAuthListener />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import qs from "qs";
 import { StrapiMeta } from "@/typing/global";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/components/providers/user-provider";
 import { createClient } from "@/utils/supabase/browser";
 import { Resource, ResourceCategory } from "@/typing/strapi";
 
@@ -30,6 +31,7 @@ const ResourcesContent = <TabType extends string>({
   tabs,
   category = "visual",
 }: IResourceContent<TabType>) => {
+  const { user } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -45,18 +47,13 @@ const ResourcesContent = <TabType extends string>({
   const validTabs = new Set(tabs.map((tab) => tab.key));
 
   useEffect(() => {
-    const supabase = createClient();
-
     const fetchData = async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
         if (!user) {
           throw new Error("Unauthorized");
         }
 
+        const supabase = createClient();
         const query = qs.stringify({
           page,
           q: searchQuery,
@@ -80,7 +77,11 @@ const ResourcesContent = <TabType extends string>({
 
           // Map bookmark data to resources
           const bookmarkedResourceIds = new Set(
-            bookmarks?.map((bookmark) => Number(bookmark.resource_id))
+            bookmarks
+              ?.map((bookmark: { resource_id: number | null }) =>
+                Number(bookmark.resource_id)
+              )
+              .filter((id) => !isNaN(id))
           );
           const enrichedResources = (resources || []).map((resource) => ({
             ...resource,
@@ -100,7 +101,7 @@ const ResourcesContent = <TabType extends string>({
     };
 
     fetchData();
-  }, [tab, searchQuery, page, category]);
+  }, [tab, searchQuery, page, category, user]);
 
   const onTabChange = (tabKey: string) => {
     const newSearchParams = new URLSearchParams(searchParams);

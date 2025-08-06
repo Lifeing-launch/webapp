@@ -17,7 +17,7 @@ interface ICurrentPlanCard {
   plan: SubscriptionPlan;
 }
 
-const CurrentPlanCard = async ({ subscription, plan }: ICurrentPlanCard) => {
+const CurrentPlanCard = ({ subscription, plan }: ICurrentPlanCard) => {
   const stats = [
     {
       label: "Billing Cycle",

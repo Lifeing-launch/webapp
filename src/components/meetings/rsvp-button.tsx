@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Clock } from "lucide-react";
 import { createClient } from "@/utils/supabase/browser";
+import { useUser } from "@/components/providers/user-provider";
 import { toast } from "sonner";
 
 interface RsvpButtonProps {
@@ -12,6 +13,7 @@ interface RsvpButtonProps {
 }
 
 export default function RsvpButton({ meetingId, hasRsvped }: RsvpButtonProps) {
+  const { user } = useUser();
   const [isRsvped, setIsRsvped] = useState(hasRsvped);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,10 +22,10 @@ export default function RsvpButton({ meetingId, hasRsvped }: RsvpButtonProps) {
     const supabase = createClient();
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        toast.error("Please log in to RSVP");
+        return;
+      }
 
       const { error } = await supabase.from("rsvps").insert({
         meeting_id: meetingId,

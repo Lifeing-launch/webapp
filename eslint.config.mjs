@@ -26,6 +26,9 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  {
+    ignores: ["supabase/setup/email/**/*"],
+  },
 ];
 
 export default eslintConfig;

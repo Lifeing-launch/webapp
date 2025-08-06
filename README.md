@@ -57,6 +57,27 @@ All changes merged into the main branch are automatically deployed. To contribut
 
 View the [deployed application here](https://webapp-lifeing.vercel.app).
 
+For detailed deployment instructions, see the [Deployment Guide](./docs/deployment.md).
+
+## Documentation
+
+This project includes comprehensive documentation in the [`docs/`](./docs/) folder:
+
+### Setup & Configuration
+
+- **[Environment Setup](./docs/setup-env.md)** - Complete guide for setting up environment variables across local, staging, and production environments
+- **[Supabase Setup](./docs/supabase.md)** - Database and authentication configuration with Supabase
+- **[Cron Jobs Setup](./docs/setup-cron.md)** - Automated task scheduling and maintenance
+
+### Features & Integrations
+
+- **[Payments System](./docs/payments.md)** - Stripe integration for subscription management and billing
+- **[Email Templates](./docs/email-templates.md)** - Email notification system and template management
+
+### Deployment & Operations
+
+- **[Deployment Guide](./docs/deployment.md)** - Detailed deployment process using Vercel with staging and production environments
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
