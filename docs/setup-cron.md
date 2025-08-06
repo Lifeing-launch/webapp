@@ -35,6 +35,7 @@ select vault.create_secret('YOUR_SUPABASE_ANON_KEY', 'anon_key');
 ```
 
 **Replace the following values:**
+
 - `YOUR_PROJECT_REF` - Your actual Supabase project reference (found in your project URL)
 - `YOUR_SUPABASE_ANON_KEY` - Your project's anon key (found in Settings → API)
 
@@ -55,12 +56,14 @@ select id, name, decrypted_secret from vault.decrypted_secrets;
 If you need to update your stored credentials:
 
 ### Find the Secret to Update
+
 ```sql
 -- Get the UUID of the secret you want to update
 select id, name from vault.secrets;
 ```
 
 ### Update the Secret
+
 ```sql
 -- Update with the UUID from the query above
 SELECT vault.update_secret(
@@ -70,6 +73,7 @@ SELECT vault.update_secret(
 ```
 
 **Example for updating anon key:**
+
 ```sql
 SELECT vault.update_secret(
     'paste-uuid-here',
@@ -82,6 +86,7 @@ SELECT vault.update_secret(
 If you need to remove secrets from the vault:
 
 ### Option 1: Delete by UUID
+
 ```sql
 -- First, get the UUID
 select id, name from vault.secrets;
@@ -91,6 +96,7 @@ select vault.delete_secret('paste-uuid-here');
 ```
 
 ### Option 2: Delete by Name
+
 ```sql
 -- Delete directly by name
 DELETE FROM vault.secrets WHERE name = 'project_url';
@@ -109,18 +115,21 @@ Run these files in your SQL Editor to schedule the cron jobs.
 ## 🔍 Monitoring Your Setup
 
 ### Check Scheduled Jobs
+
 ```sql
 -- View all scheduled cron jobs
 SELECT * FROM cron.job;
 ```
 
 ### Check Job Execution History
+
 ```sql
 -- View recent job runs
 SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;
 ```
 
 ### View Your Secrets
+
 ```sql
 -- Safe view (encrypted secrets)
 select id, name, created_at from vault.secrets;
@@ -141,16 +150,19 @@ select id, name, decrypted_secret from vault.decrypted_secrets;
 ### Common Issues
 
 **Authentication Failed:**
+
 - Verify your anon key is correct
 - Check that your project URL is accurate
 - Ensure secrets are properly stored in the vault
 
 **Cron Job Not Running:**
+
 - Confirm pg_cron extension is enabled
 - Check cron.job table for your scheduled jobs
 - Review cron.job_run_details for error messages
 
 **Secret Not Found:**
+
 - Verify secret names match exactly ('project_url', 'anon_key')
 - Check vault.secrets table to see stored secrets
 
@@ -159,4 +171,3 @@ select id, name, decrypted_secret from vault.decrypted_secrets;
 - Check the [Supabase Cron Documentation](https://supabase.com/docs/guides/cron)
 - Review [Supabase Vault Documentation](https://supabase.com/docs/guides/database/vault)
 - Check your project logs in the Supabase Dashboard
-

@@ -26,9 +26,11 @@ Supabase is the primary backend service for the Lifeing application, providing:
 ## Authentication (Supabase Auth)
 
 ### Overview
+
 Supabase Auth handles all user authentication flows in the application, providing secure endpoints for signup, login, password reset, and email verification.
 
 ### Features Used
+
 - **Email/Password Authentication**: Primary authentication method
 - **One-Time Passwords (OTP)**: Email verification codes
 - **Password Reset**: Secure password recovery flow
@@ -37,24 +39,29 @@ Supabase Auth handles all user authentication flows in the application, providin
 ### Implementation
 
 #### Client Configuration
+
 The application uses two Supabase clients for browser and server-side operations. See the implementation in:
+
 - Browser client: [`src/utils/supabase/browser.ts`](../src/utils/supabase/browser.ts)
 - Server client: [`src/utils/supabase/server.ts`](../src/utils/supabase/server.ts)
 
 #### Authentication Flows
 
 1. **Signup Flow**:
+
    - User submits email/password
    - Supabase creates user in `auth.users`
    - Trigger automatically creates profile in `user_profiles`
    - Email verification sent with OTP code
 
 2. **Login Flow**:
+
    - User authenticates with email/password
    - Session created and stored in cookies
    - User redirected to protected dashboard
 
 3. **Password Reset**:
+
    - User requests password reset
    - Email sent with reset link
    - User sets new password via secure link
@@ -65,9 +72,11 @@ The application uses two Supabase clients for browser and server-side operations
    - Account activated upon successful verification
 
 #### Middleware Integration
+
 Authentication is enforced via Next.js middleware. See the implementation in [`src/middleware.ts`](../src/middleware.ts) for route protection and user session management.
 
 ### Auth State Management
+
 The application uses React Query for auth state management. See the implementation in [`src/components/providers/user-provider.tsx`](../src/components/providers/user-provider.tsx) for user authentication state handling.
 
 ## Database (PostgreSQL)
@@ -79,12 +88,15 @@ The application uses a well-structured PostgreSQL database with the following ma
 #### Core Tables
 
 1. **`user_profiles`** - User profile information including personal details, avatar, and dashboard cover image
+
    - See implementation: [`supabase/setup/database/001.user-setup.sql`](../supabase/setup/database/001.user-setup.sql)
 
 2. **`subscriptions`** - User subscription data with Stripe integration for payment processing
+
    - See implementation: [`supabase/setup/database/002.app-tables.sql`](../supabase/setup/database/002.app-tables.sql)
 
 3. **`rsvps`** - Meeting RSVPs to track user attendance for events
+
    - See implementation: [`supabase/setup/database/002.app-tables.sql`](../supabase/setup/database/002.app-tables.sql)
 
 4. **`bookmarks`** - Resource bookmarks for users to save content
@@ -98,11 +110,15 @@ The application uses a well-structured PostgreSQL database with the following ma
 ### Database Functions
 
 #### User Profile Synchronization
+
 Function to automatically sync `auth.users` with `user_profiles` table using database triggers.
+
 - See implementation: [`supabase/setup/database/001.user-setup.sql`](../supabase/setup/database/001.user-setup.sql)
 
 #### Anonymous Profile Functions
+
 Functions for managing anonymous user profiles in the forum system.
+
 - See implementation: [`supabase/setup/database/002.app-tables.sql`](../supabase/setup/database/002.app-tables.sql)
 
 ### Migrations
@@ -121,17 +137,19 @@ The database schema is managed through numbered migration files:
 ## Email Templates
 
 ### Overview
-The application uses custom email templates for Supabase Auth flows, built with MJML for responsive design and consistent branding. For detailed information about template variables and Supabase email templates, see the [Supabase Auth Email Templates documentation](https://supabase.com/docs/guides/auth/auth-email-templates).
 
+The application uses custom email templates for Supabase Auth flows, built with MJML for responsive design and consistent branding. For detailed information about template variables and Supabase email templates, see the [Supabase Auth Email Templates documentation](https://supabase.com/docs/guides/auth/auth-email-templates).
 
 ### Available Templates
 
 1. **Confirm Signup** (`confirm-signup.html`)
+
    - Email verification during user registration
    - Uses 6-digit OTP code display
    - Template variables: `{{ .Token }}`, `{{ .SiteURL }}`
 
 2. **Reset Password** (`reset-password.html`)
+
    - Password reset functionality
    - Button-based action link
    - Template variables: `{{ .ConfirmationURL }}`, `{{ .SiteURL }}`
@@ -150,6 +168,7 @@ The application can integrate with Resend for custom SMTP configuration, allowin
 ## Edge Functions
 
 ### Overview
+
 Supabase Edge Functions provide serverless compute for background tasks, webhooks, and API endpoints.
 
 ### Available Functions
@@ -157,11 +176,13 @@ Supabase Edge Functions provide serverless compute for background tasks, webhook
 #### 1. Cron Jobs
 
 **`cron-cleanup-retired-plans`**
+
 - **Purpose**: Clean up retired subscription plans
 - **Schedule**: Runs twice daily (midnight and noon)
 - **Implementation**: Calls internal API endpoint for cleanup operations
 
 **`cron-cleanup-strapi-orphans`**
+
 - **Purpose**: Clean up orphaned data from Strapi CMS
 - **Schedule**: Runs every minute
 - **Implementation**: Removes orphaned records in Supabase
@@ -171,14 +192,16 @@ For detailed cron job setup instructions, see [`docs/setup-cron.md`](./setup-cro
 #### 2. Webhook Handlers
 
 **`strapi-webhook`**
+
 - **Purpose**: Handle Strapi CMS webhook events
 - **Events**: Entry deletion for meetings, resources, subscription plans
-- **Actions**: 
+- **Actions**:
   - Delete RSVPs when meetings are deleted
   - Delete bookmarks when resources are deleted
   - Log errors when subscription plans are deleted
 
 **`moderate-resource`**
+
 - **Purpose**: Moderate user-generated content
 - **Implementation**: Content moderation logic for resources
 
@@ -189,16 +212,20 @@ For detailed cron job setup instructions, see [`docs/setup-cron.md`](./setup-cro
 The application integrates with Strapi CMS, storing CMS data in a separate schema within the Supabase database.
 
 #### Schema Setup
+
 See the CMS schema creation in [`supabase/setup/database/003.cms.sql`](../supabase/setup/database/003.cms.sql).
 
 #### Data Flow
+
 1. **Content Management**: Strapi handles content creation and management
 2. **Data Storage**: CMS data stored in `cms` schema in Supabase
 3. **Webhook Sync**: Edge functions handle data synchronization
 4. **Application Access**: Webapp reads CMS data for display
 
 #### Webhook Integration
+
 The `strapi-webhook` edge function handles real-time synchronization:
+
 - Monitors Strapi events for content changes
 - Maintains referential integrity in Supabase
 - Cleans up orphaned data when content is deleted
@@ -248,6 +275,7 @@ The application uses generated TypeScript types for type safety. See the generat
 ### Query Patterns
 
 The application uses React Query for data fetching with Supabase. See examples in:
+
 - [`src/components/providers/user-provider.tsx`](../src/components/providers/user-provider.tsx) - User profile queries
 - [`src/components/providers/subscription-provider.tsx`](../src/components/providers/subscription-provider.tsx) - Subscription queries
 - [`src/components/meetings/rsvp-button.tsx`](../src/components/meetings/rsvp-button.tsx) - RSVP operations
@@ -255,24 +283,28 @@ The application uses React Query for data fetching with Supabase. See examples i
 ## Best Practices
 
 ### Performance
+
 - Use efficient RLS policies with `SELECT` wrappers
 - Implement proper indexing on frequently queried columns
 - Use React Query for caching and state management
 - Optimize database queries with proper select statements
 
 ### Security
+
 - Always enable RLS on user data tables
 - Use parameterized queries to prevent SQL injection
 - Validate user permissions on both client and server
 - Regularly rotate API keys and secrets
 
 ### Development
+
 - Use TypeScript for type safety
 - Generate database types using Supabase CLI
 - Test edge functions locally before deployment
 - Monitor function execution and database performance
 
 ### Maintenance
+
 - Regularly update Supabase dependencies
 - Monitor cron job execution logs
 - Review and update email templates as needed
@@ -286,4 +318,4 @@ The application uses React Query for data fetching with Supabase. See examples i
 - [Row Level Security Documentation](https://supabase.com/docs/guides/auth/row-level-security)
 - [Project Cron Setup Guide](./setup-cron.md)
 - [Email Templates Documentation](./email-templates.md)
-- [Environment Setup Guide](./setup-env.md) 
+- [Environment Setup Guide](./setup-env.md)
