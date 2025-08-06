@@ -37,7 +37,7 @@ const data = {
   navItems: {
     myLifeing: [
       {
-        title: "Dashboard",
+        title: "Living Room",
         url: "/dashboard",
         icon: sidebarIcons.dashboard,
       },
