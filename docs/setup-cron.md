@@ -138,6 +138,7 @@ SELECT cron.unschedule('cron-cleanup-strapi-orphans');
 ```
 
 **Important Notes:**
+
 - `cron.unschedule()` immediately stops the job from running any further scheduled executions
 - If a job is currently executing when you unschedule it, it will complete its current run but won't start new ones
 - You can always re-create the job later by running the schedule SQL again
