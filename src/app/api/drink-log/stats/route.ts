@@ -1,8 +1,175 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
+type ViewType = "day" | "week" | "month" | "year";
+
+interface Goal {
+  id: string;
+  user_id: string;
+  daily_goal: number;
+  weekly_goal: number;
+  monthly_goal: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface DrinkEntry {
+  quantity: number;
+  drank_at: string;
+  volume_ml: number | null;
+  drink_types:
+    | {
+        standard_volume_ml: number;
+        alcohol_percentage: number;
+      }
+    | {
+        standard_volume_ml: number;
+        alcohol_percentage: number;
+      }[];
+}
+
+interface DateRange {
+  startDate: Date;
+  endDate: Date;
+}
+
+// Get the date range based on the view type
+function getDateRange(view: ViewType): DateRange {
+  const now = new Date();
+  const endDate = new Date(now);
+  let startDate: Date;
+
+  switch (view) {
+    case "day":
+      startDate = new Date(now);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+    case "week":
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - now.getDay());
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+    case "month":
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+    case "year":
+      startDate = new Date(now.getFullYear(), 0, 1);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+    default:
+      // Default to daily view
+      startDate = new Date(now);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+  }
+
+  return { startDate, endDate };
+}
+
+// Get the goal limit based on the view type
+function getGoalLimit(goals: Goal | null, view: ViewType): number {
+  if (!goals) return 0;
+
+  switch (view) {
+    case "day":
+      return goals.daily_goal;
+    case "week":
+      return goals.weekly_goal;
+    case "month":
+      return goals.monthly_goal;
+    case "year":
+      return goals.monthly_goal * 12;
+    default:
+      return goals.daily_goal;
+  }
+}
+
+// Calculate the total number of drinks logged
+function calculateDrinksLogged(entries: DrinkEntry[]): number {
+  return entries.reduce((sum, entry) => sum + entry.quantity, 0);
+}
+
+// Calculate standard drinks based on alcohol content
+function calculateStandardDrinks(entries: DrinkEntry[]): number {
+  const standardDrinks = entries.reduce((sum, entry) => {
+    const drinkType = Array.isArray(entry.drink_types)
+      ? entry.drink_types[0]
+      : entry.drink_types;
+
+    const volume = entry.volume_ml || drinkType.standard_volume_ml;
+    const alcoholPercentage = drinkType.alcohol_percentage;
+
+    // Standard drink calculation: (volume in ml * alcohol%) / 1400
+    const standardDrinksForEntry = (volume * alcoholPercentage) / 1400;
+
+    return sum + standardDrinksForEntry * entry.quantity;
+  }, 0);
+
+  // Round to 2 decimal places
+  return Math.round(standardDrinks * 100) / 100;
+}
+
+// Calculate remaining drinks based on goal
+function calculateRemainingDrinks(
+  goalLimit: number,
+  drinksLogged: number
+): number {
+  return Math.max(0, Math.round(goalLimit - drinksLogged));
+}
+
+// Calculate streak of days without drinking
+async function calculateStreak(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  userId: string,
+  goals: Goal | null
+): Promise<number> {
+  if (!goals) return 0;
+
+  // Determine the reference date (when the streak should start counting)
+  const referenceDate = new Date(
+    goals.updated_at !== goals.created_at ? goals.updated_at : goals.created_at
+  );
+
+  // Get all entries since the reference date
+  const { data: entries } = await supabase
+    .schema("drink_log")
+    .from("entries")
+    .select("drank_at")
+    .eq("user_id", userId)
+    .gte("drank_at", referenceDate.toISOString())
+    .order("drank_at", { ascending: false });
+
+  if (!entries || entries.length === 0) {
+    // No drinks since goal was created/updated
+    const today = new Date();
+    const daysSinceReference = Math.floor(
+      (today.getTime() - referenceDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return daysSinceReference;
+  }
+
+  // Find the most recent drink date
+  const mostRecentDrinkDate = new Date(entries[0].drank_at);
+  mostRecentDrinkDate.setHours(0, 0, 0, 0);
+
+  // Calculate days since last drink
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const daysSinceLastDrink = Math.floor(
+    (today.getTime() - mostRecentDrinkDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  return daysSinceLastDrink;
+}
+
 export async function GET(request: NextRequest) {
   try {
+    // Initialize Supabase client and authenticate user
     const supabase = await createClient();
     const {
       data: { user },
@@ -12,10 +179,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Get view parameter from query string
     const searchParams = request.nextUrl.searchParams;
-    const view = searchParams.get("view") || "week";
+    const viewParam = searchParams.get("view") || "day";
+    const view = viewParam as ViewType;
 
-    // Get most recent goals
+    // Fetch user's most recent goals
     const { data: goals } = await supabase
       .schema("drink_log")
       .from("goals")
@@ -25,30 +194,12 @@ export async function GET(request: NextRequest) {
       .limit(1)
       .maybeSingle();
 
-    // Calculate date range based on view
-    const now = new Date();
-    let startDate: Date;
-    let goalLimit: number = 0;
+    // Calculate date range and goal limit
+    const { startDate } = getDateRange(view);
+    const goalLimit = getGoalLimit(goals, view);
 
-    if (view === "week") {
-      startDate = new Date(now);
-      startDate.setDate(now.getDate() - now.getDay());
-      startDate.setHours(0, 0, 0, 0);
-      goalLimit = goals?.weekly_goal || 0;
-    } else if (view === "month") {
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      goalLimit = goals?.monthly_goal || 0;
-    } else if (view === "year") {
-      startDate = new Date(now.getFullYear(), 0, 1);
-      goalLimit = goals?.monthly_goal ? goals.monthly_goal * 12 : 0;
-    } else {
-      startDate = new Date(now);
-      startDate.setHours(0, 0, 0, 0);
-      goalLimit = goals?.daily_goal || 0;
-    }
-
-    // Get entries for the period with drink type details
-    const { data: entries } = await supabase
+    // Fetch entries for the specified period
+    const { data: entries, error: entriesError } = await supabase
       .schema("drink_log")
       .from("entries")
       .select(
@@ -66,83 +217,28 @@ export async function GET(request: NextRequest) {
       .gte("drank_at", startDate.toISOString())
       .order("drank_at", { ascending: false });
 
-    // Calculate stats
-    const drinksLogged =
-      entries?.reduce((sum, entry) => sum + entry.quantity, 0) || 0;
-
-    // Calculate standard drinks based on actual volume and alcohol content
-    const standardDrinks =
-      entries?.reduce((sum, entry) => {
-        const drinkType = Array.isArray(entry.drink_types)
-          ? entry.drink_types[0]
-          : entry.drink_types;
-
-        const volume = entry.volume_ml || drinkType.standard_volume_ml;
-        const alcoholPercentage = drinkType.alcohol_percentage;
-        const standardDrinksForEntry =
-          (volume * alcoholPercentage) / (14 * 100);
-
-        return sum + standardDrinksForEntry * entry.quantity;
-      }, 0) || 0;
-
-    // Round standard drinks to 2 decimal places
-    const roundedStandardDrinks = Math.round(standardDrinks * 100) / 100;
-
-    // Round remaining drinks to whole numbers (no partial drinks)
-    const remainingDrinks = Math.max(0, Math.round(goalLimit - drinksLogged));
-
-    // Calculate streak (consecutive days without drinking)
-    const { data: allEntries } = await supabase
-      .schema("drink_log")
-      .from("entries")
-      .select("drank_at")
-      .eq("user_id", user.id)
-      .order("drank_at", { ascending: false })
-      .limit(100); // Get more entries to calculate streak properly
-
-    let currentStreak = 0;
-    if (allEntries && allEntries.length > 0) {
-      // Get unique dates when user drank
-      const drinkDates = [
-        ...new Set(
-          allEntries.map((entry) => new Date(entry.drank_at).toDateString())
-        ),
-      ]
-        .sort()
-        .reverse();
-
-      // Calculate consecutive days without drinking
-      const today = new Date().toDateString();
-      const currentDate = new Date();
-      let streakDays = 0;
-
-      while (true) {
-        const dateString = currentDate.toDateString();
-
-        // If we've found a day when user drank, break the streak
-        if (drinkDates.includes(dateString)) {
-          break;
-        }
-
-        // If we're past today, don't count future days
-        if (dateString === today) {
-          break;
-        }
-
-        streakDays++;
-        currentDate.setDate(currentDate.getDate() - 1);
-      }
-
-      currentStreak = streakDays;
+    if (entriesError) {
+      console.error("Error fetching entries:", entriesError);
+      return NextResponse.json(
+        { error: "Failed to fetch drink entries" },
+        { status: 500 }
+      );
     }
+
+    // Calculate statistics
+    const drinksLogged = calculateDrinksLogged(entries || []);
+    const standardDrinks = calculateStandardDrinks(entries || []);
+    const remainingDrinks = calculateRemainingDrinks(goalLimit, drinksLogged);
+    const currentStreak = await calculateStreak(supabase, user.id, goals);
 
     return NextResponse.json({
       drinksLogged,
-      standardDrinks: roundedStandardDrinks,
+      standardDrinks,
       remainingDrinks,
       currentStreak,
     });
-  } catch {
+  } catch (error) {
+    console.error("Error in drink stats API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

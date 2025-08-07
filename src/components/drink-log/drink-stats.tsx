@@ -17,7 +17,8 @@ interface Stats {
   currentStreak: number;
 }
 
-export default function DrinkStats({ view, refreshKey }: DrinkStatsProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function DrinkStats({ view: _, refreshKey }: DrinkStatsProps) {
   const [stats, setStats] = useState<Stats>({
     drinksLogged: 0,
     standardDrinks: 0,
@@ -30,7 +31,7 @@ export default function DrinkStats({ view, refreshKey }: DrinkStatsProps) {
     const getStats = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/drink-log/stats?view=${view}`);
+        const response = await fetch(`/api/drink-log/stats?view=day`);
 
         if (response.ok) {
           const data = await response.json();
@@ -44,7 +45,7 @@ export default function DrinkStats({ view, refreshKey }: DrinkStatsProps) {
     };
 
     getStats();
-  }, [view, refreshKey]);
+  }, [refreshKey]);
 
   if (isLoading) {
     return <div className="h-32 animate-pulse bg-muted rounded-lg" />;
