@@ -107,10 +107,41 @@ DELETE FROM vault.secrets WHERE name = 'anon_key';
 
 Once your secrets are stored in the vault, you can run the schedule.sql files in your cron job directories:
 
-1. **cron-cleanup-retired-plans/schedule.sql** - Runs twice daily
-2. **cron-cleanup-strapi-orphans/schedule.sql** - Runs every minute
+1. **[cron-cleanup-retired-plans/schedule.sql](../supabase/functions/cron-cleanup-retired-plans/schedule.sql)** - Runs twice daily
+2. **[cron-cleanup-strapi-orphans/schedule.sql](../supabase/functions/cron-cleanup-strapi-orphans/schedule.sql)** - Runs every minute
 
 Run these files in your SQL Editor to schedule the cron jobs.
+
+## 🛑 Step 6: Delete/Stop Cron Jobs
+
+If you need to stop or delete a cron job:
+
+### View All Scheduled Jobs
+
+First, check what cron jobs are currently scheduled:
+
+```sql
+-- View all scheduled cron jobs
+SELECT * FROM cron.job;
+```
+
+### Delete/Unschedule a Cron Job
+
+To stop and delete a cron job, use the `cron.unschedule()` function:
+
+```sql
+-- Delete a cron job by name
+SELECT cron.unschedule('cron-cleanup-retired-plans');
+
+-- Delete a cron job by name
+SELECT cron.unschedule('cron-cleanup-strapi-orphans');
+```
+
+**Important Notes:**
+
+- `cron.unschedule()` immediately stops the job from running any further scheduled executions
+- If a job is currently executing when you unschedule it, it will complete its current run but won't start new ones
+- You can always re-create the job later by running the schedule SQL again
 
 ## 🔍 Monitoring Your Setup
 

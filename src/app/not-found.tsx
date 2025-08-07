@@ -5,7 +5,7 @@ export default function NotFound() {
     <ErrorTemplate
       heading="Page Not Found 😔"
       description=" Sorry, we can't find the page you're looking for."
-      className="bg-purple-50"
+      className="bg-lime-100"
     />
   );
 }

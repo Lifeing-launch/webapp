@@ -57,6 +57,13 @@ using (
   (( SELECT auth.uid() AS uid) = id)
 );
 
+CREATE POLICY "Enable update for authenticated users only"
+on "public"."user_profiles"
+  FOR UPDATE
+  TO authenticated
+  USING (id = auth.uid())
+  WITH CHECK (id = auth.uid());
+
 
 -- Trigger to update user_profiles table
 CREATE TRIGGER trg_update_user_profile_on_auth_users_change

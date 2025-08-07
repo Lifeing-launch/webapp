@@ -10,6 +10,7 @@ import { SubmitButton } from "@/components/form/submit-button";
 import { loginAction } from "@/utils/supabase/actions";
 import { FormMessage } from "@/components/form/message";
 import { AuthFormProps } from "@/typing/interfaces";
+import Image from "next/image";
 
 export function LoginForm({
   className,
@@ -23,10 +24,10 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn("flex flex-col flex-1", className)} {...props}>
-      <Card>
-        <CardContent className="grid">
-          <form onSubmit={handleSubmit}>
+    <div className={cn("flex flex-col gap-6 w-full", className)} {...props}>
+      <Card className="overflow-hidden p-0">
+        <CardContent className="grid p-0 md:grid-cols-2">
+          <form className="p-6 md:p-8 min-h-[600px]" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center gap-1">
                 <h1 className="text-2xl font-semibold"> Welcome back </h1>
@@ -87,7 +88,7 @@ export function LoginForm({
                   Login with Facebook
                 </Button>
               </div> */}
-              <div className="text-center text-sm mt-10">
+              <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <Link href="/signup" className="underline">
                   Sign up
@@ -95,6 +96,14 @@ export function LoginForm({
               </div>
             </div>
           </form>
+          <div className="bg-muted relative hidden md:block">
+            <Image
+              fill
+              src="/images/login-bg.png"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+            />
+          </div>
         </CardContent>
       </Card>
     </div>

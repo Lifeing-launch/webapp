@@ -37,7 +37,7 @@ const data = {
   navItems: {
     myLifeing: [
       {
-        title: "Dashboard",
+        title: "Living Room",
         url: "/dashboard",
         icon: sidebarIcons.dashboard,
       },
@@ -88,7 +88,7 @@ const AppSidebar = () => {
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <Image
-                  src="/lifeing-logo.svg"
+                  src="/lifeing-logo-white.svg"
                   alt="Lifeing Logo"
                   width={100}
                   height={60}

@@ -108,7 +108,7 @@ export const PlanCard = ({
   return (
     <Card
       className={cn(
-        plan.is_most_popular && "bg-purple-50",
+        plan.is_most_popular && "bg-lime-100",
         matchesCurrentSubscription && "bg-gray-50"
       )}
     >

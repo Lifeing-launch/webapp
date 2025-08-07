@@ -1,133 +1,29 @@
 "use client";
 
 import { Breadcrumb } from "@/components/layout/header";
-import { MeetingCard } from "@/components/meetings/meeting-card";
 import PageTemplate from "@/components/layout/page-template";
-import { formatDate } from "@/utils/datetime";
-import React, { useEffect, useState } from "react";
-import MeetingsSkeleton from "@/components/meetings/skeleton";
-import { toast } from "sonner";
+import React, { useState } from "react";
+
 import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
-import { Meeting } from "@/typing/strapi";
-import {
-  DateRange,
-  DateRangePicker,
-} from "@/components/ui/custom/date-range-picker";
-import qs from "qs";
+import { DateRange } from "@/components/ui/custom/date-range-picker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MeetingsTab } from "@/components/meetings/meetings-tab";
+
+type TabKey = "current-month" | "next-month" | "calendar";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "My Meetings" }];
 
-type HydratedMeeting = Meeting & { hasRsvped?: boolean };
+const tabs: { key: TabKey; label: string }[] = [
+  { key: "current-month", label: "This month" },
+  { key: "next-month", label: "Next month" },
+  { key: "calendar", label: "Calendar view" },
+];
 
-type GroupedMessage = {
-  when: string;
-  meetings: HydratedMeeting[];
-  noMeetingMessage?: string;
-};
-
-const startOfCurrentMonth = new Date(
-  new Date().getFullYear(),
-  new Date().getMonth(),
-  1,
-  0,
-  0,
-  0,
-  0
-);
-
-const endOfCurrentMonth = new Date(
-  new Date().getFullYear(),
-  new Date().getMonth() + 1,
-  0,
-  23,
-  59,
-  59,
-  999
-);
+const currentMonthDateRange = generateDateRange("current-month");
+const nextMonthDateRange = generateDateRange("next-month");
 
 const MeetingsPage = () => {
-  const [groupedMeetings, setGroupedMeetings] = useState<GroupedMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [dateRange, setDateRange] = useState<DateRange>({
-    from: startOfCurrentMonth,
-    to: endOfCurrentMonth,
-  });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-
-      try {
-        const query = qs.stringify({
-          dateFrom: dateRange.from.toISOString(),
-          dateTo: dateRange.to?.toISOString(),
-          hydrateRsvp: true,
-        });
-
-        // Fetch meetings with RSVP status hydrated from backend
-        const res = await fetch(`/api/meetings?${query}`);
-        const data: { data?: HydratedMeeting[]; error?: string } =
-          await res.json();
-
-        if (data.error) {
-          throw new Error(data.error);
-        } else {
-          const meetings = data.data || [];
-          setGroupedMeetings(
-            meetings.length ? groupMeetingsByDate(meetings) : []
-          );
-        }
-      } catch (err) {
-        console.error("Error fetching meetings: ", err);
-        toast.error("Error fetching meetings");
-        setGroupedMeetings([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [dateRange]);
-
-  let content = <></>;
-
-  if (isLoading) {
-    content = <MeetingsSkeleton />;
-  } else if (!groupedMeetings.length) {
-    content = <p className="text-sm"> There are no meetings to display.</p>;
-  } else {
-    content = (
-      <>
-        {groupedMeetings.map((group, groupId) =>
-          group.meetings.length ? (
-            <section key={groupId} className="mb-5">
-              <h2 className="text-xl font-normal mb-2">{group.when}</h2>
-              <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {group.meetings.map((meeting, i) => (
-                  <MeetingCard
-                    key={i}
-                    meeting={meeting}
-                    hasRsvped={meeting.hasRsvped}
-                  />
-                ))}
-              </div>
-            </section>
-          ) : (
-            group.noMeetingMessage && (
-              <div
-                key={groupId}
-                className="relative text-sm text-center after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border py-3"
-              >
-                <span className="text-muted-foreground relative z-10 bg-background px-2">
-                  {group.noMeetingMessage}
-                </span>
-              </div>
-            )
-          )
-        )}
-      </>
-    );
-  }
+  const [tab, setTab] = useState<TabKey>("current-month");
 
   return (
     <PageTemplate
@@ -135,64 +31,67 @@ const MeetingsPage = () => {
       breadcrumbs={breadcrumbs}
       headerIcon={sidebarIcons.meetings}
     >
-      <div className="mb-3">
-        <DateRangePicker
-          onUpdate={(values) => setDateRange(values.range)}
-          initialDateFrom={dateRange.from}
-          initialDateTo={dateRange.to}
-          align="start"
-          showCompare={false}
-        />
-      </div>
-      {content}
+      <Tabs defaultValue="all" value={tab} className="space-y-4 w-full">
+        <TabsList>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              value={tab.key}
+              key={tab.key}
+              onClick={() => setTab(tab.key)}
+              className="cursor-pointer"
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <TabsContent
+          value={"current-month"}
+          key={"current-month"}
+          className="space-y-4"
+        >
+          <MeetingsTab initialDateRange={currentMonthDateRange} />
+        </TabsContent>
+        <TabsContent
+          value={"next-month"}
+          key={"next-month"}
+          className="space-y-4"
+        >
+          <MeetingsTab initialDateRange={nextMonthDateRange} />
+        </TabsContent>
+        <TabsContent value={"calendar"} key={"calendar"} className="space-y-4">
+          <MeetingsTab
+            initialDateRange={currentMonthDateRange}
+            showDatePicker
+          />
+        </TabsContent>
+      </Tabs>
     </PageTemplate>
   );
 };
 
 export default MeetingsPage;
 
-const groupMeetingsByDate = (meetings: HydratedMeeting[]) => {
-  const meetingsByDate = meetings.reduce(
-    (acc, meeting) => {
-      const dateKey = formatDate(new Date(meeting.when));
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(meeting);
-      return acc;
-    },
-    {} as Record<string, HydratedMeeting[]>
-  );
+function generateDateRange(preset?: TabKey): DateRange {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
 
-  const grouped: GroupedMessage[] = [];
+  let targetYear = currentYear;
+  let targetMonth = currentMonth;
 
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-
-  const todayDateKey = formatDate(today);
-  const tomorrowDateKey = formatDate(tomorrow);
-
-  [todayDateKey, tomorrowDateKey].forEach((dateKey) => {
-    grouped.push({
-      when: dateKey,
-      meetings: meetingsByDate[dateKey] || [],
-      noMeetingMessage: meetingsByDate[dateKey]
-        ? undefined
-        : `No meetings scheduled for ${dateKey === todayDateKey ? "today" : "tomorrow"}`,
-    });
-  });
-
-  Object.keys(meetingsByDate).forEach((dateKey) => {
-    if (dateKey !== todayDateKey && dateKey !== tomorrowDateKey) {
-      grouped.push({
-        when: dateKey,
-        meetings: meetingsByDate[dateKey],
-      });
+  if (preset === "next-month") {
+    if (currentMonth === 11) {
+      // December -> January of next year
+      targetYear = currentYear + 1;
+      targetMonth = 0;
+    } else {
+      targetMonth = currentMonth + 1;
     }
-  });
+  }
 
-  return grouped.sort(
-    (a, b) => new Date(a.when).getTime() - new Date(b.when).getTime()
-  );
-};
+  const startOfMonth = new Date(targetYear, targetMonth, 1, 0, 0, 0, 0);
+
+  const endOfMonth = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
+
+  return { from: startOfMonth, to: endOfMonth };
+}
