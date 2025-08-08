@@ -17,7 +17,7 @@ CREATE TABLE user_profiles (
 BEGIN
     -- If a new user is inserted, create a profile
     IF TG_OP = 'INSERT' THEN
-        INSERT INTO public.user_profiles (id, email, first_name, last_name)
+        INSERT INTO public.user_profiles (id, email, first_name, last_name, avatar_url)
         VALUES (
             NEW.id,
             NEW.raw_user_meta_data ->> 'email',
