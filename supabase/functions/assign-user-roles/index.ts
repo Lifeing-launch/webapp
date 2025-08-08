@@ -138,11 +138,13 @@ Deno.serve(async (req) => {
       results,
     };
 
+    console.log(response);
     return new Response(JSON.stringify(response), {
       headers: { "Content-Type": "application/json" },
       status: allSuccessful ? 200 : 207, // 207 Multi-Status for partial success
     });
   } catch (err) {
+    console.log(err);
     return new Response(JSON.stringify({ message: err?.message ?? err }), {
       headers: { "Content-Type": "application/json" },
       status: 500,

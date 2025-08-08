@@ -3,6 +3,7 @@ import { getAuthenticatedUser } from "@/utils/supabase/auth";
 import { getSiteUrl } from "@/utils/urls";
 import { getEnvironmentConfig } from "@/utils/environment";
 import { NextRequest, NextResponse } from "next/server";
+import { FREE_TRIAL_DAYS } from "@/utils/constants";
 
 // Payment method configurations for different environments
 const CARD_ONLY_PAYMENT_METHOD_CONFIG = getEnvironmentConfig({
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
       ],
       mode: "subscription",
       subscription_data: {
-        trial_period_days: 14,
+        trial_period_days: FREE_TRIAL_DAYS,
         metadata: {
           userId,
           email: email || null,

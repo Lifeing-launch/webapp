@@ -11,6 +11,7 @@ import Link from "next/link";
 import { FormMessage } from "@/components/form/message";
 import { AuthFormProps } from "@/typing/interfaces";
 import Image from "next/image";
+import { FREE_TRIAL_DAYS } from "@/utils/constants";
 
 export function SignupForm({
   className,
@@ -32,7 +33,7 @@ export function SignupForm({
               <div className="flex flex-col gap-1 items-center">
                 <h1 className="text-2xl font-semibold">Create Your Account</h1>
                 <p className="text-sm text-muted-foreground">
-                  Start Your 10-Day Free Trial
+                  Start Your {FREE_TRIAL_DAYS}-Day Free Trial
                 </p>
               </div>
               <FormMessage message={searchParams} />
