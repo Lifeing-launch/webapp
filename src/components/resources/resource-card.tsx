@@ -100,7 +100,12 @@ function VisualResourceCard({
   };
 
   return (
-    <Link href={getResourceHref() || ""} target="_blank" className="h-full">
+    <Link
+      href={getResourceHref() || ""}
+      target="_blank"
+      rel="noreferrer"
+      className="h-full"
+    >
       <Card
         className={cn(
           "flex-row items-stretch gap-2 p-4 w-full h-full",

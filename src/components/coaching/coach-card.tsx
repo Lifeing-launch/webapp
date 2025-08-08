@@ -47,7 +47,7 @@ export function CoachCard({ coach, className }: ICoachCard) {
         <p> {coach.summary} </p>
       </CardContent>
       <CardFooter className="flex gap-4 justify-center">
-        <Link href={coach.booking_url}>
+        <Link href={coach.booking_url} target="_blank" rel="noreferrer">
           <Button>Book a session</Button>
         </Link>
       </CardFooter>
