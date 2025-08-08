@@ -13,10 +13,7 @@ import { PlanService } from "@/services/plan";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 
-const breadcrumbs: Breadcrumb[] = [
-  { label: "Profile", href: "/profile" },
-  { label: "Manage Subscription" },
-];
+const breadcrumbs: Breadcrumb[] = [{ label: "Manage Subscription" }];
 
 export default function ManageSubscription() {
   const { subscription, loading, error } = useSubscription();
