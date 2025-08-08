@@ -231,7 +231,7 @@ export function AccountSettings({ className, ...props }: AuthFormProps) {
           <div className="grid gap-2">
             <HintLabel
               htmlFor="displayName"
-              hint="Your display name to be used anonymously in the community forum"
+              hint="Your display name to be used anonymously in the lifeing lounge"
             >
               Lifeing Lounge Display Name
             </HintLabel>

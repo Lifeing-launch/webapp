@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
           $in: [],
         },
       },
-      sort: "title:desc",
+      sort: "title:asc",
       populate: "cover_img",
     };
 

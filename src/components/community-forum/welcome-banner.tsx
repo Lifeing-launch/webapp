@@ -33,7 +33,7 @@ export function WelcomeBanner() {
         <div className="flex-shrink-0">
           <Image
             src="/welcome-forum.svg"
-            alt="Welcome to the lifeing community forum"
+            alt="Welcome to the lifeing lifeing lounge"
             width={45}
             height={45}
             className="h-11 w-11"
@@ -41,7 +41,7 @@ export function WelcomeBanner() {
         </div>
         <div className="flex flex-col gap-1.5">
           <h2 className="text-base font-semibold leading-none tracking-tight text-foreground">
-            Welcome to the lifeing community forum
+            Welcome to the lifeing lifeing lounge
           </h2>
           <p className="text-sm leading-5 text-foreground">
             This is a safe space to connect with other Lifeing community members

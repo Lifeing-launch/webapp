@@ -18,7 +18,7 @@ const TABS = {
 };
 
 /**
- * Community Forum Page
+ * Lifeing Lounge Page
  */
 function CommunityForum() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -62,9 +62,9 @@ function CommunityForum() {
       <div className="flex-shrink-0">
         <PageTemplate
           hiddenTitle={true}
-          title="Community Forum"
+          title="Lifeing Lounge"
           headerIcon={sidebarIcons.communityForum}
-          breadcrumbs={[{ label: "Community Forum" }]}
+          breadcrumbs={[{ label: "Lifeing Lounge" }]}
           classNameChildren="px-0"
         >
           <div className="px-4">

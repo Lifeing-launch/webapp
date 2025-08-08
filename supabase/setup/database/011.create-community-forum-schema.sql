@@ -1,6 +1,6 @@
--- Migration: Create Community Forum Schema
+-- Migration: Create Lifeing Lounge Schema
 -- Description: Complete forum schema with anonymous profiles, groups, posts, comments, and messaging system
--- This creates a comprehensive community forum with privacy-focused anonymous interactions
+-- This creates a comprehensive lifeing lounge with privacy-focused anonymous interactions
 
 -- 1. SCHEMA & ENUMS
 create schema if not exists forum;
