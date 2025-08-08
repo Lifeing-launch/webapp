@@ -13,7 +13,7 @@ describe("SignupForm", () => {
     render(<SignupForm className="test-class" />);
     expect(screen.getByText("Create Your Account")).toBeInTheDocument();
     expect(
-      screen.getByText("Start Your 10-Day Free Trial")
+      screen.getByText("Start Your 21-Day Free Trial")
     ).toBeInTheDocument();
   });
 
