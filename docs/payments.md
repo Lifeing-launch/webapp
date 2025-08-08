@@ -80,7 +80,7 @@ const session = await stripeClient.checkout.sessions.create({
   line_items: [{ price: priceId, quantity: 1 }],
   mode: "subscription",
   subscription_data: {
-            trial_period_days: 21,
+    trial_period_days: 21,
     metadata: { userId, email, plan },
   },
   payment_method_configuration: CARD_ONLY_PAYMENT_METHOD_CONFIG,
