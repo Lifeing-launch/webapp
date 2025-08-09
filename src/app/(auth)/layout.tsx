@@ -6,7 +6,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
     <div className="flex flex-col justify-center items-center gap-10 p-6 min-h-svh bg-lime-100">
       <a href="#" className="w-[120]">
         <Image
-          src="/lifeing-logo.svg"
+          src="/images/logo/lifeing-green.svg"
           alt="Lifeing Logo"
           width={200}
           height={50}
