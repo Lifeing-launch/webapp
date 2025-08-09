@@ -121,7 +121,7 @@ export function SignupForm({
           <div className="bg-muted relative hidden md:block">
             <Image
               fill
-              src="/images/signup-bg.png"
+              src="/images/auth/signup-bg.png"
               alt=""
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />

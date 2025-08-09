@@ -17,7 +17,7 @@ export interface IForumHeader {
 }
 
 export function ForumHeader({
-  title = "Community Forum",
+  title = "Lifeing Lounge",
   buttonText = "Share a thought",
   placeholder = "Search forum",
   hiddenButton = false,

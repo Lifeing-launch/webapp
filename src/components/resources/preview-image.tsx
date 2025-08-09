@@ -45,7 +45,7 @@ function ArticleImage({ resource }: { resource: Resource }) {
       {resource.type === "video" && (
         <div className="flex absolute inset-0 items-center justify-center">
           <Image
-            src="/play-button.svg"
+            src="/images/icons/play-button.svg"
             alt=""
             width={40}
             height={40}
