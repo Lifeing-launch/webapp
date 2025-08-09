@@ -11,7 +11,7 @@ const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL");
 async function moderate(content) {
   if (!OPENAI_API_KEY) return "rejected";
   const systemPrompt = `
-    You are a strict content moderator for a family-friendly community forum.
+    You are a strict content moderator for a family-friendly lifeing lounge.
 
     Reject any text that contains (but is not limited to):
     • Profanity, vulgar or obscene language
