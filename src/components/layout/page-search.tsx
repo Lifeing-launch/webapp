@@ -17,7 +17,7 @@ export function PageSearch({ label }: IPageSearch) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(searchParams?.get(PARAM_KEY_SEARCH) || "");
   const debouncedQuery = useDebounce(query, 500);
 
   useEffect(() => {
@@ -40,6 +40,7 @@ export function PageSearch({ label }: IPageSearch) {
         placeholder={label}
         startIcon={Search}
         className="w-xs text-sm"
+        value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
     </div>
