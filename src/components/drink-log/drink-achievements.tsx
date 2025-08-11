@@ -49,24 +49,20 @@ export default function DrinkAchievements({
         const a = newlyAwarded[0];
         toast(
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center size-6 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]">
-              <Smile className="h-3.5 w-3.5" />
-            </span>
+            <Trophy className="h-3.5 w-3.5" />
             <span className="text-sm">New achievement: {a.badge.name}</span>
           </div>,
           {
             duration: 4500,
             className:
-              "border border-[color:var(--primary)]/25 shadow-sm bg-white text-foreground dark:bg-card",
+              "border border-[color:var(--primary)]/25 shadow-sm bg-[var(--toast-bg)] text-foreground",
           }
         );
       } else {
         const names = newlyAwarded.map((a) => a.badge.name).join(", ");
         toast(
           <div className="flex items-center gap-2 text-sm">
-            <span className="inline-flex items-center justify-center size-6 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]">
-              <Smile className="h-3.5 w-3.5" />
-            </span>
+            <Trophy className="h-3.5 w-3.5" />
             <span>
               {newlyAwarded.length} new achievements: {names}
             </span>
@@ -74,7 +70,7 @@ export default function DrinkAchievements({
           {
             duration: 5500,
             className:
-              "border border-[color:var(--primary)]/25 shadow-sm bg-white text-foreground dark:bg-card",
+              "border border-[color:var(--primary)]/25 shadow-sm bg-[var(--toast-bg)] text-foreground",
           }
         );
       }
