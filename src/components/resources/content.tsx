@@ -62,6 +62,7 @@ const ResourcesContent = <TabType extends string>({
         const supabase = createClient();
         const query = qs.stringify({
           page,
+          pageSize: PAGE_SIZE,
           q: searchQuery,
           type: tab === "all" ? undefined : tab,
           category,
