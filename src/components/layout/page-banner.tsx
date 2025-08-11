@@ -1,5 +1,9 @@
+"use client";
+
 import React, { ReactNode } from "react";
 import Image from "next/image";
+import { Menu } from "lucide-react";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
 interface PageBannerProps {
   title: string;
@@ -11,7 +15,7 @@ interface PageBannerProps {
 
 const HEIGHT_CLASSES = {
   sm: "h-32 md:h-40",
-  md: "h-48 md:h-64",
+  md: "h-50 md:h-70",
   lg: "h-64 md:h-80",
 };
 
@@ -25,6 +29,9 @@ export default function PageBanner({
   className = "",
 }: PageBannerProps) {
   const heightClass = HEIGHT_CLASSES[height];
+  const { state, isMobile } = useSidebar();
+
+  const showTrigger = state === "collapsed" || isMobile;
 
   return (
     <div
@@ -38,6 +45,15 @@ export default function PageBanner({
       />
 
       <div className="absolute inset-0 bg-black/30" />
+
+      {showTrigger && (
+        <div className="absolute top-4 left-4 z-20">
+          <SidebarTrigger
+            icon={<Menu className="text-white size-5" />}
+            className="hover:bg-primary"
+          />
+        </div>
+      )}
 
       <div className="relative z-10 p-6 md:p-8 text-white w-full flex flex-col md:flex-row md:items-end md:justify-between">
         <div>
