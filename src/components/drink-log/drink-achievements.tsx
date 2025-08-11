@@ -7,7 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Trophy, TrendingDown, Calendar, Target, Smile } from "lucide-react";
+import { Trophy, TrendingDown, Calendar, Target } from "lucide-react";
 import { AchievementResponse } from "@/typing/drink-log";
 import { toast } from "sonner";
 import Image from "next/image";
