@@ -12,20 +12,16 @@ export default function ClientAuthListener() {
   useEffect(() => {
     const supabase = createClient();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("event in auth listener", event);
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (["SIGNED_IN", "SIGNED_OUT"].includes(event)) {
+        // Invalidate all queries to refresh data after auth state changes
+        queryClient.invalidateQueries();
 
-        if (["SIGNED_IN", "SIGNED_OUT"].includes(event)) {
-          // Invalidate all queries to refresh data after auth state changes
-          queryClient.invalidateQueries();
-
-          if (event === "SIGNED_OUT" && !session) {
-            window.location.reload();
-          }
+        if (event === "SIGNED_OUT") {
+          window.location.reload();
         }
       }
-    );
+    });
 
     return () => listener.subscription.unsubscribe();
   }, [queryClient, router]);
