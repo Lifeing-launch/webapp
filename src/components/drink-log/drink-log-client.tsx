@@ -5,6 +5,7 @@ import { Suspense, useState, useCallback } from "react";
 import DrinkLogList from "./drink-log-list";
 import DrinkLogHeader from "./drink-log-header";
 import DrinkStats from "./drink-stats";
+import DrinkAchievements from "./drink-achievements";
 
 interface DrinkLogClientProps {
   userId: string;
@@ -28,12 +29,15 @@ export default function DrinkLogClient({
       <DrinkStats userId={userId} view={initialView} refreshKey={refreshKey} />
 
       <Tabs defaultValue={initialView} className="w-full">
-        <TabsList className="grid w-full max-w-lg grid-cols-4">
-          <TabsTrigger value="week">This week</TabsTrigger>
-          <TabsTrigger value="month">This month</TabsTrigger>
-          <TabsTrigger value="year">This year</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar View</TabsTrigger>
-        </TabsList>
+        <div className="flex flex-row gap-4 items-center justify-between">
+          <TabsList className="grid w-full max-w-lg grid-cols-4">
+            <TabsTrigger value="week">This week</TabsTrigger>
+            <TabsTrigger value="month">This month</TabsTrigger>
+            <TabsTrigger value="year">This year</TabsTrigger>
+            <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+          </TabsList>
+          <DrinkAchievements refreshKey={refreshKey} />
+        </div>
 
         <TabsContent value="week" className="mt-6">
           <Suspense

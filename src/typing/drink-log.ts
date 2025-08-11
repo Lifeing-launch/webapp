@@ -63,7 +63,7 @@ export interface Badge {
   name: string;
   description: string | null;
   icon_url: string | null;
-  scope: "daily" | "weekly" | "monthly" | "none";
+  scope: "period" | "daily" | "weekly" | "monthly";
   active: boolean;
   created_at: string;
 }
@@ -80,23 +80,34 @@ export interface UserBadge {
   metrics: Record<string, any> | null;
 }
 
-export interface BadgeStats {
-  count: number;
-  last_earned: string | null;
-}
-
-export interface BadgeWithStats extends Badge {
-  stats: BadgeStats;
-}
-
-export interface RecomputeRequest {
+export interface AchievementRequest {
   from?: string;
   to?: string;
 }
 
-export interface RecomputeResponse {
-  inserted: number;
-  from: string;
-  to: string;
-  message: string;
+export interface AchievementResponse {
+  badge: {
+    id: number;
+    code: string;
+    name: string;
+    description: string | null;
+    icon_url: string | null;
+    scope: "period" | "daily" | "weekly" | "monthly";
+  };
+  stats: {
+    total_earned: number;
+    last_earned_at: string | null;
+    newly_awarded: number;
+    is_new: boolean;
+  };
+}
+
+export interface GoalVersion {
+  id: number;
+  goal_id: string;
+  user_id: string;
+  effective_from: string;
+  daily_goal: number;
+  weekly_goal: number;
+  monthly_goal: number;
 }
