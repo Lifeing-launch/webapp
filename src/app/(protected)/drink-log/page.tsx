@@ -1,8 +1,9 @@
 import DrinkLogClient from "@/components/drink-log/drink-log-client";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import PageTemplate from "@/components/layout/page-template";
-import { Wine } from "lucide-react";
+import PageBanner from "@/components/layout/page-banner";
+
+const BANNER_IMAGE = "/images/banners/drink-log.png";
 
 export default async function DrinkLogPage({
   searchParams,
@@ -22,16 +23,15 @@ export default async function DrinkLogPage({
   const view = resolvedSearchParams.view || "week";
 
   return (
-    <PageTemplate
-      title="Drink Log"
-      hiddenTitle={true}
-      breadcrumbs={[
-        // { label: "Lifeing", href: "/" },
-        { label: "Live More Drink Less", href: "/drink-log" },
-      ]}
-      headerIcon={<Wine className="h-5 w-5" />}
-    >
-      <DrinkLogClient userId={user.id} initialView={view} />
-    </PageTemplate>
+    <div className="w-full">
+      <PageBanner
+        title="Drink Log"
+        className="mb-0"
+        backgroundImage={BANNER_IMAGE}
+      />
+      <main className="p-4">
+        <DrinkLogClient userId={user.id} initialView={view} />
+      </main>
+    </div>
   );
 }

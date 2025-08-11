@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
 import DrinkModal from "./drink-modal";
 import GoalsModal from "./goals-modal";
@@ -37,11 +36,7 @@ export default function DrinkLogHeader({ onDataChange }: DrinkLogHeaderProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between w-full">
-        <div className="flex flex-col items-start justify-center w-full">
-          <h2 className="text-2xl font-bold">Drink Log</h2>
-        </div>
-
+      <div className="flex items-center justify-end w-full">
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setIsGoalsModalOpen(true)}>
             Edit Goals
@@ -49,8 +44,6 @@ export default function DrinkLogHeader({ onDataChange }: DrinkLogHeaderProps) {
           <Button onClick={() => setIsLogModalOpen(true)}>Log a drink</Button>
         </div>
       </div>
-
-      <Separator className="mb-6" />
 
       <DrinkModal
         open={isLogModalOpen}

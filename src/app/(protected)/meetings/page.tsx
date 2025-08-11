@@ -1,17 +1,15 @@
 "use client";
 
-import { Breadcrumb } from "@/components/layout/header";
-import PageTemplate from "@/components/layout/page-template";
 import React, { useState } from "react";
 
-import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { DateRange } from "@/components/ui/custom/date-range-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MeetingsTab } from "@/components/meetings/meetings-tab";
+import PageBanner from "@/components/layout/page-banner";
 
 type TabKey = "current-month" | "next-month" | "calendar";
 
-const breadcrumbs: Breadcrumb[] = [{ label: "My Meetings" }];
+const BANNER_IMAGE = "/images/banners/meetings.png";
 
 const tabs: { key: TabKey; label: string }[] = [
   { key: "current-month", label: "This month" },
@@ -26,46 +24,53 @@ const MeetingsPage = () => {
   const [tab, setTab] = useState<TabKey>("current-month");
 
   return (
-    <PageTemplate
-      title="My Meetings"
-      breadcrumbs={breadcrumbs}
-      headerIcon={sidebarIcons.meetings}
-    >
-      <Tabs defaultValue="all" value={tab} className="space-y-4 w-full">
-        <TabsList>
-          {tabs.map((tab) => (
-            <TabsTrigger
-              value={tab.key}
-              key={tab.key}
-              onClick={() => setTab(tab.key)}
-              className="cursor-pointer"
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        <TabsContent
-          value={"current-month"}
-          key={"current-month"}
-          className="space-y-4"
-        >
-          <MeetingsTab initialDateRange={currentMonthDateRange} />
-        </TabsContent>
-        <TabsContent
-          value={"next-month"}
-          key={"next-month"}
-          className="space-y-4"
-        >
-          <MeetingsTab initialDateRange={nextMonthDateRange} />
-        </TabsContent>
-        <TabsContent value={"calendar"} key={"calendar"} className="space-y-4">
-          <MeetingsTab
-            initialDateRange={currentMonthDateRange}
-            showDatePicker
-          />
-        </TabsContent>
-      </Tabs>
-    </PageTemplate>
+    <div className="w-full">
+      <PageBanner
+        title="My Meetings"
+        className="mb-0"
+        backgroundImage={BANNER_IMAGE}
+      />
+      <main className="p-4">
+        <Tabs defaultValue="all" value={tab} className="space-y-4 w-full">
+          <TabsList>
+            {tabs.map((tab) => (
+              <TabsTrigger
+                value={tab.key}
+                key={tab.key}
+                onClick={() => setTab(tab.key)}
+                className="cursor-pointer"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <TabsContent
+            value={"current-month"}
+            key={"current-month"}
+            className="space-y-4"
+          >
+            <MeetingsTab initialDateRange={currentMonthDateRange} />
+          </TabsContent>
+          <TabsContent
+            value={"next-month"}
+            key={"next-month"}
+            className="space-y-4"
+          >
+            <MeetingsTab initialDateRange={nextMonthDateRange} />
+          </TabsContent>
+          <TabsContent
+            value={"calendar"}
+            key={"calendar"}
+            className="space-y-4"
+          >
+            <MeetingsTab
+              initialDateRange={currentMonthDateRange}
+              showDatePicker
+            />
+          </TabsContent>
+        </Tabs>{" "}
+      </main>
+    </div>
   );
 };
 
