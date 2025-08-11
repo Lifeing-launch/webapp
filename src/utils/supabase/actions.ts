@@ -190,7 +190,7 @@ export const signOutAction = async () => {
   const supabase = await createClient();
   await supabase.auth.signOut();
   await deleteSecureCookie(VERIFICATION_EMAIL_COOKIE);
-  return redirect("/login");
+  return redirect("/login?reload=true");
 };
 
 const redirectToEmailVerification = async (email: string) => {

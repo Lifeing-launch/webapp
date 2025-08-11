@@ -64,7 +64,7 @@ export async function updateSession(request: NextRequest) {
   if (!signedIn) {
     if (!isAuthPath(pathname)) {
       // Not signed in and accessing non-auth path → send to login
-      return NextResponse.redirect(`${origin}/login`);
+      return NextResponse.redirect(`${origin}/login?expired=true`);
     } else {
       // Not signed in and accessing auth path → let them through
       return supabaseResponse;
