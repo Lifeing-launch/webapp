@@ -7,7 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Trophy, TrendingDown, Calendar, Target } from "lucide-react";
+import { Trophy, TrendingDown, Calendar, Target, Smile } from "lucide-react";
 import { AchievementResponse } from "@/typing/drink-log";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -49,18 +49,33 @@ export default function DrinkAchievements({
         const a = newlyAwarded[0];
         toast(
           <div className="flex items-center gap-2">
-            {getBadgeIcon(a.badge.code)}
+            <span className="inline-flex items-center justify-center size-6 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]">
+              <Smile className="h-3.5 w-3.5" />
+            </span>
             <span className="text-sm">New achievement: {a.badge.name}</span>
           </div>,
-          { duration: 4500 }
+          {
+            duration: 4500,
+            className:
+              "border border-[color:var(--primary)]/25 shadow-sm bg-white text-foreground dark:bg-card",
+          }
         );
       } else {
         const names = newlyAwarded.map((a) => a.badge.name).join(", ");
         toast(
-          <div className="text-sm">
-            {newlyAwarded.length} new achievements: {names}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="inline-flex items-center justify-center size-6 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]">
+              <Smile className="h-3.5 w-3.5" />
+            </span>
+            <span>
+              {newlyAwarded.length} new achievements: {names}
+            </span>
           </div>,
-          { duration: 5500 }
+          {
+            duration: 5500,
+            className:
+              "border border-[color:var(--primary)]/25 shadow-sm bg-white text-foreground dark:bg-card",
+          }
         );
       }
     }
