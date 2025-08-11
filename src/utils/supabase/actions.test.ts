@@ -338,14 +338,14 @@ describe.skip("Supabase Actions", () => {
   });
 
   describe("signOutAction", () => {
-    it("should sign out and redirect to login", async () => {
+    it("should sign out and redirect to login with reload parameter", async () => {
       await signOutAction();
 
       expect(mockSupabase.auth.signOut).toHaveBeenCalled();
       expect(deleteSecureCookie).toHaveBeenCalledWith(
         VERIFICATION_EMAIL_COOKIE
       );
-      expect(redirect).toHaveBeenCalledWith("/login");
+      expect(redirect).toHaveBeenCalledWith("/login?reload=true");
     });
   });
 });
