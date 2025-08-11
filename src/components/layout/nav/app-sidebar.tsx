@@ -59,12 +59,12 @@ const data = {
     ],
     resources: [
       {
-        title: "Resources",
+        title: "Library",
         url: "/resources",
         icon: sidebarIcons.resources,
       },
       {
-        title: "Audio Resources",
+        title: "Audio Library",
         url: "/audio-resources",
         icon: sidebarIcons.podcast,
       },

@@ -1,10 +1,8 @@
-import { Breadcrumb } from "@/components/layout/header";
-import PageTemplate from "@/components/layout/page-template";
 import React from "react";
-import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import ResourcesContent from "@/components/resources/content";
+import PageBanner from "@/components/layout/page-banner";
 
-const breadcrumbs: Breadcrumb[] = [{ label: "Resources" }];
+const BANNER_IMAGE = "/images/banners/resources.png";
 
 type TabKey = "all" | "article" | "video" | "document" | "bookmark";
 const tabs: { key: TabKey; label: string }[] = [
@@ -17,16 +15,16 @@ const tabs: { key: TabKey; label: string }[] = [
 
 const ResourcesPage = () => {
   return (
-    <PageTemplate
-      title="Resources"
-      breadcrumbs={breadcrumbs}
-      headerIcon={sidebarIcons.podcast}
-      searchProps={{
-        label: "Search resources",
-      }}
-    >
-      <ResourcesContent<TabKey> tabs={tabs} />
-    </PageTemplate>
+    <div className="w-full">
+      <PageBanner
+        title="Library"
+        className="mb-0"
+        backgroundImage={BANNER_IMAGE}
+      />
+      <main className="p-4">
+        <ResourcesContent<TabKey> tabs={tabs} />
+      </main>
+    </div>
   );
 };
 

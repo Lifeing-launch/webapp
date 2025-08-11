@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,12 +11,28 @@ import { loginAction } from "@/utils/supabase/actions";
 import { FormMessage } from "@/components/form/message";
 import { AuthFormProps } from "@/typing/interfaces";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 export function LoginForm({
   className,
   searchParams,
   ...props
 }: AuthFormProps) {
+  const searchParamsClient = useSearchParams();
+
+  // Force page reload when redirected from signout or session expiration
+  useEffect(() => {
+    const reload = searchParamsClient?.get("reload");
+    const expired = searchParamsClient?.get("expired");
+
+    if (reload === "true" || expired === "true") {
+      // Clear the parameters from URL and force refresh
+      const cleanUrl = "/login";
+      window.history.replaceState({}, "", cleanUrl);
+      window.location.reload();
+    }
+  }, [searchParamsClient]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // Prevent default form submission
     const formData = new FormData(event.currentTarget as HTMLFormElement);

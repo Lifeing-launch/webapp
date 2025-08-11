@@ -1,12 +1,9 @@
-import { Breadcrumb } from "@/components/layout/header";
-import PageTemplate from "@/components/layout/page-template";
 import React from "react";
-import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import ResourcesContent from "@/components/resources/content";
 import "../../globals.css";
+import PageBanner from "@/components/layout/page-banner";
 
-const breadcrumbs: Breadcrumb[] = [{ label: "Audio Resources" }];
-
+const BANNER_IMAGE = "/images/banners/audio-resources.png";
 type TabKey = "all" | "meditation" | "podcast" | "relaxation" | "bookmark";
 
 const tabs: { key: TabKey; label: string }[] = [
@@ -19,16 +16,16 @@ const tabs: { key: TabKey; label: string }[] = [
 
 const AudioResourcesPage = () => {
   return (
-    <PageTemplate
-      title="Audio Resources"
-      breadcrumbs={breadcrumbs}
-      headerIcon={sidebarIcons.podcast}
-      searchProps={{
-        label: "Search resources",
-      }}
-    >
-      <ResourcesContent<TabKey> tabs={tabs} category="audio" />
-    </PageTemplate>
+    <div className="w-full">
+      <PageBanner
+        title="Audio Library"
+        className="mb-0"
+        backgroundImage={BANNER_IMAGE}
+      />
+      <main className="p-4">
+        <ResourcesContent<TabKey> tabs={tabs} category="audio" />
+      </main>
+    </div>
   );
 };
 

@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResourceCard } from "@/components/resources/resource-card";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { PaginationWithLinks } from "@/components/ui/custom/pagination-with-links";
-import { PARAM_KEY_SEARCH } from "@/components/layout/page-search";
+import { PageSearch, PARAM_KEY_SEARCH } from "@/components/layout/page-search";
 import { toast } from "sonner";
 import qs from "qs";
 import { StrapiMeta } from "@/typing/global";
@@ -62,6 +62,7 @@ const ResourcesContent = <TabType extends string>({
         const supabase = createClient();
         const query = qs.stringify({
           page,
+          pageSize: PAGE_SIZE,
           q: searchQuery,
           type: tab === "all" ? undefined : tab,
           category,
@@ -173,18 +174,21 @@ const ResourcesContent = <TabType extends string>({
         value={validTabs.has(tab) ? tab : "all"}
         className="space-y-4 w-full"
       >
-        <TabsList>
-          {tabs.map((tab) => (
-            <TabsTrigger
-              value={tab.key}
-              key={tab.key}
-              onClick={() => onTabChange(tab.key)}
-              className="cursor-pointer"
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="flex flex-row gap-4 items-center justify-between">
+          <TabsList>
+            {tabs.map((tab) => (
+              <TabsTrigger
+                value={tab.key}
+                key={tab.key}
+                onClick={() => onTabChange(tab.key)}
+                className="cursor-pointer"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <PageSearch label="Search library" />
+        </div>
         {content}
       </Tabs>
     </div>

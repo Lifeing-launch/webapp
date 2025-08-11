@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface DrinkType {
   id: number;
   name: string;
@@ -54,4 +55,59 @@ export interface DrinkEntryWithRelations extends DrinkEntry {
   mood?: Mood;
   trigger?: Trigger;
   location?: Location;
+}
+
+export interface Badge {
+  id: number;
+  code: string;
+  name: string;
+  description: string | null;
+  icon_url: string | null;
+  scope: "period" | "daily" | "weekly" | "monthly";
+  active: boolean;
+  created_at: string;
+}
+
+export interface UserBadge {
+  id: string;
+  user_id: string;
+  badge_id: number;
+  period_key: string;
+  period_start: string;
+  period_end: string;
+  earned_at: string;
+  goal_snapshot: Record<string, any>;
+  metrics: Record<string, any> | null;
+}
+
+export interface AchievementRequest {
+  from?: string;
+  to?: string;
+}
+
+export interface AchievementResponse {
+  badge: {
+    id: number;
+    code: string;
+    name: string;
+    description: string | null;
+    icon_url: string | null;
+    scope: "period" | "daily" | "weekly" | "monthly";
+  };
+  stats: {
+    total_earned: number;
+    last_earned_at: string | null;
+    newly_awarded: number;
+    is_new: boolean;
+  };
+}
+
+export interface GoalVersion {
+  id: number;
+  goal_id: string;
+  user_id: string;
+  effective_from: string;
+  daily_goal: number;
+  weekly_goal: number;
+  monthly_goal: number;
 }

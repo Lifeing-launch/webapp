@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * @fileoverview Moderate a resource (post, comment, nickname, group_name, or group_description) using OpenAI.
  */
@@ -11,21 +12,33 @@ const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL");
 async function moderate(content) {
   if (!OPENAI_API_KEY) return "rejected";
   const systemPrompt = `
-    You are a strict content moderator for a family-friendly lifeing lounge.
+    You are a strict content moderator for the Lifeing Lounge, a family‑friendly, health‑coaching community forum.
 
-    Reject any text that contains (but is not limited to):
-    • Profanity, vulgar or obscene language
-    • Racial, ethnic, religious or gender slurs
-    • Hate speech, harassment or threats
+    Classification policy:
+    • rejected (ban): Content that is not allowed and should be removed.
+    • pending (flagged for human review): Sensitive content that requires a human moderator (do not auto‑ban).
+    • approved: Content is acceptable.
+
+    Always choose exactly one of: "approved", "pending", or "rejected" (lower‑case, single word, no additional text).
+
+    Banned — respond "rejected":
+    • Hate speech, discrimination, or bullying: racial/ethnic/religious/gender slurs; homophobic, transphobic, sexist, ableist slurs; disrespectful misgendering; hate or hate‑group references; derogatory mental‑health terms used pejoratively (e.g., "retarded", "crazy" as insults)
+    • Inappropriate sexual content: graphic sexual descriptions; unsolicited flirting or sexual advances; links or references to pornography
+    • Promotion of dangerous or illegal behavior: selling or sourcing drugs or alcohol; promoting illegal activity (e.g., how to buy fake IDs); MLM or pyramid scheme promotion; promoting disordered eating; encouraging binge drinking or blacking out
     • Extremist propaganda
-    • Sexual content, innuendo or double entendre
-    • Graphic violence or detailed self‑harm descriptions
-    • Spam or promotional content
-    • Personal information (emails, phone numbers, addresses)
+    • Profanity, vulgar, or obscene language
+    • Graphic violence
+    • Personal information (emails, phone numbers, physical addresses)
 
-    If the content violates any rule, respond with the single word: \`rejected\`.
-    If the content does NOT violate any rule, respond with the single word: \`approved\`.
-    Respond with **only** one of these two lower‑case words — no additional text.
+    Flagged for Review — respond "pending":
+    • Harmful or triggering content where the user may need support rather than a ban: suicide/suicidal ideation (e.g., "kill myself", "want to die"), self‑harm/cutting/self‑injury, overdose/"OD"/"taking all my pills", pro‑ana/thinspo/starvation/fasting for weight loss, trauma dumping
+      – Rationale: may trigger a crisis‑resource response instead of a hard ban
+    • Spam and off‑topic advertising: URLs to unapproved sites, affiliate links, promotions not cleared by moderators
+    • Politically charged content (see internal list): content likely to provoke conflict or derail the forum mission
+
+    Notes:
+    • When in doubt between "rejected" and "pending" for sensitive self‑harm content, choose "pending" to ensure a supportive, safety‑first workflow.
+    • Do not provide explanations — reply with one lower‑case word only: approved | pending | rejected.
   `;
   const resp = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -36,7 +49,7 @@ async function moderate(content) {
     body: JSON.stringify({
       model: OPENAI_MODEL ?? "gpt-4o-mini",
       temperature: 0,
-      max_tokens: 1,
+      max_tokens: 2,
       messages: [
         {
           role: "system",
@@ -52,7 +65,9 @@ async function moderate(content) {
   if (!resp.ok) return "rejected";
   const json = await resp.json();
   const verdict = json.choices?.[0]?.message?.content?.trim()?.toLowerCase();
-  return verdict === "approved" ? "approved" : "rejected";
+  if (verdict === "approved") return "approved";
+  if (verdict === "pending") return "pending"; // Flagged for human review
+  return "rejected";
 }
 
 Deno.serve(async (req) => {
@@ -154,7 +169,9 @@ Deno.serve(async (req) => {
             ? `Nickname "${resourceContent}" ${status} by AI moderator`
             : status === "rejected"
               ? `${resource_type} rejected by AI moderator`
-              : `${resource_type} approved by AI moderator`,
+              : status === "pending"
+                ? `${resource_type} flagged for human review by AI moderator`
+                : `${resource_type} approved by AI moderator`,
         ...(resource_type !== "nickname" && { reviewer_anon_id: authorAnonId }),
       };
 

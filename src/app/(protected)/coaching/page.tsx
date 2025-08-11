@@ -1,11 +1,9 @@
-import { Breadcrumb } from "@/components/layout/header";
-import PageTemplate from "@/components/layout/page-template";
-import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { CoachCard } from "@/components/coaching/coach-card";
 import { Coach } from "@/typing/strapi";
 import { serverFetch } from "@/utils/fetch";
+import PageBanner from "@/components/layout/page-banner";
 
-const breadcrumbs: Breadcrumb[] = [{ label: "Coaching" }];
+const BANNER_IMAGE = "/images/banners/coaching.png";
 
 export default async function CoachingPage() {
   let coaches: Coach[] = [];
@@ -36,12 +34,13 @@ export default async function CoachingPage() {
   }
 
   return (
-    <PageTemplate
-      title="Coaching Program"
-      breadcrumbs={breadcrumbs}
-      headerIcon={sidebarIcons.coachingProgram}
-    >
-      {content}
-    </PageTemplate>
+    <div className="w-full">
+      <PageBanner
+        title="Coaching Program"
+        className="mb-0"
+        backgroundImage={BANNER_IMAGE}
+      />
+      <main className="p-4">{content}</main>
+    </div>
   );
 }
