@@ -10,3 +10,5 @@ export const PUBLIC_PATHS: { path: string; exact?: boolean }[] = [
   { path: "/api/payment/stripe/webhook" },
   { path: "/api/utility" },
 ];
+
+export const FREE_TRIAL_DAYS = 21;

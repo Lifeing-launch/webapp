@@ -24,6 +24,16 @@ CREATE INDEX idx_user_profiles_role_id ON user_profiles(role_id);
 -- Drop the existing view first to avoid column mapping conflicts
 DROP VIEW IF EXISTS active_subscriptions;
 
+-- First, ensure all plan_id values are valid integers
+-- This will fail if any plan_id values are not numeric
+UPDATE subscriptions 
+SET plan_id = plan_id::INTEGER::TEXT 
+WHERE plan_id IS NOT NULL;
+
+-- Convert the column type from VARCHAR to INT
+ALTER TABLE subscriptions 
+ALTER COLUMN plan_id TYPE INTEGER USING plan_id::INTEGER;
+
 -- Create the active_subscriptions view to include internal users with virtual subscriptions
 CREATE VIEW active_subscriptions AS
 SELECT 

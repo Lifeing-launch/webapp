@@ -26,7 +26,7 @@ function FallbackImage({ resource }: { resource: Resource }) {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-[#EAE1ED] text-primary h-35 rounded-xs">
+    <div className="flex flex-1 items-center justify-center bg-lime-100 text-primary h-35 rounded-xs">
       <Icon className="size-12 font-bold" />
     </div>
   );
@@ -45,7 +45,7 @@ function ArticleImage({ resource }: { resource: Resource }) {
       {resource.type === "video" && (
         <div className="flex absolute inset-0 items-center justify-center">
           <Image
-            src="/play-button.svg"
+            src="/images/icons/play-button.svg"
             alt=""
             width={40}
             height={40}

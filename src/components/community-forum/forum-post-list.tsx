@@ -62,7 +62,7 @@ function ForumEmptyState() {
     <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-4 w-full">
       <MessageSquare className="h-16 w-16 text-muted-foreground mb-6" />
       <h3 className="text-lg font-semibold text-foreground mb-2">
-        Welcome to the Community Forum
+        Welcome to the Lifeing Lounge
       </h3>
       <p className="text-sm text-muted-foreground max-w-md">
         This is where community members share thoughts, ask questions, and

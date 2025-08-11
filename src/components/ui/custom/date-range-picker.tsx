@@ -334,10 +334,13 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
 
   useEffect(() => {
     if (isOpen) {
-      openedRangeRef.current = range;
-      openedRangeCompareRef.current = rangeCompare;
+      // Capture initial values when popover opens
+      openedRangeRef.current = { from: range.from, to: range.to };
+      openedRangeCompareRef.current = rangeCompare
+        ? { from: rangeCompare.from, to: rangeCompare.to }
+        : undefined;
     }
-  }, [isOpen, range, rangeCompare]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Popover

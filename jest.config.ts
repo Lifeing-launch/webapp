@@ -175,7 +175,6 @@ const config: Config = {
     "src/utils/supabase/actions.test.ts",
     "src/components/meetings/meeting-card.test.tsx",
     "src/app/\\(protected\\)/dashboard/page.test.tsx",
-    "src/app/\\(protected\\)/meetings/page.test.tsx",
   ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files

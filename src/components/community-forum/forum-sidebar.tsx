@@ -20,12 +20,11 @@ export function ForumSidebar({
   return (
     <div
       className={cn(
-        "flex flex-col border-r border-gray-300 px-4 pt-1.5 gap-4",
+        "flex flex-col border-r border-gray-300 px-4 pt-1.5 gap-4 bg-lime-50",
         isFull
           ? "w-full h-full min-h-0"
           : "hidden lg:flex lg:flex-col lg:w-75 lg:flex-shrink-0"
       )}
-      style={{ backgroundColor: "rgba(246, 240, 237, 0.4)" }}
     >
       <ForumTabs activePage={activePage} setActivePage={setActivePage} />
       {children}

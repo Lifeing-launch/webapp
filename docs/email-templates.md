@@ -62,7 +62,7 @@ All email templates should build upon `_template-mjml.html`, which provides:
 <mj-section background-color="transparent" padding="0">
   <mj-column>
     <mj-button
-      background-color="#42104C"
+      background-color="#4e6f1c"
       color="#FAFAFA"
       font-size="14px"
       font-weight="500"
@@ -166,13 +166,13 @@ Supabase provides these template variables for dynamic content:
 
 ### Colors
 
-- Background: `#F6F0ED` (light beige)
+- Background: `#EBF6D1` (light green)
 - Card background: `#FFFFFF` (white)
 - Primary text: `#09090B` (near black)
-- Button background: `#42104C` (dark purple)
+- Button background: `#4e6f1c` (dark green)
 - Button text: `#FAFAFA` (off-white)
 - Footer text: `#71717A` (gray)
-- Support links: `#42104C` (dark purple)
+- Support links: `#4e6f1c` (dark green)
 
 ### Typography
 

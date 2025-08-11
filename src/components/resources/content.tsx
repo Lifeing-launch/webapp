@@ -31,7 +31,7 @@ const ResourcesContent = <TabType extends string>({
   tabs,
   category = "visual",
 }: IResourceContent<TabType>) => {
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -49,6 +49,12 @@ const ResourcesContent = <TabType extends string>({
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
+
+        if (userLoading) {
+          return;
+        }
+
         if (!user) {
           throw new Error("Unauthorized");
         }
@@ -101,7 +107,7 @@ const ResourcesContent = <TabType extends string>({
     };
 
     fetchData();
-  }, [tab, searchQuery, page, category, user]);
+  }, [tab, searchQuery, page, category, user, userLoading]);
 
   const onTabChange = (tabKey: string) => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -119,7 +125,7 @@ const ResourcesContent = <TabType extends string>({
 
   let content = <></>;
 
-  if (isLoading) {
+  if (isLoading || userLoading) {
     content = <ResourcesSkeleton />;
   } else {
     content = (

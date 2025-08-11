@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import PageTemplate from "@/components/layout/page-template";
-import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { WelcomeBanner } from "@/components/community-forum/welcome-banner";
 import { AnonymousProfileProvider } from "@/hooks/use-anonymous-profile";
 
@@ -18,7 +16,7 @@ const TABS = {
 };
 
 /**
- * Community Forum Page
+ * Lifeing Lounge Page
  */
 function CommunityForum() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,17 +58,7 @@ function CommunityForum() {
   return (
     <div className="flex flex-col h-screen overflow-hidden w-full">
       <div className="flex-shrink-0">
-        <PageTemplate
-          hiddenTitle={true}
-          title="Community Forum"
-          headerIcon={sidebarIcons.communityForum}
-          breadcrumbs={[{ label: "Community Forum" }]}
-          classNameChildren="px-0"
-        >
-          <div className="px-4">
-            <WelcomeBanner />
-          </div>
-        </PageTemplate>
+        <WelcomeBanner />
       </div>
       {renderContent()}
       <NicknameSetupModal />

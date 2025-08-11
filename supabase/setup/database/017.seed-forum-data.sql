@@ -1,9 +1,9 @@
--- Migration: Seed data for community forum
+-- Migration: Seed data for lifeing lounge
 -- Description: Populates initial data for forum categories, tags, and sample content
--- This provides a foundation for the community forum with realistic test data
+-- This provides a foundation for the lifeing lounge with realistic test data
 
 -- =============================================================================
--- SEED DATA FOR COMMUNITY FORUM
+-- SEED DATA FOR LIFEING LOUNGE
 -- =============================================================================
 
 -- CATEGORIAS PADRÃO

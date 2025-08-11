@@ -8,7 +8,7 @@ The Lifeing Webapp uses Stripe to handle:
 
 - Subscription-based payments with monthly and yearly billing
 - Card-only payment processing with custom payment method configurations
-- 14-day free trial periods for new subscriptions
+- 21-day free trial periods for new subscriptions
 - Webhook-based subscription lifecycle management
 - Integration with Strapi CMS for plan management
 - Automated cleanup and maintenance operations
@@ -80,7 +80,7 @@ const session = await stripeClient.checkout.sessions.create({
   line_items: [{ price: priceId, quantity: 1 }],
   mode: "subscription",
   subscription_data: {
-    trial_period_days: 14,
+    trial_period_days: 21,
     metadata: { userId, email, plan },
   },
   payment_method_configuration: CARD_ONLY_PAYMENT_METHOD_CONFIG,
@@ -152,7 +152,8 @@ const event = stripeClient.webhooks.constructEvent(
 **Payment Failed:**
 
 - Updates subscription with failure timestamp
-- Maintains 14-day grace period for failed payments
+- Stripe automatically retries failed payments according to their retry schedule
+- Maintains access during the retry period (typically 14 days)
 
 ### Local Webhook Testing
 
@@ -213,8 +214,8 @@ The system tracks multiple subscription statuses based on Stripe:
 
 **Transitional Statuses:**
 
-- `past_due` - Payment failed, in grace period
-- `unpaid` - Payment failed, outside grace period
+- `past_due` - Payment failed, in automatic retry period (typically 14 days)
+- `unpaid` - Payment failed, outside retry period (subscription will be canceled)
 
 **Inactive Statuses:**
 
@@ -237,7 +238,37 @@ WHERE
   );
 ```
 
-**Grace Period**: Failed payments maintain access for 14 days to allow recovery.
+**Grace Period**: Failed payments maintain access during Stripe's automatic retry period (typically 14 days) to allow payment recovery.
+
+### Payment Retry Behavior
+
+**Automatic Retry Schedule:**
+
+Stripe automatically retries failed payments according to their standard retry schedule:
+
+- **First retry**: 1 day after the initial failure
+- **Second retry**: 3 days after the first retry
+- **Third retry**: 5 days after the second retry
+- **Fourth retry**: 7 days after the third retry
+
+**Retry Period Duration:**
+
+- Total retry period: Approximately 14 days from the initial payment failure
+- During this period, the subscription status remains `past_due`
+- Users maintain access to the service throughout the retry period
+- After the final retry attempt fails, the subscription is automatically canceled
+
+**Customer Communication:**
+
+- Stripe automatically sends email notifications for each retry attempt
+- Customers are informed about payment failures and retry attempts
+- Final cancellation notification is sent when all retries are exhausted
+
+**Manual Intervention:**
+
+- Customers can update their payment method at any time during the retry period
+- Successful payment method updates immediately resolve the failed payment
+- Admins can manually retry payments or extend the retry period if needed
 
 ### Subscription Constraints
 

@@ -9,7 +9,7 @@ import { formatDate } from "@/utils/datetime";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const breadcrumbs: Breadcrumb[] = [
-  { label: "Profile", href: "/profile" },
+  { label: "Subscription", href: "/subscription/manage" },
   { label: "Cancel Subscription" },
 ];
 

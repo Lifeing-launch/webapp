@@ -17,7 +17,7 @@ CREATE TABLE user_profiles (
 BEGIN
     -- If a new user is inserted, create a profile
     IF TG_OP = 'INSERT' THEN
-        INSERT INTO public.user_profiles (id, email, first_name, last_name)
+        INSERT INTO public.user_profiles (id, email, first_name, last_name, avatar_url)
         VALUES (
             NEW.id,
             NEW.raw_user_meta_data ->> 'email',
@@ -56,6 +56,13 @@ to authenticated
 using (
   (( SELECT auth.uid() AS uid) = id)
 );
+
+CREATE POLICY "Enable update for authenticated users only"
+on "public"."user_profiles"
+  FOR UPDATE
+  TO authenticated
+  USING (id = auth.uid())
+  WITH CHECK (id = auth.uid());
 
 
 -- Trigger to update user_profiles table

@@ -68,7 +68,7 @@ describe.skip("MeetingCard", () => {
   it("applies the highlighted style when the meeting is within the highlight interval", () => {
     render(<MeetingCard meeting={mockMeeting} />);
     const card = screen.getByTestId("meeting-card");
-    expect(card).toHaveClass("bg-purple-50");
+    expect(card).toHaveClass("bg-lime-100");
     expect(card).toHaveClass("border-l-primary");
   });
 
@@ -79,7 +79,7 @@ describe.skip("MeetingCard", () => {
     };
     render(<MeetingCard meeting={pastMeeting} />);
     const card = screen.getByTestId("meeting-card");
-    expect(card).not.toHaveClass("bg-purple-50");
+    expect(card).not.toHaveClass("bg-lime-100");
     expect(card).not.toHaveClass("border-l-primary");
   });
 

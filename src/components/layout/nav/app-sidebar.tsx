@@ -37,7 +37,7 @@ const data = {
   navItems: {
     myLifeing: [
       {
-        title: "Dashboard",
+        title: "Living Room",
         url: "/dashboard",
         icon: sidebarIcons.dashboard,
       },
@@ -52,7 +52,7 @@ const data = {
         icon: sidebarIcons.coachingProgram,
       },
       {
-        title: "Community Forum",
+        title: "Lifeing Lounge",
         url: "/community-forum",
         icon: sidebarIcons.communityForum,
       },
@@ -69,7 +69,7 @@ const data = {
         icon: sidebarIcons.podcast,
       },
     ],
-    programs: [
+    tools: [
       {
         title: "Drink Log",
         url: "/drink-log",
@@ -88,7 +88,7 @@ const AppSidebar = () => {
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <Image
-                  src="/lifeing-logo.svg"
+                  src="/images/logo/lifeing-white.svg"
                   alt="Lifeing Logo"
                   width={100}
                   height={60}
@@ -100,7 +100,7 @@ const AppSidebar = () => {
       </SidebarHeader>
       <SidebarContent>
         <NavGroup title="My Lifeing" items={data.navItems.myLifeing} />
-        <NavGroup title="Programs" items={data.navItems.programs} />
+        <NavGroup title="Tools" items={data.navItems.tools} />
         <NavGroup title="Resources" items={data.navItems.resources} />
       </SidebarContent>
       <SidebarFooter>

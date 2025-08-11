@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
         );
       }
     }
+    console.log("Successfully handled webhook event");
     return new Response(
       JSON.stringify({
         success: true,
