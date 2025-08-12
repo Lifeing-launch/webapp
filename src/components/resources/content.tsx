@@ -174,7 +174,7 @@ const ResourcesContent = <TabType extends string>({
         value={validTabs.has(tab) ? tab : "all"}
         className="space-y-4 w-full"
       >
-        <div className="flex flex-row gap-4 items-center justify-between">
+        <div className="flex flex-row flex-wrap-reverse gap-4 items-center justify-between">
           <TabsList>
             {tabs.map((tab) => (
               <TabsTrigger
