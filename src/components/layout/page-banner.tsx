@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { Menu } from "lucide-react";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
@@ -13,10 +13,16 @@ interface PageBannerProps {
   className?: string;
 }
 
-const HEIGHT_CLASSES = {
-  sm: "h-32 md:h-40",
-  md: "h-50 md:h-70",
-  lg: "h-64 md:h-80",
+const BASE_HEIGHTS = {
+  sm: { min: 80, max: 128, mdMin: 100, mdMax: 160 },
+  md: { min: 120, max: 200, mdMin: 150, mdMax: 280 },
+  lg: { min: 160, max: 256, mdMin: 200, mdMax: 320 },
+};
+
+const VIEWPORT_RATIO = {
+  mobile: 0.25,
+  tablet: 0.3,
+  desktop: 0.35,
 };
 
 const DEFAULT_BANNER = "/images/banners/dashboard.jpg";
@@ -28,14 +34,67 @@ export default function PageBanner({
   height = "md",
   className = "",
 }: PageBannerProps) {
-  const heightClass = HEIGHT_CLASSES[height];
   const { state, isMobile } = useSidebar();
+  const [bannerHeight, setBannerHeight] = useState<number | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
 
   const showTrigger = state === "collapsed" || isMobile;
+  const baseHeight = BASE_HEIGHTS[height];
+
+  useEffect(() => {
+    const calculateHeight = () => {
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+
+      let ratio = VIEWPORT_RATIO.desktop;
+      let maxHeight = baseHeight.mdMax;
+      let minHeight = baseHeight.mdMin;
+
+      if (viewportWidth < 768) {
+        ratio = VIEWPORT_RATIO.mobile;
+        maxHeight = baseHeight.max;
+        minHeight = baseHeight.min;
+      } else if (viewportWidth < 1024) {
+        ratio = VIEWPORT_RATIO.tablet;
+      }
+
+      const calculatedHeight = Math.min(viewportHeight * ratio, maxHeight);
+      const finalHeight = Math.max(calculatedHeight, minHeight);
+
+      return isScrolled ? minHeight : finalHeight;
+    };
+
+    const handleScroll = () => {
+      const scrolled = window.scrollY > 10;
+      if (scrolled !== isScrolled) {
+        setIsScrolled(scrolled);
+      }
+    };
+
+    const handleResize = () => {
+      setBannerHeight(calculateHeight());
+    };
+
+    setBannerHeight(calculateHeight());
+    handleResize();
+
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [height, isScrolled, baseHeight]);
 
   return (
     <div
-      className={`relative w-full ${heightClass} overflow-hidden flex items-end ${className}`}
+      ref={bannerRef}
+      className={`relative w-full overflow-hidden flex items-end transition-all duration-300 ease-in-out ${className}`}
+      style={{
+        height: bannerHeight ? `${bannerHeight}px` : undefined,
+      }}
     >
       <Image
         src={backgroundImage}
