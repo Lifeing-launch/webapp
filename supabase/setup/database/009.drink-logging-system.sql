@@ -198,7 +198,7 @@ INSERT INTO drink_log.drink_brands (drink_type_id, name) VALUES
 ON CONFLICT DO NOTHING;
 
 INSERT INTO drink_log.moods (name) VALUES
-  ('Happy'),('Relax'),('Stress'),('Excited'),('Anxious'),('Sad'),('Energetic')
+  ('Happy'),('Relaxed'),('Stressed'),('Excited'),('Anxious'),('Sad'),('Energetic')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO drink_log.triggers (name) VALUES

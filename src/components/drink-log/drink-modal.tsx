@@ -326,7 +326,7 @@ export default function DrinkModal({
 
               <div className="space-y-2">
                 <Label htmlFor="trigger">
-                  Trigger
+                  Cue
                   <RequiredMark />
                 </Label>
                 <Select
@@ -340,7 +340,7 @@ export default function DrinkModal({
                       errors.trigger_id && "border-destructive"
                     )}
                   >
-                    <SelectValue placeholder="Trigger" />
+                    <SelectValue placeholder="Cue" />
                   </SelectTrigger>
                   <SelectContent>
                     {catalog?.triggers.map((trigger) => (
