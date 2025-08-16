@@ -93,7 +93,7 @@ const FAQ = () => {
       <div className="max-w-4xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="font-gilda font-serif text-4xl md:text-5xl text-[#18181B] mb-4">
+          <h2 className="font-gilda text-4xl md:text-5xl text-[#18181B] mb-4">
             Lifeing Frequently Asked Questions
           </h2>
         </div>
@@ -110,7 +110,7 @@ const FAQ = () => {
                 onClick={() => toggleItem(item.id)}
                 className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-gray-50 transition-colors duration-200"
               >
-                <h3 className="font-gilda font-serif text-xl text-[#18181B] pr-4">
+                <h3 className="font-gilda text-xl text-[#18181B] pr-4">
                   {item.question}
                 </h3>
                 {openItems.includes(item.id) ? (

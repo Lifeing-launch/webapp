@@ -59,7 +59,7 @@ const HowItWorks = () => {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-white font-serif text-5xl md:text-6xl leading-tight tracking-tight mb-8">
+          <h2 className="text-white font-gilda text-5xl md:text-6xl leading-tight tracking-tight mb-8">
             How It Works
           </h2>
         </div>
@@ -77,7 +77,7 @@ const HowItWorks = () => {
               </div>
 
               {/* Step Title */}
-              <h3 className="text-[#18181B] font-serif text-2xl leading-tight tracking-tight mb-4">
+              <h3 className="text-[#18181B] font-gilda text-2xl leading-tight tracking-tight mb-4">
                 {step.title}
               </h3>
 

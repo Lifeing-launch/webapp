@@ -81,7 +81,7 @@ const Footer = () => {
               <p className="text-[#18181B] font-schibsted text-base">
                 Connect with us
               </p>
-              <p className="text-[#18181B] font-gilda font-serif text-2xl">
+              <p className="text-[#18181B] font-gilda text-2xl">
                 welcome@lifeing.services
               </p>
             </div>

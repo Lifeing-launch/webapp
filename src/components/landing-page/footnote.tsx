@@ -8,7 +8,7 @@ const Footnote = () => {
     <section className="bg-[#42104C] py-20 px-6">
       <div className="max-w-5xl mx-auto text-center">
         <div className="text-white space-y-8">
-          <div className="space-y-6 text-xl md:text-2xl lg:text-3xl leading-tight font-gilda font-serif">
+          <div className="space-y-6 text-xl md:text-2xl lg:text-3xl leading-tight font-gilda">
             <p>
               Connection is a basic human need, and in a time where we have
               become disconnected by the digital world, it makes sense that we

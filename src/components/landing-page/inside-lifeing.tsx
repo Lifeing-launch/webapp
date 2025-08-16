@@ -101,7 +101,7 @@ const InsideLifeing = () => {
       <div className="max-w-7xl mx-auto lg:px-6">
         {/* Header */}
         <div className="text-center mb-16 px-6 lg:px-0">
-          <h2 className="text-4xl md:text-5xl font-serif text-[#18181B] mb-8 leading-tight tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-gilda text-[#18181B] mb-8 leading-tight tracking-tight">
             What You&apos;ll Find Inside Lifeing
           </h2>
           <p className="text-xl md:text-2xl text-[#3F3F46] max-w-4xl mx-auto leading-relaxed">
@@ -140,7 +140,7 @@ const InsideLifeing = () => {
                     {/* Text Content - Green Box */}
                     <div className="w-full required: lg:w-1/2 z-20 order-2 lg:order-1">
                       <div className="bg-[#46611E] lg:rounded-[20px] p-8 md:p-12 lg:p-16 text-white relative">
-                        <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif mb-8 leading-tight tracking-tight">
+                        <h3 className="text-2xl md:text-3xl lg:text-4xl font-gilda mb-8 leading-tight tracking-tight">
                           {slide.title}
                         </h3>
                         <p className="text-lg md:text-xl lg:text-2xl leading-relaxed mb-8">

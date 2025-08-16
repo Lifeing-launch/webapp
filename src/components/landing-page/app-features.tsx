@@ -44,7 +44,7 @@ const AppFeatures = () => {
         <div>
           {/* Header Section */}
           <div className="text-center mb-12 pr-8 md:pr-16 max-w-7xl">
-            <h2 className="text-4xl md:text-5xl font-serif text-white mb-8 leading-tight tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-gilda text-white mb-8 leading-tight tracking-tight">
               Lifeing is Your Digital Sanctuary
             </h2>
             <p className="text-xl md:text-2xl text-[#EAE1ED] max-w-4xl mx-auto leading-relaxed">
