@@ -3,6 +3,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { MousePointerClick, CheckCircle, Sun } from "lucide-react";
+import Link from "next/link";
 
 const HowItWorks = () => {
   const steps = [
@@ -66,9 +67,11 @@ const HowItWorks = () => {
 
         {/* CTA Button */}
         <div className="text-center">
-          <Button className="bg-[#F0915A] hover:bg-[#F0915A]/90 text-white font-schibsted font-bold text-base p-6 rounded-lg transition-colors duration-300">
-            Start your 21-day free trial
-          </Button>
+          <Link href="/signup">
+            <Button className="bg-[#F0915A] hover:bg-[#F0915A]/90 text-white font-schibsted font-bold text-base p-6 rounded-lg transition-colors duration-300">
+              Start your 21-day free trial
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

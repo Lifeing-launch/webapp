@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const Footnote = () => {
   return (
@@ -30,9 +31,11 @@ const Footnote = () => {
           </div>
 
           <div className="pt-4">
-            <Button className="bg-white hover:bg-gray-100 text-[#42104C] font-schibsted font-bold text-base px-8 py-6 rounded-lg transition-colors duration-300">
-              Start your 21-day free trial
-            </Button>
+            <Link href="/signup">
+              <Button className="bg-white hover:bg-gray-100 text-[#42104C] font-schibsted font-bold text-base px-8 py-6 rounded-lg transition-colors duration-300">
+                Start your 21-day free trial
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
