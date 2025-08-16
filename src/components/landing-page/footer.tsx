@@ -6,16 +6,16 @@ import Link from "next/link";
 const Footer = () => {
   const navigationLinks = [
     { href: "/", label: "Home" },
-    { href: "#about", label: "About Lifeing" },
-    { href: "#how-it-works", label: "How it Works" },
-    { href: "#join", label: "Join Lifeing" },
-    { href: "#community", label: "Community" },
-    { href: "/contact", label: "Contact Us" },
+    // { href: "#about", label: "About Lifeing" },
+    // { href: "#how-it-works", label: "How it Works" },
+    { href: "/signup", label: "Join Lifeing" },
+    // { href: "#community", label: "Community" },
+    // { href: "/contact", label: "Contact Us" },
   ];
 
   const socialLinks = [
     {
-      href: "https://instagram.com/lifeing.services",
+      href: "https://www.instagram.com/lifeingc2c/",
       label: "Instagram",
       icon: (
         <svg
@@ -33,7 +33,7 @@ const Footer = () => {
       ),
     },
     {
-      href: "https://facebook.com/lifeing.services",
+      href: "https://www.facebook.com/heidiblaircoaching",
       label: "Facebook",
       icon: (
         <svg
