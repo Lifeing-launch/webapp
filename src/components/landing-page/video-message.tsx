@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 const VideoMessage = () => {
   return (
     <section className="py-20 px-6">
@@ -32,23 +30,16 @@ const VideoMessage = () => {
               </div>
             </div>
 
-            {/* Video Placeholder */}
+            {/* Video Player */}
             <div className="relative">
-              <div className="aspect-video rounded-2xl overflow-hidden bg-gray-800">
-                <Image
-                  src="/images/landing/video-placeholder.jpg"
-                  alt="Video Message Placeholder"
-                  width={640}
-                  height={360}
-                  className="object-cover w-full h-full"
-                  priority
+              <div className="aspect-video rounded-2xl overflow-hidden bg-gray-800/50">
+                <iframe
+                  src="https://drive.google.com/file/d/1TESS-XNf4ubstpUKPAoEiKTDCkc15wqu/preview"
+                  title="Lifeing Video Message"
+                  className="w-full h-full"
+                  allowFullScreen
+                  allow="autoplay; encrypted-media"
                 />
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                    <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1"></div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
