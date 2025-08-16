@@ -39,11 +39,11 @@ const AppFeatures = () => {
   const feature = appFeatures.find((f) => f.id === selectedFeature);
 
   return (
-    <div className="p-0 md:px-6 md:py-24">
-      <section className="bg-[#42104C] md:rounded-[30px] p-8 pr-0 md:p-16 md:pr-0 overflow-hidden">
+    <div className="p-0 lg:px-6 lg:py-24">
+      <section className="bg-[#42104C] lg:rounded-[30px] p-8 md:p-12 lg:p-16 lg:pr-0 overflow-hidden">
         <div>
           {/* Header Section */}
-          <div className="text-center mb-12 pr-8 md:pr-16 max-w-7xl">
+          <div className="text-center mb-12 lg:pr-16 max-w-7xl">
             <h2 className="text-4xl md:text-5xl font-gilda text-white mb-8 leading-tight tracking-tight">
               Lifeing is Your Digital Sanctuary
             </h2>
@@ -58,7 +58,7 @@ const AppFeatures = () => {
           {/* Interactive Features Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 items-center">
             {/* Features List */}
-            <div className="space-y-0 pr-8 md:pr-16 order-2 lg:order-1">
+            <div className="space-y-0 lg:pr-16 order-2 lg:order-1">
               {appFeatures.map((feature) => (
                 <div
                   key={feature.id}
@@ -84,16 +84,16 @@ const AppFeatures = () => {
 
             {/* Feature Image */}
             <div className="relative lg:mr-[-2rem] order-1 lg:order-2">
-              <div className="relative w-full h-[300px] md:h-[400px] lg:h-[586px] rounded-l-[20px] overflow-hidden shadow-2xl">
+              <div className="relative w-full h-[300px] md:h-[400px] lg:h-[586px] lg:rounded-l-[20px] overflow-hidden">
                 <Image
                   src={feature?.image || appFeatures[0].image}
                   alt={feature?.title || appFeatures[0].title}
                   fill
-                  className="object-cover object-left transition-all duration-700 ease-in-out transform"
+                  className="object-contain lg:object-cover lg:object-left transition-all duration-700 ease-in-out transform"
                   priority
                 />
                 {/* Overlay for better text readability */}
-                <div className="absolute inset-0 bg-black/10"></div>
+                <div className="absolute inset-0 lg:bg-black/10"></div>
               </div>
             </div>
           </div>
