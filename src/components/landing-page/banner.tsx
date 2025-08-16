@@ -69,7 +69,7 @@ const Banner = () => {
       <div className="absolute inset-0 bg-black/20"></div>
 
       {/* Header */}
-      <header className="relative z-10 flex justify-between items-center px-16 py-13">
+      <header className="relative z-10 flex justify-between items-center px-6 md:px-16 py-13">
         {/* Logo */}
         <div className="flex items-center">
           <Logo className="text-white" />
@@ -159,7 +159,7 @@ const Banner = () => {
       </div>
 
       {/* Hero Section */}
-      <div className="relative z-10 flex flex-col justify-center items-start px-16 py-4 min-h-[calc(100vh-200px)]">
+      <div className="relative z-10 flex flex-col justify-center items-start px-6 md:px-16 py-4 min-h-[calc(100vh-200px)]">
         <div className="max-w-4xl">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white leading-tight tracking-tight mb-5 font-serif">
             Your Space to Unfold

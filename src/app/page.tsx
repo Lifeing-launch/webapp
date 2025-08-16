@@ -12,9 +12,7 @@ export default function Page() {
   return (
     <main>
       <Banner />
-      <div className="px-6 py-24">
-        <AppFeatures />
-      </div>
+      <AppFeatures />
       <InsideLifeing />
       <HowItWorks />
       <FoundersMessage />
