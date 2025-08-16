@@ -2,8 +2,8 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { MousePointerClick, CheckCircle, Sun } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const HowItWorks = () => {
   const steps = [
@@ -12,21 +12,45 @@ const HowItWorks = () => {
       title: "Choose your membership",
       description:
         "Sign up and start your 21-day free trial. No pressure. No rush.",
-      icon: <MousePointerClick className="w-11 h-11 text-white" />,
+      icon: (
+        <Image
+          src="/images/landing/how-it-works-choose.svg"
+          className="w-40 h-40"
+          alt=""
+          width={44}
+          height={44}
+        />
+      ),
     },
     {
       id: 2,
       title: "Get Access",
       description:
         "Attend a session, read an article, or just sit with your thoughts.",
-      icon: <CheckCircle className="w-11 h-11 text-white" />,
+      icon: (
+        <Image
+          src="/images/landing/how-it-works-access.svg"
+          className="w-40 h-40"
+          alt=""
+          width={44}
+          height={44}
+        />
+      ),
     },
     {
       id: 3,
       title: "Show up!",
       description:
         "Whether you prefer to read quietly, listen to meditations, or join group chats",
-      icon: <Sun className="w-11 h-11 text-white" />,
+      icon: (
+        <Image
+          src="/images/landing/how-it-works-show.svg"
+          className="w-40 h-40"
+          alt=""
+          width={44}
+          height={44}
+        />
+      ),
     },
   ];
 
@@ -45,10 +69,10 @@ const HowItWorks = () => {
           {steps.map((step) => (
             <div
               key={step.id}
-              className="bg-white rounded-2xl p-6 flex flex-col items-center justify-center text-center aspect-square"
+              className="bg-white rounded-2xl p-6 flex flex-col items-center justify-center text-center lg:aspect-square"
             >
               {/* Icon Container */}
-              <div className="w-20 h-20 bg-[#F0915A] rounded-full flex items-center justify-center mb-6">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6">
                 {step.icon}
               </div>
 
