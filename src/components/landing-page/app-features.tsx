@@ -56,7 +56,7 @@ const AppFeatures = () => {
           </div>
 
           {/* Interactive Features Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 md:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 items-center">
             {/* Features List */}
             <div className="space-y-0 pr-8 md:pr-16 order-2 lg:order-1">
               {appFeatures.map((feature) => (
