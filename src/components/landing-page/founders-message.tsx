@@ -5,7 +5,7 @@ import Image from "next/image";
 const FoundersMessage = () => {
   return (
     <section className="bg-[#F6F7F6] py-20 px-6">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-8">
+      <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
         {/* Text Content */}
         <div className="flex-1 text-center">
           <blockquote className="font-gilda font-serif text-2xl text-[#18181B] mb-6 leading-snug">
