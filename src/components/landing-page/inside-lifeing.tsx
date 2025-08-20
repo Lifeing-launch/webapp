@@ -97,7 +97,7 @@ const InsideLifeing = () => {
   };
 
   return (
-    <section className="bg-[#F6F7F6] py-24">
+    <section className="py-24">
       <div className="max-w-7xl mx-auto lg:px-6">
         {/* Header */}
         <div className="text-center mb-16 px-6 lg:px-0">
