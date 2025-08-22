@@ -93,7 +93,7 @@ export default function PageBanner({
       ref={bannerRef}
       className={`relative w-full overflow-hidden flex items-end transition-all duration-300 ease-in-out ${className}`}
       style={{
-        height: bannerHeight ? `${bannerHeight}px` : undefined,
+        minHeight: bannerHeight ? `${bannerHeight}px` : undefined,
       }}
     >
       <Image
@@ -115,7 +115,7 @@ export default function PageBanner({
       )}
 
       <div className="relative z-10 p-6 md:p-8 text-white w-full flex flex-col md:flex-row md:items-end md:justify-between">
-        <div>
+        <div className="mt-8">
           <h1 className="text-2xl font-bold mb-4 drop-shadow">{title}</h1>
           {subtitle && (
             <p className="italic text-sm drop-shadow max-w-2xl">{subtitle}</p>

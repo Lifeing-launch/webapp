@@ -81,9 +81,9 @@ export default async function DashboardPage() {
   );
 
   return (
-    <div className="w-full">
+    <div className="w-full h-screen flex flex-col">
       <DashboardBanner />
-      <>
+      <main className="flex-1 p-4 overflow-y-auto">
         <DashboardRow
           leftContent={
             <>
@@ -191,7 +191,7 @@ export default async function DashboardPage() {
             </>
           }
         />
-      </>
+      </main>
     </div>
   );
 }
