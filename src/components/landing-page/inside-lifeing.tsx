@@ -65,7 +65,7 @@ const InsideLifeing = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isTransitioning) {
-        nextSlide();
+        // nextSlide();
       }
     }, 5000);
 
@@ -165,7 +165,7 @@ const InsideLifeing = () => {
 
   return (
     <motion.section
-      className="py-24"
+      className="py-12"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
@@ -202,7 +202,7 @@ const InsideLifeing = () => {
         {/* Carousel Container */}
         <div className="relative">
           {/* Carousel Content */}
-          <div className="relative overflow-hidden">
+          <div className="relative">
             <motion.div
               key={currentSlide}
               className="w-full flex-shrink-0"
@@ -301,7 +301,7 @@ const InsideLifeing = () => {
           </div>
 
           {/* Slide Indicators */}
-          <div className="flex justify-center mt-8 space-x-2">
+          <div className="flex justify-center mt-20 space-x-2">
             {carouselSlides.map((_, index) => (
               <motion.button
                 key={index}

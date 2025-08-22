@@ -20,17 +20,17 @@ const appFeatures: AppFeature[] = [
   {
     id: 2,
     title: 'Bookmark and Store Resources in your personal "Living Room"',
-    image: "/images/landing/app-features-1.png",
+    image: "/images/landing/app-features-2.png",
   },
   {
     id: 3,
     title: "Stream and Save Audio Tools like meditations and podcasts",
-    image: "/images/landing/app-features-1.png",
+    image: "/images/landing/app-features-3.png",
   },
   {
     id: 4,
     title: "Contribute to the Community Forum or join private groups",
-    image: "/images/landing/app-features-1.png",
+    image: "/images/landing/app-features-4.png",
   },
 ];
 
@@ -87,7 +87,7 @@ const AppFeatures = () => {
 
   return (
     <motion.div
-      className="p-0 lg:px-6 lg:py-24"
+      className="p-0 lg:px-6 lg:py-12"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
@@ -136,8 +136,8 @@ const AppFeatures = () => {
                   className={cn(
                     "cursor-pointer transition-all duration-500 ease-in-out p-6 transform",
                     selectedFeature === feature.id
-                      ? "border-l-4 border-[#71277F] bg-white/10 shadow-lg"
-                      : "border-l-4 border-[#42104C] opacity-50 hover:opacity-75 hover:bg-white/5"
+                      ? "border-l-10 border-[#71277F]"
+                      : "border-l-10 border-[#42104C] opacity-75"
                   )}
                   onClick={() => setSelectedFeature(feature.id)}
                   variants={featureItemVariants}
@@ -152,7 +152,8 @@ const AppFeatures = () => {
                   <motion.p
                     className={cn(
                       "text-lg md:text-xl leading-relaxed transition-all duration-300 text-[#EAE1ED]",
-                      selectedFeature === feature.id && "font-medium"
+                      selectedFeature === feature.id &&
+                        "font-medium text-xl md:text-2xl"
                     )}
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
@@ -190,8 +191,6 @@ const AppFeatures = () => {
                       className="object-contain lg:object-cover lg:object-left"
                       priority
                     />
-                    {/* Overlay for better text readability */}
-                    <div className="absolute inset-0 lg:bg-black/10"></div>
                   </motion.div>
                 </AnimatePresence>
               </div>
