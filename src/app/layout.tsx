@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Gilda_Display } from "next/font/google";
 import "./globals.css";
 import ClientAuthListener from "@/components/supabase/client-auth-listener";
 import { Toaster } from "sonner";
@@ -15,6 +16,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const gildaDisplay = Gilda_Display({
+  variable: "--font-gilda",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   title: "Lifeing Services",
   description: "Start your journey to a better life",
@@ -28,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${gildaDisplay.variable} antialiased`}
       >
         <QueryProvider>
           <Toaster richColors />
