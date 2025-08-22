@@ -42,7 +42,7 @@ export default function DashboardBanner() {
         </>
       }
       backgroundImage={bannerUrl}
-      className="mb-6"
+      className="mb-6 flex-shrink-0"
     />
   );
 }

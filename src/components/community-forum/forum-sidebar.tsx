@@ -20,7 +20,7 @@ export function ForumSidebar({
   return (
     <div
       className={cn(
-        "flex flex-col border-r border-gray-300 px-4 pt-1.5 gap-4 bg-lime-50",
+        "flex flex-col border-r border-gray-300 px-4 pt-1.5 gap-4 bg-lime-50 overflow-y-auto",
         isFull
           ? "w-full h-full min-h-0"
           : "hidden lg:flex lg:flex-col lg:w-75 lg:flex-shrink-0"

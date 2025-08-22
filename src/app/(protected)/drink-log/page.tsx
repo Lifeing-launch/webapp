@@ -23,13 +23,13 @@ export default async function DrinkLogPage({
   const view = resolvedSearchParams.view || "week";
 
   return (
-    <div className="w-full">
+    <div className="w-full h-screen flex flex-col">
       <PageBanner
         title="Drink Log"
-        className="mb-0"
+        className="mb-0 flex-shrink-0"
         backgroundImage={BANNER_IMAGE}
       />
-      <main className="p-4">
+      <main className="flex-1 p-4 overflow-y-auto">
         <DrinkLogClient userId={user.id} initialView={view} />
       </main>
     </div>
