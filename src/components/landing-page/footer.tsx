@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 const Footer = () => {
   const navigationLinks = [
@@ -70,41 +71,149 @@ const Footer = () => {
     },
   ];
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      },
+    },
+  };
+
+  const sectionVariants = {
+    hidden: { y: 50, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+      },
+    },
+  };
+
+  const logoVariants = {
+    hidden: { scale: 0.8, opacity: 0, rotate: -5 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      rotate: 0,
+      transition: {
+        duration: 0.8,
+        type: "spring" as const,
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
+  const socialIconVariants = {
+    hover: {
+      scale: 1.2,
+      rotate: 5,
+      transition: { duration: 0.2 },
+    },
+    tap: { scale: 0.9 },
+  };
+
+  const linkVariants = {
+    hover: {
+      x: 5,
+      transition: { duration: 0.2 },
+    },
+  };
+
   return (
-    <footer className="bg-white py-16 px-6">
+    <motion.footer
+      className="py-16 px-6"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={containerVariants}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
           {/* Left Section - Contact & Social */}
-          <div className="flex flex-col space-y-6">
+          <motion.div
+            className="flex flex-col space-y-6"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
             {/* Contact Info */}
-            <div className="space-y-2">
+            <motion.div
+              className="space-y-2"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
               <p className="text-[#18181B] font-schibsted text-base">
                 Connect with us
               </p>
-              <p className="text-[#18181B] font-gilda text-2xl">
+              <motion.p
+                className="text-[#18181B] font-gilda text-2xl"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                viewport={{ once: true }}
+              >
                 welcome@lifeing.services
-              </p>
-            </div>
+              </motion.p>
+            </motion.div>
 
             {/* Social Links */}
-            <div className="flex space-x-4">
-              {socialLinks.map((social) => (
-                <a
+            <motion.div
+              className="flex space-x-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              viewport={{ once: true }}
+            >
+              {socialLinks.map((social, index) => (
+                <motion.a
                   key={social.label}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center text-[#42104C] hover:text-[#42104C]/80 transition-colors duration-200"
                   aria-label={social.label}
+                  variants={socialIconVariants}
+                  whileHover="hover"
+                  whileTap="tap"
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{
+                    duration: 0.4,
+                    delay: 1.0 + index * 0.1,
+                    type: "spring" as const,
+                    stiffness: 200,
+                    damping: 20,
+                  }}
+                  viewport={{ once: true }}
                 >
                   {social.icon}
-                </a>
+                </motion.a>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Center Section - Logo */}
-          <div className="flex justify-center">
+          <motion.div
+            className="flex justify-center"
+            variants={logoVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            whileHover={{
+              scale: 1.05,
+              rotate: 2,
+              transition: { duration: 0.3 },
+            }}
+          >
             <div className="w-96 h-96">
               <Image
                 src="/images/landing/footer-logo.svg"
@@ -115,30 +224,51 @@ const Footer = () => {
                 priority
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Section - Navigation Links */}
-          <div className="flex flex-col space-y-4">
-            {navigationLinks.map((link) => (
-              <Link
+          <motion.div
+            className="flex flex-col space-y-4"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {navigationLinks.map((link, index) => (
+              <motion.div
                 key={link.label}
-                href={link.href}
-                className="text-[#18181B] hover:text-[#42104C] transition-colors duration-200 font-schibsted text-base"
+                variants={linkVariants}
+                whileHover="hover"
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
+                viewport={{ once: true }}
               >
-                {link.label}
-              </Link>
+                <Link
+                  href={link.href}
+                  className="text-[#18181B] hover:text-[#42104C] transition-colors duration-200 font-schibsted text-base"
+                >
+                  {link.label}
+                </Link>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
         {/* Bottom Section - Copyright */}
-        <div className="mt-12 text-left">
+        <motion.div
+          className="mt-12 text-left"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.2 }}
+          viewport={{ once: true }}
+        >
           <p className="text-[#18181B] font-schibsted text-base">
             Copyright © 2025 Lifeing - All Rights Reserved.
           </p>
-        </div>
+        </motion.div>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 

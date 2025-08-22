@@ -6,17 +6,19 @@ import FoundersMessage from "@/components/landing-page/founders-message";
 import VideoMessage from "@/components/landing-page/video-message";
 import Testimonials from "@/components/landing-page/testimonials";
 import FAQ from "@/components/landing-page/faq";
+import ThankYouNote from "@/components/landing-page/thank-you-note";
 import Footnote from "@/components/landing-page/footnote";
 import Footer from "@/components/landing-page/footer";
 
 export default function Page() {
   return (
-    <main>
+    <main className="bg-[#F6F0ED]">
       <Banner />
       <AppFeatures />
       <InsideLifeing />
       <HowItWorks />
       <FoundersMessage />
+      <ThankYouNote />
       <VideoMessage />
       <Testimonials />
       <FAQ />
