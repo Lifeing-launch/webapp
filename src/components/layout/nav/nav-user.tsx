@@ -27,12 +27,14 @@ export function NavUser() {
 
   if (loading || !profile)
     return (
-      <SidebarMenuItem data-testid="nav-user-partial">
-        <SidebarMenuButton onClick={signOutAction} className="cursor-pointer">
-          <LogOut />
-          Log out
-        </SidebarMenuButton>
-      </SidebarMenuItem>
+      <SidebarMenu data-testid="nav-user">
+        <SidebarMenuItem data-testid="nav-user-partial">
+          <SidebarMenuButton onClick={signOutAction} className="cursor-pointer">
+            <LogOut />
+            Log out
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
     );
 
   const fullName = `${profile?.first_name || ""} ${profile?.last_name || ""}`;
