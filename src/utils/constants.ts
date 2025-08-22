@@ -9,6 +9,7 @@ export const AUTH_PATHS: { path: string; exact?: boolean }[] = [
 export const PUBLIC_PATHS: { path: string; exact?: boolean }[] = [
   { path: "/api/payment/stripe/webhook" },
   { path: "/api/utility" },
+  { path: "/", exact: true },
 ];
 
 export const FREE_TRIAL_DAYS = 21;

@@ -21,6 +21,7 @@ import {
 import Image from "next/image";
 import NavGroup from "./nav-group";
 import { NavUser } from "./nav-user";
+import Link from "next/link";
 
 export const sidebarIcons = {
   dashboard: <HeartHandshake />,
@@ -86,14 +87,14 @@ const AppSidebar = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <Link href="/dashboard">
                 <Image
                   src="/images/logo/lifeing-white.svg"
                   alt="Lifeing Logo"
                   width={100}
                   height={60}
                 />
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
