@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Plus, Minus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface FAQItem {
   id: string;
@@ -88,58 +88,167 @@ const FAQ = () => {
     );
   };
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { y: 50, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 30, opacity: 0, scale: 0.95 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        type: "spring" as const,
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
+  const iconVariants = {
+    closed: { rotate: 0, scale: 1 },
+    open: { rotate: 180, scale: 1.1 },
+  };
+
+  const contentVariants = {
+    closed: {
+      height: 0,
+      opacity: 0,
+      transition: {
+        duration: 0.3,
+      },
+    },
+    open: {
+      height: "auto",
+      opacity: 1,
+      transition: {
+        duration: 0.4,
+      },
+    },
+  };
+
   return (
-    <section className="py-20 px-6">
+    <motion.section
+      className="py-20 px-6"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={containerVariants}
+    >
       <div className="max-w-4xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="font-gilda text-4xl md:text-5xl text-[#18181B] mb-4">
+        <motion.div
+          className="text-center mb-16"
+          variants={headerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <motion.h2
+            className="font-gilda text-4xl md:text-5xl text-[#18181B] mb-4"
+            initial={{ y: 30, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            viewport={{ once: true }}
+          >
             Lifeing Frequently Asked Questions
-          </h2>
-        </div>
+          </motion.h2>
+        </motion.div>
 
         {/* FAQ Accordion */}
         <div className="space-y-4">
-          {faqData.map((item) => (
-            <div
+          {faqData.map((item, index) => (
+            <motion.div
               key={item.id}
               className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm"
+              variants={itemVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              whileHover={{
+                y: -2,
+                boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+                transition: { duration: 0.3 },
+              }}
             >
               {/* Question Header */}
-              <button
+              <motion.button
                 onClick={() => toggleItem(item.id)}
                 className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-gray-50 transition-colors duration-200"
+                whileHover={{ backgroundColor: "#f9fafb" }}
+                whileTap={{ scale: 0.98 }}
               >
-                <h3 className="font-gilda text-xl text-[#18181B] pr-4">
+                <motion.h3
+                  className="font-gilda text-xl text-[#18181B] pr-4"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 + 0.1 }}
+                  viewport={{ once: true }}
+                >
                   {item.question}
-                </h3>
-                {openItems.includes(item.id) ? (
-                  <Minus className="h-5 w-5 text-gray-500 flex-shrink-0" />
-                ) : (
-                  <Plus className="h-5 w-5 text-gray-500 flex-shrink-0" />
-                )}
-              </button>
+                </motion.h3>
+                <motion.div
+                  variants={iconVariants}
+                  animate={openItems.includes(item.id) ? "open" : "closed"}
+                  transition={{ duration: 0.3 }}
+                >
+                  {openItems.includes(item.id) ? (
+                    <Minus className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                  ) : (
+                    <Plus className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                  )}
+                </motion.div>
+              </motion.button>
 
               {/* Answer Content */}
-              <div
-                className={cn(
-                  "overflow-hidden transition-all duration-300 ease-in-out",
-                  openItems.includes(item.id)
-                    ? "max-h-96 opacity-100"
-                    : "max-h-0 opacity-0"
+              <AnimatePresence>
+                {openItems.includes(item.id) && (
+                  <motion.div
+                    className="overflow-hidden"
+                    variants={contentVariants}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                  >
+                    <div className="px-6 pb-6">
+                      <motion.p
+                        className="text-[#3F3F46] leading-relaxed"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.1 }}
+                      >
+                        {item.answer}
+                      </motion.p>
+                    </div>
+                  </motion.div>
                 )}
-              >
-                <div className="px-6 pb-6">
-                  <p className="text-[#3F3F46] leading-relaxed">
-                    {item.answer}
-                  </p>
-                </div>
-              </div>
-            </div>
+              </AnimatePresence>
+            </motion.div>
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { MoveLeft, MoveRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -69,6 +70,48 @@ const Testimonials = () => {
     );
   };
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const titleVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+      },
+    },
+  };
+
+  const testimonialVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.4,
+      },
+    },
+  };
+
+  const buttonVariants = {
+    hover: {
+      scale: 1.05,
+      transition: { duration: 0.2 },
+    },
+    tap: { scale: 0.95 },
+  };
+
   const renderTestimonials = ({
     cardPercentage = 50,
     prevSlideDisabled = false,
@@ -84,9 +127,15 @@ const Testimonials = () => {
             }}
           >
             {testimonials.map((testimonial) => (
-              <div
+              <motion.div
                 key={testimonial.id}
-                className={`max-w-[${cardPercentage}%] w-full px-4 flex-shrink-0`}
+                className="w-full px-4 flex-shrink-0"
+                style={{ maxWidth: `${cardPercentage}%` }}
+                variants={testimonialVariants}
+                whileHover={{
+                  y: -5,
+                  transition: { duration: 0.2 },
+                }}
               >
                 <div className="relative rounded-[20px] p-8 flex flex-col">
                   {/* Quote Icon Background */}
@@ -131,14 +180,14 @@ const Testimonials = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
 
         {/* Navigation Arrows */}
         <div className="flex justify-center mt-8 lg:justify-end lg:absolute lg:bottom-0 lg:right-0 lg:mt-0">
-          <button
+          <motion.button
             onClick={prevSlide}
             disabled={prevSlideDisabled}
             aria-label="Previous testimonial"
@@ -148,10 +197,17 @@ const Testimonials = () => {
                 ? "bg-[#D1D5DB] cursor-not-allowed"
                 : "bg-[#ADC178] hover:bg-[#9BB86A] cursor-pointer"
             )}
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.8 }}
+            viewport={{ once: true }}
           >
             <MoveLeft className="w-4 h-4 text-[#18181B]" />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={nextSlide}
             aria-label="Next testimonial"
             disabled={nextSlideDisabled}
@@ -161,23 +217,47 @@ const Testimonials = () => {
                 ? "bg-[#D1D5DB] cursor-not-allowed"
                 : "bg-[#ADC178] hover:bg-[#9BB86A] cursor-pointer"
             )}
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 1.0 }}
+            viewport={{ once: true }}
           >
             <MoveRight className="w-4 h-4 text-[#18181B]" />
-          </button>
+          </motion.button>
         </div>
       </>
     );
   };
 
   return (
-    <section>
+    <motion.section
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={containerVariants}
+    >
       <div className="max-w-7xl mx-auto px-6 py-24 relative">
         {/* Section Title */}
-        <div className="max-w-3xl mb-12">
-          <h2 className="text-4xl md:text-5xl font-gilda text-[#18181B] mb-8 leading-tight tracking-tight">
+        <motion.div
+          className="max-w-3xl mb-12"
+          variants={titleVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <motion.h2
+            className="text-4xl md:text-5xl font-gilda text-[#18181B] mb-8 leading-tight tracking-tight"
+            initial={{ y: 30, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
             Real Stories of Transformation and Growth from Those We Have Helped
-          </h2>
-        </div>
+          </motion.h2>
+        </motion.div>
         <div className="hidden lg:block">
           {renderTestimonials({
             cardPercentage: 50,
@@ -194,7 +274,7 @@ const Testimonials = () => {
           })}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

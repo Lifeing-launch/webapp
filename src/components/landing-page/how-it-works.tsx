@@ -4,6 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const HowItWorks = () => {
   const steps = [
@@ -54,51 +55,165 @@ const HowItWorks = () => {
     },
   ];
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { y: 50, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+      },
+    },
+  };
+
+  const stepVariants = {
+    hidden: { y: 50, opacity: 0, scale: 0.9 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        type: "spring" as const,
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
+  const ctaVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        delay: 1.2,
+      },
+    },
+  };
+
+  const buttonVariants = {
+    hover: {
+      scale: 1.05,
+      transition: { duration: 0.2 },
+    },
+    tap: { scale: 0.95 },
+  };
+
   return (
-    <section className="bg-[#AC5118] py-16 px-6">
+    <motion.section
+      className="bg-[#AC5118] py-16 px-6"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={containerVariants}
+    >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-white font-gilda text-5xl md:text-6xl leading-tight tracking-tight mb-8">
+        <motion.div className="text-center mb-16" variants={headerVariants}>
+          <motion.h2
+            className="text-white font-gilda text-5xl md:text-6xl leading-tight tracking-tight mb-8"
+            initial={{ y: 30, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
             How It Works
-          </h2>
-        </div>
+          </motion.h2>
+        </motion.div>
 
         {/* Steps Container */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          {steps.map((step) => (
-            <div
+          {steps.map((step, index) => (
+            <motion.div
               key={step.id}
               className="bg-white rounded-2xl p-6 flex flex-col items-center justify-center text-center lg:aspect-square"
+              variants={stepVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              whileHover={{
+                y: -10,
+                transition: { duration: 0.3 },
+              }}
             >
               {/* Icon Container */}
-              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6">
+              <motion.div
+                className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+                initial={{ scale: 0, rotate: -180 }}
+                whileInView={{ scale: 1, rotate: 0 }}
+                transition={{
+                  duration: 0.6,
+                  delay: index * 0.1 + 0.5,
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                }}
+                viewport={{ once: true }}
+              >
                 {step.icon}
-              </div>
+              </motion.div>
 
               {/* Step Title */}
-              <h3 className="text-[#18181B] font-gilda text-2xl leading-tight tracking-tight mb-4">
+              <motion.h3
+                className="text-[#18181B] font-gilda text-2xl leading-tight tracking-tight mb-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 + 0.7 }}
+                viewport={{ once: true }}
+              >
                 {step.title}
-              </h3>
+              </motion.h3>
 
               {/* Step Description */}
-              <p className="text-[#3F3F46] font-schibsted text-lg leading-relaxed">
+              <motion.p
+                className="text-[#3F3F46] font-schibsted text-lg leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 + 0.9 }}
+                viewport={{ once: true }}
+              >
                 {step.description}
-              </p>
-            </div>
+              </motion.p>
+            </motion.div>
           ))}
         </div>
 
         {/* CTA Button */}
-        <div className="text-center">
+        <motion.div
+          className="text-center"
+          variants={ctaVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           <Link href="/signup">
-            <Button className="bg-[#F0915A] hover:bg-[#F0915A]/90 text-white font-schibsted font-bold text-base p-6 rounded-lg transition-colors duration-300">
-              Start your 21-day free trial
-            </Button>
+            <motion.div
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+            >
+              <Button className="bg-[#F0915A] hover:bg-[#F0915A]/90 text-white font-schibsted font-bold text-base p-6 rounded-lg transition-colors duration-300">
+                Start your 21-day free trial
+              </Button>
+            </motion.div>
           </Link>
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
