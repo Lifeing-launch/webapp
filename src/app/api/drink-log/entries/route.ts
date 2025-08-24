@@ -107,11 +107,11 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         drank_at: body.drank_at,
         drink_type_id: body.drink_type_id,
-        drink_brand_id: body.drink_brand_id,
+        drink_brand_id: body.drink_brand_id || null,
         quantity: body.quantity,
-        mood_id: body.mood_id,
-        trigger_id: body.trigger_id,
-        location_id: body.location_id,
+        mood_id: body.mood_id || null,
+        trigger_id: body.trigger_id || null,
+        location_id: body.location_id || null,
         notes: body.notes,
       })
       .select()
