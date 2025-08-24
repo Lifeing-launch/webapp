@@ -87,26 +87,30 @@ function getGoalLimit(goals: Goal | null, view: ViewType): number {
   }
 }
 
-// Calculate the total number of drinks logged
+// Calculate the total number of drinks logged (excluding zero drinks)
 function calculateDrinksLogged(entries: DrinkEntry[]): number {
-  return entries.reduce((sum, entry) => sum + entry.quantity, 0);
+  return entries
+    .filter((entry) => entry.quantity > 0)
+    .reduce((sum, entry) => sum + entry.quantity, 0);
 }
 
-// Calculate standard drinks based on alcohol content
+// Calculate standard drinks based on alcohol content (excluding zero drinks)
 function calculateStandardDrinks(entries: DrinkEntry[]): number {
-  const standardDrinks = entries.reduce((sum, entry) => {
-    const drinkType = Array.isArray(entry.drink_types)
-      ? entry.drink_types[0]
-      : entry.drink_types;
+  const standardDrinks = entries
+    .filter((entry) => entry.quantity > 0)
+    .reduce((sum, entry) => {
+      const drinkType = Array.isArray(entry.drink_types)
+        ? entry.drink_types[0]
+        : entry.drink_types;
 
-    const volume = entry.volume_ml || drinkType.standard_volume_ml;
-    const alcoholPercentage = drinkType.alcohol_percentage;
+      const volume = entry.volume_ml || drinkType.standard_volume_ml;
+      const alcoholPercentage = drinkType.alcohol_percentage;
 
-    // Standard drink calculation: (volume in ml * alcohol%) / 1400
-    const standardDrinksForEntry = (volume * alcoholPercentage) / 1400;
+      // Standard drink calculation: (volume in ml * alcohol%) / 1400
+      const standardDrinksForEntry = (volume * alcoholPercentage) / 1400;
 
-    return sum + standardDrinksForEntry * entry.quantity;
-  }, 0);
+      return sum + standardDrinksForEntry * entry.quantity;
+    }, 0);
 
   // Round to 2 decimal places
   return Math.round(standardDrinks * 100) / 100;
@@ -120,7 +124,7 @@ function calculateRemainingDrinks(
   return Math.max(0, Math.round(goalLimit - drinksLogged));
 }
 
-// Calculate streak of days without drinking
+// Calculate streak of days without drinking (excluding zero drinks)
 async function calculateStreak(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
@@ -134,12 +138,13 @@ async function calculateStreak(
     goals.updated_at !== goals.created_at ? goals.updated_at : goals.created_at
   );
 
-  // Get all entries since the reference date
+  // Get all entries since the reference date, excluding zero drinks
   const { data: entries } = await supabase
     .schema("drink_log")
     .from("entries")
-    .select("drank_at")
+    .select("drank_at, quantity")
     .eq("user_id", userId)
+    .gt("quantity", 0) // Only get entries with actual drinks
     .gte("drank_at", referenceDate.toISOString())
     .order("drank_at", { ascending: false });
 
