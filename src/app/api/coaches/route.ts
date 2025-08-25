@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   // TODO: Type this correctly
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const strapiQueryObj: any = {
-    sort: "name:asc",
+    sort: ["order:asc", "name:asc"],
     populate: "avatar",
     pagination: {
       page: page || 1,
