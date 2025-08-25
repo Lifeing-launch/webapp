@@ -27,6 +27,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 interface DrinkModalProps {
   open: boolean;
@@ -42,6 +43,7 @@ export default function DrinkModal({
   const router = useRouter();
   const { catalog, isLoading } = useDrinkCatalog();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isQuickLogging, setIsQuickLogging] = useState(false);
   const [selectedDrinkType, setSelectedDrinkType] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -55,7 +57,7 @@ export default function DrinkModal({
     drank_at: getLocalDateTime(),
     drink_type_id: "",
     drink_brand_id: "",
-    quantity: "1",
+    quantity: "0",
     volume_ml: "",
     mood_id: "",
     trigger_id: "",
@@ -71,11 +73,11 @@ export default function DrinkModal({
     quantity: z
       .string()
       .min(1, "Quantity is required")
-      .refine((v) => Number(v) >= 1, "Quantity must be at least 1"),
+      .refine((v) => Number(v) >= 0, "Quantity must be at least 0"),
     volume_ml: z.string().optional(),
-    mood_id: z.string().min(1, "Mood is required"),
-    trigger_id: z.string().min(1, "Trigger is required"),
-    location_id: z.string().min(1, "Location is required"),
+    mood_id: z.string().optional(),
+    trigger_id: z.string().optional(),
+    location_id: z.string().optional(),
     notes: z.string().optional(),
   });
 
@@ -106,6 +108,54 @@ export default function DrinkModal({
       drink_brand_id: "",
     });
     setSelectedDrinkType(value);
+  };
+
+  const handleQuickLog = async () => {
+    setIsQuickLogging(true);
+
+    try {
+      // Find "Other" drink type
+      const otherDrinkType = catalog?.drinkTypes.find(
+        (type) => type.name === "Other" || type.name === "None"
+      );
+
+      if (!otherDrinkType) {
+        throw new Error("'Other' drink type not found");
+      }
+
+      // Get current datetime in local timezone
+      const now = new Date();
+      const offset = now.getTimezoneOffset() * 60000;
+      const localDateTime = new Date(now.getTime() - offset)
+        .toISOString()
+        .slice(0, 16);
+
+      // Create zero drink entry
+      const response = await fetch("/api/drink-log/entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          drank_at: localDateTime,
+          drink_type_id: otherDrinkType.id,
+          quantity: 0,
+          notes: "No drinks today",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to log entry");
+      }
+
+      toast.success("No drinks logged for today");
+      onOpenChange(false);
+      router.refresh();
+      onSuccess?.();
+    } catch (error) {
+      console.error("Quick log error:", error);
+      toast.error("Failed to log entry");
+    } finally {
+      setIsQuickLogging(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -258,7 +308,7 @@ export default function DrinkModal({
                 <Input
                   id="quantity"
                   type="number"
-                  min="1"
+                  min="0"
                   value={formData.quantity}
                   onChange={(e) => setField("quantity", e.target.value)}
                   className={cn(errors.quantity && "border-destructive")}
@@ -281,7 +331,7 @@ export default function DrinkModal({
                   onChange={(e) =>
                     setFormData({ ...formData, volume_ml: e.target.value })
                   }
-                  placeholder="e.g., 12"
+                  placeholder="e.g., 12 (optional)"
                 />
                 <p className="text-xs text-muted-foreground">
                   Optional: Volume in fluid ounces
@@ -292,10 +342,7 @@ export default function DrinkModal({
             {/* Two column layout for mood and trigger */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="mood">
-                  Mood
-                  <RequiredMark />
-                </Label>
+                <Label htmlFor="mood">Mood (Optional)</Label>
                 <Select
                   value={formData.mood_id}
                   onValueChange={(value) => setField("mood_id", value)}
@@ -325,10 +372,7 @@ export default function DrinkModal({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="trigger">
-                  Cue
-                  <RequiredMark />
-                </Label>
+                <Label htmlFor="trigger">Cue (Optional)</Label>
                 <Select
                   value={formData.trigger_id}
                   onValueChange={(value) => setField("trigger_id", value)}
@@ -363,10 +407,7 @@ export default function DrinkModal({
 
             {/* Full width location */}
             <div className="space-y-2">
-              <Label htmlFor="location">
-                Location
-                <RequiredMark />
-              </Label>
+              <Label htmlFor="location">Location (Optional)</Label>
               <Select
                 value={formData.location_id}
                 onValueChange={(value) => setField("location_id", value)}
@@ -410,13 +451,22 @@ export default function DrinkModal({
             </div>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-4 space-y-2">
             <Button
               type="submit"
               className="w-full"
               disabled={isSubmitting || isLoading}
             >
               {isSubmitting ? "Logging..." : "Log Drink"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              onClick={handleQuickLog}
+              disabled={isQuickLogging || isLoading}
+            >
+              {isQuickLogging ? "Logging..." : "No Drinks Today"}
             </Button>
           </div>
         </form>

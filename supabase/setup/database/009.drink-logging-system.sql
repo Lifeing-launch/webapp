@@ -198,17 +198,17 @@ INSERT INTO drink_log.drink_brands (drink_type_id, name) VALUES
 ON CONFLICT DO NOTHING;
 
 INSERT INTO drink_log.moods (name) VALUES
-  ('Happy'),('Relaxed'),('Stressed'),('Excited'),('Anxious'),('Sad'),('Energetic')
+  ('Happy'),('Relaxed'),('Stressed'),('Excited'),('Anxious'),('Sad'),('Energetic'), ('Other')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO drink_log.triggers (name) VALUES
   ('Social Events'),('Stress'),('Habit'),('Celebration'),
-  ('Boredom'),('Sadness'),('Work Pressure')
+  ('Boredom'),('Sadness'),('Work Pressure'), ('Other')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO drink_log.locations (name) VALUES
   ('Home'),('Restaurant'),('Bar'),('Party'),
-  ('Club'),('Friends House'),('Work Event')
+  ('Club'),('Friends House'),('Work Event'), ('Other')
 ON CONFLICT DO NOTHING;
 
 -- 8. Function to calculate standard drinks
