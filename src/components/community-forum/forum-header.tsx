@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Pen } from "lucide-react";
+import { Search, Pen, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -17,6 +17,8 @@ export interface IForumHeader {
   buttonOnClick?: () => void;
   setSearchQuery?: (query: string) => void;
   searchDropdown?: React.ReactNode;
+  onMenuClick?: () => void;
+  showMenuButton?: boolean;
 }
 
 export function ForumHeader({
@@ -29,6 +31,8 @@ export function ForumHeader({
   buttonIcon = <Pen className="w-4 h-4" />,
   buttonOnClick,
   searchDropdown,
+  onMenuClick,
+  showMenuButton = false,
 }: IForumHeader) {
   const { colors } = useSectionColors();
   const [inputValue, setInputValue] = useState(searchQuery);
@@ -44,7 +48,18 @@ export function ForumHeader({
 
   return (
     <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:gap-3">
-      <div className="flex flex-col items-start sm:flex-1">
+      <div className="flex items-center gap-2 sm:flex-1">
+        {showMenuButton && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onMenuClick}
+            className="lg:hidden"
+            aria-label="Open filters"
+          >
+            <Filter className="h-5 w-5" />
+          </Button>
+        )}
         <h1 className="text-xl font-bold leading-8 text-foreground sm:text-2xl">
           {title}
         </h1>
