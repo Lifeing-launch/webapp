@@ -29,13 +29,23 @@ export default function DrinkLogClient({
       <DrinkStats userId={userId} view={initialView} refreshKey={refreshKey} />
 
       <Tabs defaultValue={initialView} className="w-full">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-          <TabsList className="grid w-full max-w-full lg:max-w-lg grid-cols-2 sm:grid-cols-4">
-            <TabsTrigger value="week">This week</TabsTrigger>
-            <TabsTrigger value="month">This month</TabsTrigger>
-            <TabsTrigger value="year">This year</TabsTrigger>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          </TabsList>
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center lg:justify-between">
+          <div className="overflow-x-auto lg:overflow-visible w-full lg:w-auto">
+            <TabsList className="flex w-max min-w-full lg:grid lg:w-full lg:max-w-lg lg:grid-cols-4 justify-start">
+              <TabsTrigger value="week" className="whitespace-nowrap">
+                This week
+              </TabsTrigger>
+              <TabsTrigger value="month" className="whitespace-nowrap">
+                This month
+              </TabsTrigger>
+              <TabsTrigger value="year" className="whitespace-nowrap">
+                This year
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="whitespace-nowrap">
+                Calendar View
+              </TabsTrigger>
+            </TabsList>
+          </div>
           <DrinkAchievements refreshKey={refreshKey} />
         </div>
 
