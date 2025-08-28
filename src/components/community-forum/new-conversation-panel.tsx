@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { AnonymousProfile } from "@/typing/forum";
+import { getAvatarBackgroundStyle } from "@/utils/forum-avatar-colors";
 
 interface NewConversationPanelProps {
   onUserSelect: (userId: string, nickname: string) => void;
@@ -102,7 +103,10 @@ export function NewConversationPanel({
                     )}
                   >
                     {/* Avatar */}
-                    <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium flex-shrink-0">
+                    <div
+                      className="h-10 w-10 rounded-full text-white flex items-center justify-center text-sm font-medium flex-shrink-0"
+                      style={getAvatarBackgroundStyle(profile.id)}
+                    >
                       {profile.nickname.slice(0, 2).toUpperCase()}
                     </div>
 

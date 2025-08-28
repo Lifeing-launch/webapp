@@ -6,6 +6,7 @@ import { DateRange } from "@/components/ui/custom/date-range-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MeetingsTab } from "@/components/meetings/meetings-tab";
 import PageBanner from "@/components/layout/page-banner";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 type TabKey = "current-month" | "next-month" | "calendar";
 
@@ -22,6 +23,7 @@ const nextMonthDateRange = generateDateRange("next-month");
 
 const MeetingsPage = () => {
   const [tab, setTab] = useState<TabKey>("current-month");
+  const { colors } = useSectionColors();
 
   return (
     <div className="w-full h-screen flex flex-col">
@@ -33,14 +35,22 @@ const MeetingsPage = () => {
       <main className="flex-1 p-4 overflow-y-auto">
         <Tabs defaultValue="all" value={tab} className="space-y-4 w-full">
           <TabsList>
-            {tabs.map((tab) => (
+            {tabs.map((tabItem) => (
               <TabsTrigger
-                value={tab.key}
-                key={tab.key}
-                onClick={() => setTab(tab.key)}
-                className="cursor-pointer"
+                value={tabItem.key}
+                key={tabItem.key}
+                onClick={() => setTab(tabItem.key)}
+                className="cursor-pointer data-[state=active]:text-white"
+                style={
+                  tab === tabItem.key
+                    ? {
+                        backgroundColor: colors.primary,
+                        color: "white",
+                      }
+                    : {}
+                }
               >
-                {tab.label}
+                {tabItem.label}
               </TabsTrigger>
             ))}
           </TabsList>

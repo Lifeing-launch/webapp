@@ -1,8 +1,11 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { Search, Pen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 export interface IForumHeader {
   title?: string;
@@ -27,6 +30,7 @@ export function ForumHeader({
   buttonOnClick,
   searchDropdown,
 }: IForumHeader) {
+  const { colors } = useSectionColors();
   const [inputValue, setInputValue] = useState(searchQuery);
   const debouncedValue = useDebounce(inputValue, 500); // 500ms delay
 
@@ -63,7 +67,18 @@ export function ForumHeader({
         {!hiddenButton && (
           <Button
             onClick={buttonOnClick}
-            className="flex items-center justify-center gap-2 h-9 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm w-full sm:w-auto cursor-pointer"
+            className="flex items-center justify-center gap-2 h-9 px-4 py-2 text-white rounded-md shadow-sm w-full sm:w-auto cursor-pointer"
+            style={{
+              backgroundColor: colors.primary,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = colors.primary;
+              e.currentTarget.style.opacity = "0.9";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = colors.primary;
+              e.currentTarget.style.opacity = "1";
+            }}
           >
             {buttonIcon}
             <span className="text-sm font-medium leading-5">{buttonText}</span>

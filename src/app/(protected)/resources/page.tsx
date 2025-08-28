@@ -1,6 +1,9 @@
+"use client";
+
 import React from "react";
 import ResourcesContent from "@/components/resources/content";
 import PageBanner from "@/components/layout/page-banner";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 const BANNER_IMAGE = "/images/banners/resources.png";
 
@@ -14,8 +17,17 @@ const tabs: { key: TabKey; label: string }[] = [
 ];
 
 const ResourcesPage = () => {
+  const { colors } = useSectionColors();
+
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div
+      className="w-full h-screen flex flex-col"
+      style={
+        {
+          "--section-bookmark-color": colors.primary,
+        } as React.CSSProperties
+      }
+    >
       <PageBanner
         title="Library"
         className="mb-0 flex-shrink-0"

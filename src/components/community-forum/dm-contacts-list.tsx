@@ -4,6 +4,7 @@ import { DMContact } from "@/typing/forum";
 import { formatTimeAgo } from "@/utils/datetime";
 import { MessageCircle } from "lucide-react";
 import { useUnreadCount } from "@/hooks/use-forum";
+import { getAvatarBackgroundStyle } from "@/utils/forum-avatar-colors";
 
 interface DMContactsListProps {
   contacts: DMContact[];
@@ -64,9 +65,9 @@ export function DMContactsList({
               <div className="relative flex-shrink-0">
                 <div
                   className={cn(
-                    "h-10 w-10 rounded-full text-white flex items-center justify-center text-sm font-medium",
-                    contact.avatarColor || "bg-primary"
+                    "h-10 w-10 rounded-full text-white flex items-center justify-center text-sm font-medium"
                   )}
+                  style={getAvatarBackgroundStyle(contact.id)}
                 >
                   {contact.username.slice(0, 2).toUpperCase()}
                 </div>
