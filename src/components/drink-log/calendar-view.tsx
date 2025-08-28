@@ -153,15 +153,15 @@ export default function CalendarView({ onDelete }: CalendarViewProps) {
   CustomDayButton.displayName = "CustomDayButton";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <Card className="p-4 lg:col-span-1">
+    <div className="flex flex-col lg:grid lg:grid-cols-5 gap-6">
+      <Card className="p-4 w-full lg:col-span-1">
         <Calendar
           mode="single"
           selected={selectedDate}
           onSelect={setSelectedDate}
           month={currentMonth}
           onMonthChange={handleMonthChange}
-          className="rounded-md"
+          className="rounded-md w-full lg:w-auto"
           disabled={isLoadingMonth}
           components={{
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -170,7 +170,7 @@ export default function CalendarView({ onDelete }: CalendarViewProps) {
         />
       </Card>
 
-      <div className="space-y-4 lg:col-span-4">
+      <div className="space-y-4 w-full lg:col-span-4">
         {selectedDate && (
           <>
             <h3 className="text-lg font-semibold">
