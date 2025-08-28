@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "../../ui/sidebar";
 import {
   BookMarked,
@@ -85,6 +86,13 @@ const data = {
 
 const AppSidebar = () => {
   const { colors } = useSectionColors();
+  const { setOpenMobile, isMobile } = useSidebar();
+
+  const handleItemClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   const sidebarStyle = {
     "--sidebar": colors.sidebar,
@@ -100,7 +108,7 @@ const AppSidebar = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href="/dashboard" onClick={handleItemClick}>
                 <Image
                   src="/images/logo/lifeing-white.svg"
                   alt="Lifeing Logo"
@@ -113,9 +121,21 @@ const AppSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavGroup title="My Lifeing" items={data.navItems.myLifeing} />
-        <NavGroup title="Tools" items={data.navItems.tools} />
-        <NavGroup title="Resources" items={data.navItems.resources} />
+        <NavGroup
+          title="My Lifeing"
+          items={data.navItems.myLifeing}
+          onItemClick={handleItemClick}
+        />
+        <NavGroup
+          title="Tools"
+          items={data.navItems.tools}
+          onItemClick={handleItemClick}
+        />
+        <NavGroup
+          title="Resources"
+          items={data.navItems.resources}
+          onItemClick={handleItemClick}
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

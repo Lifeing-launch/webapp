@@ -208,6 +208,7 @@ export const GroupsView = ({
                     createdGroups?.find((group) => group.id === categoryId) ||
                       null
                   );
+                  setOpenMobileMenu(false);
                 }}
                 isLoading={isLoadingMyGroups}
                 emptyMessage="No groups created yet"
@@ -228,6 +229,7 @@ export const GroupsView = ({
                     privateGroups?.find((group) => group.id === categoryId) ||
                       null
                   );
+                  setOpenMobileMenu(false);
                 }}
                 isLoading={isLoadingMyGroups}
                 emptyMessage="No private groups yet"
@@ -248,6 +250,7 @@ export const GroupsView = ({
                     publicGroups?.find((group) => group.id === categoryId) ||
                       null
                   );
+                  setOpenMobileMenu(false);
                 }}
                 isLoading={isLoadingMyGroups}
                 emptyMessage="No public groups yet"
@@ -267,6 +270,7 @@ export const GroupsView = ({
             isFull={true}
             activePage={activePage}
             setActivePage={setActivePage}
+            onItemClick={() => setOpenMobileMenu(false)}
           >
             {sidebarContent}
           </ForumSidebar>

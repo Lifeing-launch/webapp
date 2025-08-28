@@ -22,9 +22,10 @@ export type NavItem = {
 interface INavGroup {
   title: string;
   items: NavItem[];
+  onItemClick?: () => void;
 }
 
-const NavGroup = ({ title, items }: INavGroup) => {
+const NavGroup = ({ title, items, onItemClick }: INavGroup) => {
   const pathname = usePathname();
 
   return (
@@ -38,7 +39,7 @@ const NavGroup = ({ title, items }: INavGroup) => {
                 asChild
                 isActive={pathname.startsWith(item.url)}
               >
-                <Link href={item.url}>
+                <Link href={item.url} onClick={() => onItemClick?.()}>
                   {item.icon}
                   <span> {item.title}</span>
                 </Link>

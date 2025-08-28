@@ -34,8 +34,16 @@ export const NewPostModal = ({
   categories,
   revalidate,
 }: NewPostModalProps) => {
-  const { profile } = useAnonymousProfile();
+  const { profile, user } = useAnonymousProfile();
   const { colors } = useSectionColors();
+
+  // Função helper para garantir ID único para cores do avatar
+  const getUserIdForAvatar = () => {
+    if (profile?.id) return profile.id;
+    if (user?.id) return user.id;
+    // Fallback único baseado no timestamp para garantir variação
+    return `fallback-${Date.now()}`;
+  };
 
   const [content, setContent] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>(() =>
@@ -258,11 +266,7 @@ export const NewPostModal = ({
               <div className="flex flex-row items-center gap-2">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center relative"
-                  style={
-                    profile?.id
-                      ? getAvatarBackgroundStyle(profile.id)
-                      : { backgroundColor: colors.primary }
-                  }
+                  style={getAvatarBackgroundStyle(getUserIdForAvatar())}
                 >
                   <User className="w-6 h-6 text-slate-50" strokeWidth={2} />
                 </div>

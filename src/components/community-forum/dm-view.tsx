@@ -167,6 +167,11 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
     ? contacts.map((contact) => transformToDMContact(contact, currentProfileId))
     : [];
 
+  const handleContactSelectWithMenuClose = (contactId: string) => {
+    handleContactSelect(contactId);
+    setOpenMobileMenu(false);
+  };
+
   const handleUserSelect = async (userId: string, nickname: string) => {
     setIsSelectingNewContact(true);
     setSelectingUserId(userId);
@@ -175,14 +180,14 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
       const existingContact = transformedContacts.find((c) => c.id === userId);
       if (existingContact) {
         // Redirect to existing conversation
-        handleContactSelect(userId);
+        handleContactSelectWithMenuClose(userId);
         setShowNewConversationPanel(false);
         return;
       }
 
       // Store the new contact profile for new conversation
       setNewContactProfile({ id: userId, nickname });
-      handleContactSelect(userId);
+      handleContactSelectWithMenuClose(userId);
       setShowNewConversationPanel(false);
     } finally {
       setIsSelectingNewContact(false);
@@ -271,7 +276,7 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
       <DMContactsList
         contacts={uniqueContacts}
         selectedContactId={selectedContactId || undefined}
-        onContactSelect={handleContactSelect}
+        onContactSelect={handleContactSelectWithMenuClose}
       />
     </>
   );
@@ -284,6 +289,7 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
             activePage={activePage}
             setActivePage={setActivePage}
             isFull={true}
+            onItemClick={() => setOpenMobileMenu(false)}
           >
             {sidebarContent}
           </ForumSidebar>
