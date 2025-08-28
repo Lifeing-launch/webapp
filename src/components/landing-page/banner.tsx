@@ -266,7 +266,7 @@ const Banner = () => {
 
       {/* Hero Section */}
       <motion.div
-        className="relative z-10 flex flex-col justify-center items-start px-6 md:px-16 py-4 min-h-[calc(100vh-200px)]"
+        className="relative z-10 flex flex-col justify-start items-start px-6 md:px-16 py-4 min-h-[calc(100vh-200px)]"
         variants={heroVariants}
         initial="hidden"
         animate="visible"
@@ -276,15 +276,17 @@ const Banner = () => {
             className="text-4xl md:text-5xl lg:text-6xl font-normal text-white leading-tight tracking-tight mb-5 font-gilda"
             variants={heroItemVariants}
           >
-            Your Space to Unfold
+            Your Space to Grow
           </motion.h1>
 
           <motion.p
             className="text-lg md:text-xl text-white leading-relaxed mb-8 max-w-2xl"
             variants={heroItemVariants}
           >
-            Your life doesn&apos;t need fixing, just some space. Lifeing is a
-            calm digital sanctuary for you to grow at your own pace.
+            Change is hard and you don&apos;t need fixing, just a compassionate
+            space to grow at your own pace. Lifeing is a community-based online
+            sanctuary where real connection and lasting transformation is
+            happening, every day.
           </motion.p>
 
           <motion.div variants={heroItemVariants}>

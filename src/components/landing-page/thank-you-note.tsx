@@ -107,7 +107,7 @@ const ThankYouNote = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               viewport={{ once: true }}
             >
-              A Heartfelt Thank You to Our Board of Directors
+              A Heartfelt Thank You
             </motion.h2>
             <motion.p
               className="text-xl text-[#3F3F46] leading-relaxed"
@@ -116,17 +116,18 @@ const ThankYouNote = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
               viewport={{ once: true }}
             >
-              Launching Lifeing, a dream rooted in compassion and growth, was
+              Launching Lifeing was a dream rooted in compassion and growth,
               made possible by the unwavering belief and support of very special
-              individuals. We extend our deepest gratitude to Karl Rogers and
-              Leigh Holman, our &ldquo;Board of Directors.&rdquo;
+              individuals. We extend our deepest gratitude to our Board of
+              Directors: Karl Rogers, Leigh Holman, and Joe Maxwell.
               <br />
               <br />
-              Karl and Leigh have generously given their time, wisdom, and
-              friendship. Karl&apos;s invaluable financial support, Leigh&apos;s
-              consistent commitment to the daily work, combined with their
-              constant guidance and encouragement, has been incredible. Their
-              partnership has truly helped turn our vision into a reality.
+              Your generous gifts of time, wisdom, and friendship have been
+              invaluable. Karl and Joe, your instrumental financial support has
+              helped turn our vision into a reality. Leigh, your consistent
+              commitment to the daily work has been a constant source of
+              guidance and encouragement. Your collective partnership has truly
+              been incredible.
             </motion.p>
           </motion.div>
 
@@ -148,13 +149,13 @@ const ThankYouNote = () => {
             viewport={{ once: true }}
           >
             <motion.h2
-              className="text-4xl font-gilda text-[#18181B] mb-6 leading-tight"
+              className="text-3xl font-gilda text-[#18181B] mb-6 leading-tight"
               initial={{ y: 30, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.8 }}
               viewport={{ once: true }}
             >
-              And to Our Incredible Community Members
+              And to Our Cherished Community Members
             </motion.h2>
             <motion.p
               className="text-xl text-[#3F3F46] leading-relaxed"
@@ -163,20 +164,15 @@ const ThankYouNote = () => {
               transition={{ duration: 0.8, delay: 1.0 }}
               viewport={{ once: true }}
             >
-              Beyond our foundational supporters, we owe an immeasurable debt of
-              gratitude to our Community Members. We truly could not have done
-              this without you. On a pivotal day, you joined us for one meeting
-              that launched the movement that has become Lifeing. You put your
-              money behind us when we had only two meetings, a testament to your
-              foresight and trust. Month after month, you have stayed with us,
-              showing incredible patience, kind understanding, and unwavering
-              belief as we have grown and strengthened together. Your support is
-              both humbling and profound.
+              We are profoundly grateful for your trust. You joined us for one
+              meeting that launched a movement, and your belief in us has been
+              the foundation of our growth. Your incredible patience, kindness,
+              and unwavering presence have made this community-based platform
+              possible.
               <br />
               <br />
-              To Karl and Leigh, and to every cherished member of our community,
-              our deepest thanks. Your trust, belief, and active presence are
-              eternally appreciated.
+              From the bottom of our hearts, thank you all. We are so proud to
+              have you on this journey with us.
               <br />
               <br />
               We Love You All,

@@ -107,7 +107,7 @@ const AppFeatures = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               viewport={{ once: true }}
             >
-              Lifeing is Your Digital Sanctuary
+              Lifeing is Your Online Sanctuary
             </motion.h2>
             <motion.p
               className="text-xl md:text-2xl text-[#EAE1ED] max-w-4xl mx-auto leading-relaxed"
