@@ -16,6 +16,8 @@ import { useAnonymousProfile } from "@/hooks/use-anonymous-profile";
 import { Category, Tag } from "@/typing/forum";
 import { postService } from "@/services/forum";
 import { useMutation } from "@tanstack/react-query";
+import { getAvatarBackgroundStyle } from "@/utils/forum-avatar-colors";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 interface NewPostModalProps {
   open: boolean;
@@ -33,6 +35,7 @@ export const NewPostModal = ({
   revalidate,
 }: NewPostModalProps) => {
   const { profile } = useAnonymousProfile();
+  const { colors } = useSectionColors();
 
   const [content, setContent] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>(() =>
@@ -253,7 +256,14 @@ export const NewPostModal = ({
             <div className="flex flex-col items-start gap-3">
               {/* Avatar */}
               <div className="flex flex-row items-center gap-2">
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center relative">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center relative"
+                  style={
+                    profile?.id
+                      ? getAvatarBackgroundStyle(profile.id)
+                      : { backgroundColor: colors.primary }
+                  }
+                >
                   <User className="w-6 h-6 text-slate-50" strokeWidth={2} />
                 </div>
 
@@ -266,13 +276,28 @@ export const NewPostModal = ({
               {/* Category dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="flex flex-row items-center justify-center px-1.5 py-0.5 gap-1 bg-primary/40 rounded-md cursor-pointer hover:bg-primary/50 transition-colors">
-                    <span className="text-primary font-normal text-xs leading-4">
+                  <div
+                    className="flex flex-row items-center justify-center px-1.5 py-0.5 gap-1 rounded-md cursor-pointer transition-colors"
+                    style={{
+                      backgroundColor: `${colors.primary}40`, // 40% opacity
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.primary}50`; // 50% opacity on hover
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.primary}40`; // back to 40% opacity
+                    }}
+                  >
+                    <span
+                      className="font-normal text-xs leading-4"
+                      style={{ color: colors.primary }}
+                    >
                       {categories.find((cat) => cat.id === selectedCategory)
                         ?.name || "General"}
                     </span>
                     <ChevronDown
-                      className="w-3 h-3 text-primary"
+                      className="w-3 h-3"
+                      style={{ color: colors.primary }}
                       strokeWidth={1}
                     />
                   </div>
@@ -297,11 +322,17 @@ export const NewPostModal = ({
                 <div className="flex flex-col items-start gap-1.5 w-full relative">
                   {/* Textarea container with focus border */}
                   <div
-                    className={`w-full min-h-[248px] p-3 bg-white border shadow-sm rounded-md relative transition-colors ${
+                    className="w-full min-h-[248px] p-3 bg-white border shadow-sm rounded-md relative transition-colors"
+                    style={
                       isFocused
-                        ? "border-primary ring-2 ring-primary/20"
-                        : "border-zinc-200"
-                    }`}
+                        ? {
+                            borderColor: colors.primary,
+                            boxShadow: `0 0 0 2px ${colors.primary}20`,
+                          }
+                        : {
+                            borderColor: "#d4d4d8",
+                          }
+                    }
                   >
                     <Textarea
                       ref={textareaRef}
@@ -323,15 +354,31 @@ export const NewPostModal = ({
                             <Badge
                               key={tag.id}
                               variant="secondary"
-                              className={`px-1.5 py-0.5 text-xs leading-4 font-normal rounded-md border-0 cursor-pointer transition-colors hover:opacity-80 flex-shrink-0 ${
-                                selectedTags.includes(tag.id)
-                                  ? "bg-primary/35 text-primary"
-                                  : showFilteredTags && index === 0
-                                    ? "bg-primary/20 text-primary hover:bg-primary/30 ring-2 ring-primary/20"
-                                    : showFilteredTags
-                                      ? "bg-primary/10 text-primary hover:bg-primary/20"
-                                      : "bg-zinc-200 text-zinc-500 hover:bg-zinc-300"
-                              }`}
+                              className="px-1.5 py-0.5 text-xs leading-4 font-normal rounded-md border-0 cursor-pointer transition-colors hover:opacity-80 flex-shrink-0"
+                              style={(() => {
+                                if (selectedTags.includes(tag.id)) {
+                                  return {
+                                    backgroundColor: `${colors.primary}35`,
+                                    color: colors.primary,
+                                  };
+                                } else if (showFilteredTags && index === 0) {
+                                  return {
+                                    backgroundColor: `${colors.primary}20`,
+                                    color: colors.primary,
+                                    boxShadow: `0 0 0 2px ${colors.primary}20`,
+                                  };
+                                } else if (showFilteredTags) {
+                                  return {
+                                    backgroundColor: `${colors.primary}10`,
+                                    color: colors.primary,
+                                  };
+                                } else {
+                                  return {
+                                    backgroundColor: "#e4e4e7",
+                                    color: "#71717a",
+                                  };
+                                }
+                              })()}
                               onClick={() => handleTagClick(tag.id, tag.name)}
                             >
                               #{tag.name}
@@ -349,7 +396,10 @@ export const NewPostModal = ({
                     {content.length}/{maxLength}
                   </div>
                   {showFilteredTags && (
-                    <div className="text-primary font-normal text-xs leading-4">
+                    <div
+                      className="font-normal text-xs leading-4"
+                      style={{ color: colors.primary }}
+                    >
                       Filtering tags: #{tagFilter} (Press Enter to select)
                     </div>
                   )}
@@ -365,7 +415,30 @@ export const NewPostModal = ({
                 <div className="flex flex-col items-end w-full">
                   <Button
                     type="submit"
-                    className="px-4 py-2 bg-primary hover:bg-primary/90 text-slate-50 font-medium text-sm leading-5 rounded-md shadow-sm border-0 h-9"
+                    className="px-4 py-2 text-slate-50 font-medium text-sm leading-5 rounded-md shadow-sm border-0 h-9"
+                    style={{
+                      backgroundColor: colors.primary,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (
+                        !isPending &&
+                        content.trim() &&
+                        content.length <= maxLength
+                      ) {
+                        e.currentTarget.style.backgroundColor = colors.primary;
+                        e.currentTarget.style.opacity = "0.9";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (
+                        !isPending &&
+                        content.trim() &&
+                        content.length <= maxLength
+                      ) {
+                        e.currentTarget.style.backgroundColor = colors.primary;
+                        e.currentTarget.style.opacity = "1";
+                      }
+                    }}
                     disabled={
                       !content.trim() || content.length > maxLength || isPending
                     }

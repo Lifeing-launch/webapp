@@ -17,6 +17,12 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --color-section-purple: var(--section-purple);
+  --color-section-purple-foreground: var(--section-purple-foreground);
+  --color-section-brown: var(--section-brown);
+  --color-section-brown-foreground: var(--section-brown-foreground);
+  --color-forum-background: var(--forum-background);
+  --color-forum-active-text: var(--forum-active-text);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -79,6 +85,14 @@
   --sidebar-accent-foreground: #f8fafc;
   --sidebar-border: #3f6212;
   --sidebar-ring: #f8fafc;
+
+  /* Section-specific colors */
+  --section-purple: #42104c;
+  --section-purple-foreground: #f8fafc;
+  --section-brown: #ac5118;
+  --section-brown-foreground: #f8fafc;
+  --forum-background: #f9c5a380;
+  --forum-active-text: #ac5118;
 }
 
 .dark {
@@ -115,6 +129,14 @@
   --sidebar-accent-foreground: #f8fafc;
   --sidebar-border: #3f6212;
   --sidebar-ring: #f8fafc;
+
+  /* Section-specific colors (same for dark mode) */
+  --section-purple: #42104c;
+  --section-purple-foreground: #f8fafc;
+  --section-brown: #ac5118;
+  --section-brown-foreground: #f8fafc;
+  --forum-background: #f9c5a380;
+  --forum-active-text: #ac5118;
 }
 
 @layer base {

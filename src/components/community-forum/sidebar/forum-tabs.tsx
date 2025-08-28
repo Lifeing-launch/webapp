@@ -34,9 +34,17 @@ export function ForumTabs({ activePage, setActivePage }: IForumTabs) {
                 ? "text-zinc-400 cursor-not-allowed opacity-50"
                 : "cursor-pointer",
               activePage === tab && !isDisabled
-                ? "border-b border-primary text-zinc-900 rounded-none"
+                ? "border-b rounded-none"
                 : !isDisabled && "text-zinc-500 hover:text-zinc-900"
             )}
+            style={
+              activePage === tab && !isDisabled
+                ? {
+                    borderBottomColor: "var(--forum-active-text)",
+                    color: "var(--forum-active-text)",
+                  }
+                : {}
+            }
           >
             {tab}
             {showNotification && (

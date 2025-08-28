@@ -1,7 +1,10 @@
+"use client";
+
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Tag } from "@/typing/forum";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 export interface ITagList {
   tags: Tag[];
@@ -11,6 +14,8 @@ export interface ITagList {
 }
 
 export function TagList({ tags, activeTag, onTagClick, isLoading }: ITagList) {
+  const { colors } = useSectionColors();
+
   if (isLoading) {
     return (
       <div className="space-y-2 w-full">
@@ -27,11 +32,19 @@ export function TagList({ tags, activeTag, onTagClick, isLoading }: ITagList) {
           key={tag.id}
           onClick={() => onTagClick(tag.id)}
           className={cn(
-            "block w-full text-left text-sm leading-5 transition-colors hover:text-primary cursor-pointer",
-            activeTag === tag.id
-              ? "font-semibold text-primary"
-              : "font-normal text-zinc-900"
+            "block w-full text-left text-sm leading-5 transition-colors cursor-pointer",
+            activeTag === tag.id ? "font-semibold" : "font-normal text-zinc-900"
           )}
+          style={{
+            color: activeTag === tag.id ? colors.primary : "#18181b", // zinc-900
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = colors.primary;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color =
+              activeTag === tag.id ? colors.primary : "#18181b";
+          }}
         >
           #{tag.name}
         </button>

@@ -1,8 +1,11 @@
+"use client";
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Send } from "lucide-react";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 const messageInputVariants = cva("flex gap-2 items-end", {
   variants: {
@@ -39,7 +42,7 @@ const textareaVariants = cva(
 );
 
 export interface MessageInputProps
-  extends Omit<React.ComponentProps<"form">, "onSubmit">,
+  extends Omit<React.ComponentProps<"form">, "onSubmit" | "onChange">,
     VariantProps<typeof messageInputVariants> {
   /**
    * Placeholder text for the textarea
@@ -126,6 +129,7 @@ const MessageInput = React.forwardRef<HTMLFormElement, MessageInputProps>(
     },
     ref
   ) => {
+    const { colors } = useSectionColors();
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       if (value.trim() && !disabled) {
@@ -192,6 +196,27 @@ const MessageInput = React.forwardRef<HTMLFormElement, MessageInputProps>(
             variant={sendButtonVariant}
             size={size === "sm" ? "sm" : "default"}
             className={cn(layout === "vertical" && "self-end")}
+            style={
+              sendButtonVariant === "default"
+                ? {
+                    backgroundColor: colors.primary,
+                    borderColor: colors.primary,
+                    color: "white",
+                  }
+                : {}
+            }
+            onMouseEnter={(e) => {
+              if (sendButtonVariant === "default" && !disabled && canSubmit) {
+                e.currentTarget.style.backgroundColor = colors.primary;
+                e.currentTarget.style.opacity = "0.9";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (sendButtonVariant === "default" && !disabled && canSubmit) {
+                e.currentTarget.style.backgroundColor = colors.primary;
+                e.currentTarget.style.opacity = "1";
+              }
+            }}
           >
             <Send className="h-4 w-4 mr-2" />
             {sendButtonText}

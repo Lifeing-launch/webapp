@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Sidebar,
@@ -22,6 +24,7 @@ import Image from "next/image";
 import NavGroup from "./nav-group";
 import { NavUser } from "./nav-user";
 import Link from "next/link";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 export const sidebarIcons = {
   dashboard: <HeartHandshake />,
@@ -81,8 +84,18 @@ const data = {
 };
 
 const AppSidebar = () => {
+  const { colors } = useSectionColors();
+
+  const sidebarStyle = {
+    "--sidebar": colors.sidebar,
+    "--sidebar-foreground": colors.sidebarForeground,
+    "--sidebar-primary": colors.primary,
+    "--sidebar-accent": colors.accent,
+    "--sidebar-ring": colors.ring,
+  } as React.CSSProperties;
+
   return (
-    <Sidebar>
+    <Sidebar style={sidebarStyle}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
