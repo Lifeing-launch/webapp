@@ -22,8 +22,14 @@ import { UserAvatar } from "./user-avatar";
 import { useUser } from "@/components/providers/user-provider";
 
 export function NavUser() {
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const { profile, loading } = useUser();
+
+  const handleItemClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   if (loading || !profile)
     return (
@@ -74,13 +80,13 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <Link href={"/account"}>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleItemClick}>
                   <UserRoundCog />
                   Account Settings
                 </DropdownMenuItem>
               </Link>
               <Link href={"/subscription/manage"}>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleItemClick}>
                   <CreditCard />
                   Billing
                 </DropdownMenuItem>

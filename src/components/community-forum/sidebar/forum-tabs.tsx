@@ -7,9 +7,14 @@ export interface IForumTabs {
   setActivePage: React.Dispatch<
     React.SetStateAction<"Forum" | "Groups" | "Messages">
   >;
+  onItemClick?: () => void;
 }
 
-export function ForumTabs({ activePage, setActivePage }: IForumTabs) {
+export function ForumTabs({
+  activePage,
+  setActivePage,
+  onItemClick,
+}: IForumTabs) {
   const tabs = ["Forum", "Groups", "Messages"];
   const { data: hasUnreadMessages } = useHasUnreadMessages();
 
@@ -25,6 +30,7 @@ export function ForumTabs({ activePage, setActivePage }: IForumTabs) {
             onClick={() => {
               if (!isDisabled) {
                 setActivePage(tab as "Forum" | "Groups" | "Messages");
+                onItemClick?.();
               }
             }}
             disabled={isDisabled}

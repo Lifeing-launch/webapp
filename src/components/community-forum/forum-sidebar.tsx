@@ -9,6 +9,7 @@ interface ForumSidebarProps {
   >;
   isFull?: boolean;
   children?: React.ReactNode;
+  onItemClick?: () => void;
 }
 
 export function ForumSidebar({
@@ -16,6 +17,7 @@ export function ForumSidebar({
   setActivePage,
   isFull = false,
   children,
+  onItemClick,
 }: ForumSidebarProps) {
   return (
     <div
@@ -29,7 +31,11 @@ export function ForumSidebar({
         backgroundColor: "var(--forum-background)",
       }}
     >
-      <ForumTabs activePage={activePage} setActivePage={setActivePage} />
+      <ForumTabs
+        activePage={activePage}
+        setActivePage={setActivePage}
+        onItemClick={onItemClick}
+      />
       {children}
     </div>
   );

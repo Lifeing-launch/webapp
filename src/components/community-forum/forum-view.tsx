@@ -50,6 +50,7 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
       ...prev,
       tagId: prev.tagId === tagId ? undefined : tagId,
     }));
+    setOpenMobileMenu(false);
   }, []);
 
   const handleCategoryClick = useCallback((categoryId: string) => {
@@ -57,6 +58,7 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
       ...prev,
       categoryId: prev.categoryId === categoryId ? undefined : categoryId,
     }));
+    setOpenMobileMenu(false);
   }, []);
 
   const handleSearchQuery = useCallback((query: string) => {
@@ -100,6 +102,7 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
             activePage={activePage}
             setActivePage={setActivePage}
             isFull={true}
+            onItemClick={() => setOpenMobileMenu(false)}
           >
             {sidebarContent}
           </ForumSidebar>
