@@ -25,7 +25,7 @@ const MeetingsPage = () => {
   const [tab, setTab] = useState<TabKey>("current-month");
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-full flex flex-col flex-1">
       <PageBanner
         title="My Meetings"
         className="mb-0 flex-shrink-0"

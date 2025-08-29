@@ -15,7 +15,7 @@ const tabs: { key: TabKey; label: string }[] = [
 
 const ResourcesPage = () => {
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-full flex flex-col flex-1">
       <PageBanner
         title="Library"
         className="mb-0 flex-shrink-0"

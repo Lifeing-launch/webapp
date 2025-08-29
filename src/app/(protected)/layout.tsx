@@ -1,5 +1,5 @@
 import AppSidebar from "@/components/layout/nav/app-sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { UserProvider } from "@/components/providers/user-provider";
 import { SubscriptionProvider } from "@/components/providers/subscription-provider";
 import React from "react";
@@ -9,7 +9,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <SubscriptionProvider>
       <SidebarProvider style={{}}>
         <AppSidebar />
-        {children}
+        <SidebarInset>{children}</SidebarInset>
       </SidebarProvider>
     </SubscriptionProvider>
   </UserProvider>
