@@ -23,6 +23,8 @@ export async function GET(
   }
 
   try {
+    // Build the Strapi URL - getStrapiBaseUrl already includes /api
+    // The staging Strapi has a custom /details endpoint for coaches
     const strapiUrl = `${getStrapiBaseUrl()}/coaches/${id}/details`;
 
     const data = await strapiFetch(strapiUrl);
