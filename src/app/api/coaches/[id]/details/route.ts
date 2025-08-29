@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/utils/supabase/auth";
-import { API_CONFIG } from "@/utils/constants";
+import { strapiFetch } from "@/utils/fetch";
+import { getStrapiBaseUrl } from "@/utils/urls";
 
 export async function GET(
   request: NextRequest,
@@ -22,31 +23,9 @@ export async function GET(
   }
 
   try {
-    const strapiUrl =
-      process.env.NEXT_PUBLIC_STRAPI_URL || API_CONFIG.STRAPI_URL;
-    const strapiToken =
-      process.env.STRAPI_API_TOKEN || API_CONFIG.STRAPI_API_KEY;
+    const strapiUrl = `${getStrapiBaseUrl()}/coaches/${id}/details`;
 
-    if (!strapiUrl || !strapiToken) {
-      console.error("Missing Strapi configuration");
-      return NextResponse.json(
-        { error: "Internal server error" },
-        { status: 500 }
-      );
-    }
-
-    const response = await fetch(`${strapiUrl}/api/coaches/${id}/details`, {
-      headers: {
-        Authorization: `Bearer ${strapiToken}`,
-      },
-      next: { revalidate: 60 }, // Cache for 60 seconds
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error fetching coach details: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await strapiFetch(strapiUrl);
     return NextResponse.json(data);
   } catch (err) {
     console.error("Error in coach details API route:", err);
