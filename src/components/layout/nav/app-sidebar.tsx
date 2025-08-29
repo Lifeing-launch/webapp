@@ -9,6 +9,7 @@ import {
   SidebarMenuItem,
 } from "../../ui/sidebar";
 import {
+  Book,
   BookMarked,
   BookOpen,
   Calendar,
@@ -32,6 +33,7 @@ export const sidebarIcons = {
   resources: <BookMarked />,
   podcast: <Podcast />,
   account: <UserRoundCog />,
+  bookClub: <Book />,
 };
 
 const data = {
@@ -77,6 +79,13 @@ const data = {
         icon: sidebarIcons.drinkLog,
       },
     ],
+    events: [
+      {
+        title: "Book Club",
+        url: "/book-club",
+        icon: sidebarIcons.bookClub,
+      },
+    ],
   },
 };
 
@@ -103,6 +112,7 @@ const AppSidebar = () => {
         <NavGroup title="My Lifeing" items={data.navItems.myLifeing} />
         <NavGroup title="Tools" items={data.navItems.tools} />
         <NavGroup title="Resources" items={data.navItems.resources} />
+        <NavGroup title="Upcoming Events" items={data.navItems.events} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

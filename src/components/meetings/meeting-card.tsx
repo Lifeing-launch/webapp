@@ -1,5 +1,12 @@
 import React from "react";
-import { Check, Clock, MonitorPlay, UserRoundCheck, Users } from "lucide-react";
+import {
+  Check,
+  Clock,
+  MonitorPlay,
+  Sparkle,
+  UserRoundCheck,
+  Users,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -84,6 +91,10 @@ function MeetingStats({ meeting }: { meeting: Meeting }) {
     "one-to-one": {
       label: "1:1",
       Icon: UserRoundCheck,
+    },
+    event: {
+      label: "Event",
+      Icon: Sparkle,
     },
   };
 

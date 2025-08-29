@@ -100,3 +100,10 @@ export type Pagination = {
 export type Metadata = {
   pagination: Pagination;
 };
+
+export type Book = {
+  id: number;
+  title: string;
+  cover_img?: Image;
+  meeting?: Meeting;
+};
