@@ -55,6 +55,17 @@ export type Article = {
   body: BlocksContent;
 };
 
+export interface ExtendedBioBlock {
+  type: "paragraph" | "heading" | "list" | "quote";
+  children: Array<{
+    type: "text";
+    text: string;
+    bold?: boolean;
+    italic?: boolean;
+  }>;
+  level?: number; // For headings
+}
+
 export type Coach = {
   id: number;
   name: string;
@@ -63,6 +74,7 @@ export type Coach = {
   booking_url: string;
   experience_in_years: number;
   avatar?: Image;
+  extended_bio?: ExtendedBioBlock[];
 };
 
 export type SubscriptionPlanStatus = "DRAFT" | "ACTIVE" | "RETIRED";
