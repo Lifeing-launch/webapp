@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Metadata } from "@/typing/strapi";
 
 const breadcrumbs: Breadcrumb[] = [
-  { label: "Dashboard", href: "/dashboard" },
+  { label: "Living Room", href: "/dashboard" },
   { label: "Announcements" },
 ];
 

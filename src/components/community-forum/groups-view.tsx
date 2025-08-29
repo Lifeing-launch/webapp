@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, ChevronLeft, Users } from "lucide-react";
 import NewGroupModal from "./new-group-modal";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 export interface IGroupsViewProps {
   searchQuery: string;
@@ -103,6 +104,7 @@ export const GroupsView = ({
     null
   );
   const [openNewGroupModal, setOpenNewGroupModal] = useState(false);
+  const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const { profile } = useAnonymousProfile();
 
   const {
@@ -173,8 +175,108 @@ export const GroupsView = ({
     }
   };
 
+  const sidebarContent = (
+    <>
+      {selectedGroup ? (
+        <>
+          <button
+            className="flex flex-row items-center gap-2 w-full text-left hover:opacity-70 transition-opacity py-2 border-b border-gray-300 pb-3 flex-shrink-0"
+            onClick={() => setSelectedGroup(null)}
+          >
+            <ChevronLeft
+              className={cn(
+                "w-3.5 h-3.5 text-zinc-900 transition-transform duration-200"
+              )}
+            />
+            <h3 className="text-xs font-normal leading-none text-zinc-900">
+              Back to all groups
+            </h3>
+          </button>
+
+          <div className="flex-1 overflow-y-auto space-y-4 py-2">
+            <SidebarSection title="Groups I Created">
+              <CategoryList
+                activeCategory={selectedGroup?.id}
+                categories={
+                  createdGroups?.map((group) => ({
+                    id: group.id,
+                    name: group.name,
+                  })) || []
+                }
+                onCategoryClick={(categoryId) => {
+                  setSelectedGroup(
+                    createdGroups?.find((group) => group.id === categoryId) ||
+                      null
+                  );
+                  setOpenMobileMenu(false);
+                }}
+                isLoading={isLoadingMyGroups}
+                emptyMessage="No groups created yet"
+              />
+            </SidebarSection>
+
+            <SidebarSection title="Private Groups">
+              <CategoryList
+                activeCategory={selectedGroup?.id}
+                categories={
+                  privateGroups?.map((group) => ({
+                    id: group.id,
+                    name: group.name,
+                  })) || []
+                }
+                onCategoryClick={(categoryId) => {
+                  setSelectedGroup(
+                    privateGroups?.find((group) => group.id === categoryId) ||
+                      null
+                  );
+                  setOpenMobileMenu(false);
+                }}
+                isLoading={isLoadingMyGroups}
+                emptyMessage="No private groups yet"
+              />
+            </SidebarSection>
+
+            <SidebarSection title="Public Groups">
+              <CategoryList
+                activeCategory={selectedGroup?.id}
+                categories={
+                  publicGroups?.map((group) => ({
+                    id: group.id,
+                    name: group.name,
+                  })) || []
+                }
+                onCategoryClick={(categoryId) => {
+                  setSelectedGroup(
+                    publicGroups?.find((group) => group.id === categoryId) ||
+                      null
+                  );
+                  setOpenMobileMenu(false);
+                }}
+                isLoading={isLoadingMyGroups}
+                emptyMessage="No public groups yet"
+              />
+            </SidebarSection>
+          </div>
+        </>
+      ) : null}
+    </>
+  );
+
   return (
     <>
+      <Sheet open={openMobileMenu} onOpenChange={setOpenMobileMenu}>
+        <SheetContent side="left" className="w-[300px] p-0">
+          <ForumSidebar
+            isFull={true}
+            activePage={activePage}
+            setActivePage={setActivePage}
+            onItemClick={() => setOpenMobileMenu(false)}
+          >
+            {sidebarContent}
+          </ForumSidebar>
+        </SheetContent>
+      </Sheet>
+
       <div className="sticky top-0 z-20 bg-background border-b border-border px-4 py-3">
         <ForumHeader
           buttonText="Create New Group"
@@ -182,6 +284,8 @@ export const GroupsView = ({
           placeholder="Search groups"
           setSearchQuery={setSearchQuery}
           buttonOnClick={handleCreateGroup}
+          onMenuClick={() => setOpenMobileMenu(true)}
+          showMenuButton={selectedGroup !== null}
         />
       </div>
 
@@ -191,124 +295,46 @@ export const GroupsView = ({
           activePage={activePage}
           setActivePage={setActivePage}
         >
-          <div className="flex-1 min-h-0 overflow-hidden">
-            {selectedGroup ? (
-              <div className="h-full flex flex-col">
-                <button
-                  className="flex flex-row items-center gap-2 w-full text-left hover:opacity-70 transition-opacity py-2 border-b border-gray-300 pb-3 flex-shrink-0"
-                  onClick={() => setSelectedGroup(null)}
-                >
-                  <ChevronLeft
-                    className={cn(
-                      "w-3.5 h-3.5 text-zinc-900 transition-transform duration-200"
-                    )}
-                  />
-                  <h3 className="text-xs font-normal leading-none text-zinc-900">
-                    Back to all groups
-                  </h3>
-                </button>
-
-                <div className="flex-1 overflow-y-auto space-y-4 py-2">
-                  <SidebarSection title="Groups I Created">
-                    <CategoryList
-                      activeCategory={selectedGroup?.id}
-                      categories={
-                        createdGroups?.map((group) => ({
-                          id: group.id,
-                          name: group.name,
-                        })) || []
-                      }
-                      onCategoryClick={(categoryId) => {
-                        setSelectedGroup(
-                          createdGroups?.find(
-                            (group) => group.id === categoryId
-                          ) || null
-                        );
-                      }}
-                      isLoading={isLoadingMyGroups}
-                      emptyMessage="No groups created yet"
-                    />
-                  </SidebarSection>
-
-                  <SidebarSection title="Private Groups">
-                    <CategoryList
-                      activeCategory={selectedGroup?.id}
-                      categories={
-                        privateGroups?.map((group) => ({
-                          id: group.id,
-                          name: group.name,
-                        })) || []
-                      }
-                      onCategoryClick={(categoryId) => {
-                        setSelectedGroup(
-                          privateGroups?.find(
-                            (group) => group.id === categoryId
-                          ) || null
-                        );
-                      }}
-                      isLoading={isLoadingMyGroups}
-                      emptyMessage="No private groups joined"
-                    />
-                  </SidebarSection>
-
-                  <SidebarSection title="Public Groups">
-                    <CategoryList
-                      activeCategory={selectedGroup?.id}
-                      categories={
-                        publicGroups?.map((group) => ({
-                          id: group.id,
-                          name: group.name,
-                        })) || []
-                      }
-                      onCategoryClick={(categoryId) => {
-                        setSelectedGroup(
-                          publicGroups?.find(
-                            (group) => group.id === categoryId
-                          ) || null
-                        );
-                      }}
-                      isLoading={isLoadingMyGroups}
-                      emptyMessage="No public groups joined"
-                    />
-                  </SidebarSection>
-                </div>
-              </div>
-            ) : (
-              <div className="h-full flex flex-col overflow-hidden">
-                {isLoadingAllGroups || !isAllGroupsFetched ? (
-                  <div className="flex-1 overflow-y-auto p-6">
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                          <GroupCardSkeleton key={i} />
-                        ))}
-                      </div>
+          {sidebarContent}
+        </ForumSidebar>
+        <div className="flex-1 overflow-hidden">
+          {selectedGroup ? (
+            <GroupThreads
+              groupId={selectedGroup.id}
+              searchQuery={searchQuery}
+            />
+          ) : (
+            <div className="h-full flex flex-col overflow-hidden">
+              {isLoadingAllGroups || !isAllGroupsFetched ? (
+                <div className="flex-1 overflow-y-auto p-6">
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <GroupCardSkeleton key={i} />
+                      ))}
                     </div>
                   </div>
-                ) : allGroupsError ? (
-                  <div className="flex-1 flex items-center justify-center">
-                    <GroupsErrorState message="Failed to load groups" />
-                  </div>
-                ) : allAvailableGroups?.length === 0 ? (
-                  <div className="flex-1 flex items-center justify-center">
-                    <GroupsEmptyState />
-                  </div>
-                ) : (
-                  <div className="flex-1 overflow-y-auto">
-                    <OrganizedGroupsGrid
-                      groups={allAvailableGroups || []}
-                      onGroupSelect={setSelectedGroup}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </ForumSidebar>
-
-        {selectedGroup && (
-          <GroupThreads groupId={selectedGroup.id} searchQuery={searchQuery} />
-        )}
+                </div>
+              ) : allGroupsError ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <GroupsErrorState message="Failed to load groups" />
+                </div>
+              ) : allAvailableGroups?.length === 0 ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <GroupsEmptyState />
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto">
+                  <OrganizedGroupsGrid
+                    groups={allAvailableGroups || []}
+                    onGroupSelect={setSelectedGroup}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        )
       </div>
 
       <NewGroupModal

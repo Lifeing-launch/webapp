@@ -9,6 +9,7 @@ interface ForumSidebarProps {
   >;
   isFull?: boolean;
   children?: React.ReactNode;
+  onItemClick?: () => void;
 }
 
 export function ForumSidebar({
@@ -16,17 +17,25 @@ export function ForumSidebar({
   setActivePage,
   isFull = false,
   children,
+  onItemClick,
 }: ForumSidebarProps) {
   return (
     <div
       className={cn(
-        "flex flex-col border-r border-gray-300 px-4 pt-1.5 gap-4 bg-lime-50 overflow-y-auto",
+        "flex flex-col border-r border-gray-300 px-4 pt-1.5 gap-4 overflow-y-auto",
         isFull
           ? "w-full h-full min-h-0"
           : "hidden lg:flex lg:flex-col lg:w-75 lg:flex-shrink-0"
       )}
+      style={{
+        backgroundColor: "var(--forum-background)",
+      }}
     >
-      <ForumTabs activePage={activePage} setActivePage={setActivePage} />
+      <ForumTabs
+        activePage={activePage}
+        setActivePage={setActivePage}
+        onItemClick={onItemClick}
+      />
       {children}
     </div>
   );

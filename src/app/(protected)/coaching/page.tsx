@@ -34,7 +34,7 @@ export default async function CoachingPage() {
   }
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-full flex flex-col flex-1">
       <PageBanner
         title="Coaching Program"
         className="mb-0 flex-shrink-0"

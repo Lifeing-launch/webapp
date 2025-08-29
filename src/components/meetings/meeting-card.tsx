@@ -1,5 +1,14 @@
+"use client";
+
 import React from "react";
-import { Check, Clock, MonitorPlay, UserRoundCheck, Users } from "lucide-react";
+import {
+  Check,
+  Clock,
+  MonitorPlay,
+  Sparkle,
+  UserRoundCheck,
+  Users,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,6 +25,7 @@ import {
 } from "@/utils/datetime";
 import RsvpButton from "./rsvp-button";
 import { Meeting, MeetingType } from "@/typing/strapi";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 interface IMeetingCard {
   meeting: Meeting;
@@ -32,6 +42,7 @@ export function MeetingCard({
   hasRsvped,
   showRsvp = true,
 }: IMeetingCard) {
+  const { colors } = useSectionColors();
   const isHighlighted = datetimeIsWithinInterval(
     meeting.when,
     HIGHLIGHT_MEETING_INTERVAL
@@ -40,9 +51,10 @@ export function MeetingCard({
     <Card
       className={cn(
         "w-full gap-3",
-        isHighlighted ? "bg-lime-100 border-l-3 border-l-primary" : undefined,
+        isHighlighted ? "bg-lime-100 border-l-3" : undefined,
         className
       )}
+      style={isHighlighted ? { borderLeftColor: colors.primary } : {}}
       data-testid="meeting-card"
     >
       <CardHeader>
@@ -67,6 +79,7 @@ export function MeetingCard({
 }
 
 function MeetingStats({ meeting }: { meeting: Meeting }) {
+  const { colors } = useSectionColors();
   const statsToDisplay: (keyof Meeting)[] = ["when", "meeting_type"];
   const typeDisplayMapping = {
     group: {
@@ -85,11 +98,19 @@ function MeetingStats({ meeting }: { meeting: Meeting }) {
       label: "1:1",
       Icon: UserRoundCheck,
     },
+    event: {
+      label: "Event",
+      Icon: Sparkle,
+    },
   };
 
   const iconRenderer = (Icon: typeof Clock) => {
     return (
-      <div className="text-primary mr-3" data-testid="meeting-stat-icon">
+      <div
+        className="mr-3"
+        data-testid="meeting-stat-icon"
+        style={{ color: colors.primary }}
+      >
         {<Icon width={15} />}
       </div>
     );

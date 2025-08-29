@@ -12,6 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getAvatarBackgroundStyle } from "@/utils/forum-avatar-colors";
 
 export interface IForumPostCard {
   post: PostWithDetails;
@@ -71,7 +72,10 @@ export function ForumPostCard({
       >
         <div className="flex gap-4">
           <Avatar className="h-10 w-10 flex-shrink-0">
-            <AvatarFallback className={cn("text-white bg-primary")}>
+            <AvatarFallback
+              className={cn("text-white")}
+              style={getAvatarBackgroundStyle(post.author_anon_id)}
+            >
               <User className="h-6 w-6" />
               {/* {post.author_profile.nickname.slice(0, 2).toUpperCase()} */}
             </AvatarFallback>

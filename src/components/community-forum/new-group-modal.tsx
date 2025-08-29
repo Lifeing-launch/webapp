@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { GroupTypeEnum } from "@/typing/forum";
 import { groupService } from "@/services/forum";
 import { useMutation } from "@tanstack/react-query";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 // Utility function to moderate content
 async function moderateContent(
@@ -72,6 +73,7 @@ export const NewGroupModal = ({
   revalidate,
   openGroup,
 }: NewGroupModalProps) => {
+  const { colors } = useSectionColors();
   const [groupName, setGroupName] = useState("");
   const [description, setDescription] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
@@ -181,7 +183,10 @@ export const NewGroupModal = ({
           <div className="flex flex-col items-start gap-6 w-full">
             {/* Header */}
             <div className="flex flex-row items-center gap-3 w-full">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: colors.primary }}
+              >
                 <Users className="w-5 h-5 text-white" strokeWidth={2} />
               </div>
               <div className="flex flex-col items-start gap-1">
@@ -213,7 +218,25 @@ export const NewGroupModal = ({
                       if (moderationError) setModerationError(null);
                     }}
                     placeholder="Group Name"
-                    className="w-full h-12 px-4 py-3 text-base border border-gray-300 rounded-md focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="w-full h-12 px-4 py-3 text-base border border-gray-300 rounded-md"
+                    style={
+                      groupName.length > 0
+                        ? {
+                            borderColor: colors.primary,
+                            boxShadow: `0 0 0 2px ${colors.primary}20`,
+                          }
+                        : {}
+                    }
+                    onFocus={(e) => {
+                      e.target.style.borderColor = colors.primary;
+                      e.target.style.boxShadow = `0 0 0 2px ${colors.primary}20`;
+                    }}
+                    onBlur={(e) => {
+                      if (!groupName.length) {
+                        e.target.style.borderColor = "#d1d5db";
+                        e.target.style.boxShadow = "none";
+                      }
+                    }}
                     maxLength={maxNameLength}
                     required
                   />
@@ -231,11 +254,17 @@ export const NewGroupModal = ({
                     Description
                   </Label>
                   <div
-                    className={`w-full min-h-[120px] p-3 bg-white border rounded-md relative transition-colors ${
+                    className="w-full min-h-[120px] p-3 bg-white border rounded-md relative transition-colors"
+                    style={
                       isFocused
-                        ? "border-primary ring-2 ring-primary/20"
-                        : "border-gray-300"
-                    }`}
+                        ? {
+                            borderColor: colors.primary,
+                            boxShadow: `0 0 0 2px ${colors.primary}20`,
+                          }
+                        : {
+                            borderColor: "#d1d5db",
+                          }
+                    }
                   >
                     <Textarea
                       id="description"
@@ -266,9 +295,13 @@ export const NewGroupModal = ({
                       type="checkbox"
                       checked={isPrivate}
                       onChange={(e) => setIsPrivate(e.target.checked)}
-                      className="w-4 h-4 border-gray-300 rounded focus:ring-primary focus:ring-2 accent-primary"
+                      className="w-4 h-4 border-gray-300 rounded focus:ring-2"
                       style={{
-                        accentColor: "hsl(var(--primary))",
+                        accentColor: colors.primary,
+                        outline: `2px solid ${colors.primary}20`,
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.outline = `2px solid ${colors.primary}20`;
                       }}
                     />
                   </div>
@@ -295,7 +328,22 @@ export const NewGroupModal = ({
                 {/* Create Button */}
                 <Button
                   type="submit"
-                  className="px-6 py-3 h-12 bg-primary hover:bg-primary/90 text-white font-medium text-base rounded-md self-end"
+                  className="px-6 py-3 h-12 text-white font-medium text-base rounded-md self-end"
+                  style={{
+                    backgroundColor: colors.primary,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isPending && isFormValid) {
+                      e.currentTarget.style.backgroundColor = colors.primary;
+                      e.currentTarget.style.opacity = "0.9";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isPending && isFormValid) {
+                      e.currentTarget.style.backgroundColor = colors.primary;
+                      e.currentTarget.style.opacity = "1";
+                    }
+                  }}
                   disabled={!isFormValid || isPending}
                 >
                   {isPending ? (

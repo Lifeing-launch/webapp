@@ -7,6 +7,7 @@ import { ForumPostList } from "@/components/community-forum/forum-post-list";
 import { useInfinitePosts } from "@/hooks/use-infinite-posts";
 import { useState, useCallback, useMemo } from "react";
 import NewPostModal from "./new-post-modal";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 export interface IForumViewProps {
   searchQuery: string;
@@ -19,6 +20,7 @@ export interface IForumViewProps {
 
 export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
   const [openNewPost, setOpenNewPost] = useState(false);
+  const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [filters, setFilters] = useState<{
     searchQuery?: string;
     tagId?: string;
@@ -48,6 +50,7 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
       ...prev,
       tagId: prev.tagId === tagId ? undefined : tagId,
     }));
+    setOpenMobileMenu(false);
   }, []);
 
   const handleCategoryClick = useCallback((categoryId: string) => {
@@ -55,6 +58,7 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
       ...prev,
       categoryId: prev.categoryId === categoryId ? undefined : categoryId,
     }));
+    setOpenMobileMenu(false);
   }, []);
 
   const handleSearchQuery = useCallback((query: string) => {
@@ -68,34 +72,55 @@ export const ForumView = ({ activePage, setActivePage }: IForumViewProps) => {
     setOpenNewPost((prev) => !prev);
   }, []);
 
+  const sidebarContent = (
+    <>
+      <SidebarSection title="Browse by tags">
+        <TagList
+          tags={tags}
+          isLoading={isLoadingTags}
+          activeTag={filters.tagId}
+          onTagClick={handleTagClick}
+        />
+      </SidebarSection>
+
+      <SidebarSection title="Browse by Categories">
+        <CategoryList
+          activeCategory={filters.categoryId}
+          categories={categories}
+          isLoading={isLoadingCategories}
+          onCategoryClick={handleCategoryClick}
+        />
+      </SidebarSection>
+    </>
+  );
+
   return (
     <>
+      <Sheet open={openMobileMenu} onOpenChange={setOpenMobileMenu}>
+        <SheetContent side="left" className="w-[300px] p-0">
+          <ForumSidebar
+            activePage={activePage}
+            setActivePage={setActivePage}
+            isFull={true}
+            onItemClick={() => setOpenMobileMenu(false)}
+          >
+            {sidebarContent}
+          </ForumSidebar>
+        </SheetContent>
+      </Sheet>
+
       <div className="sticky top-0 z-20 bg-background border-b border-border px-4 py-3">
         <ForumHeader
           searchQuery={filters.searchQuery ?? ""}
           setSearchQuery={handleSearchQuery}
           buttonOnClick={handleNewPost}
+          onMenuClick={() => setOpenMobileMenu(true)}
+          showMenuButton={true}
         />
       </div>
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <ForumSidebar activePage={activePage} setActivePage={setActivePage}>
-          <SidebarSection title="Browse by tags">
-            <TagList
-              tags={tags}
-              isLoading={isLoadingTags}
-              activeTag={filters.tagId}
-              onTagClick={handleTagClick}
-            />
-          </SidebarSection>
-
-          <SidebarSection title="Browse by Categories">
-            <CategoryList
-              activeCategory={filters.categoryId}
-              categories={categories}
-              isLoading={isLoadingCategories}
-              onCategoryClick={handleCategoryClick}
-            />
-          </SidebarSection>
+          {sidebarContent}
         </ForumSidebar>
         <div className="flex-1 overflow-y-auto">
           <div className="px-4 py-3 pb-0">

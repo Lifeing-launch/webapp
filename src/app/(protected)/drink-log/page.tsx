@@ -23,7 +23,7 @@ export default async function DrinkLogPage({
   const view = resolvedSearchParams.view || "week";
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-full flex flex-col flex-1">
       <PageBanner
         title="Drink Log"
         className="mb-0 flex-shrink-0"

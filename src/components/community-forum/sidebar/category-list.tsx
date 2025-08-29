@@ -1,7 +1,10 @@
+"use client";
+
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Category } from "@/typing/forum";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 export interface ICategoryList {
   categories: Category[];
@@ -18,6 +21,8 @@ export function CategoryList({
   isLoading,
   emptyMessage = "No categories available",
 }: ICategoryList) {
+  const { colors } = useSectionColors();
+
   if (isLoading) {
     return (
       <div className="space-y-2 w-full">
@@ -41,9 +46,21 @@ export function CategoryList({
           key={category.id}
           onClick={() => onCategoryClick(category.id)}
           className={cn(
-            "block w-full text-left text-sm font-normal leading-5 text-zinc-900 transition-colors hover:text-primary cursor-pointer",
-            activeCategory === category.id && "font-semibold text-primary"
+            "block w-full text-left text-sm leading-5 transition-colors cursor-pointer",
+            activeCategory === category.id
+              ? "font-semibold"
+              : "font-normal text-zinc-900"
           )}
+          style={{
+            color: activeCategory === category.id ? colors.primary : "#18181b", // zinc-900
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = colors.primary;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color =
+              activeCategory === category.id ? colors.primary : "#18181b";
+          }}
         >
           {category.name}
         </button>
