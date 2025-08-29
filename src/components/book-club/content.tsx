@@ -40,6 +40,10 @@ export default function BookClubContent({
             bring a thought provoking question and we will all share in a
             lively, engaging discussion.
           </p>
+          <p>
+            The first Book Club meetings will be on Mondays at 5:00pm EDT - Sept
+            1st, 8th and 15th.
+          </p>
           <p className="text-muted-foreground text-xs">
             Stay tuned for updates, links for the books and more information as
             we roll out this exciting new offering!
