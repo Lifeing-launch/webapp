@@ -9,7 +9,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <SubscriptionProvider>
       <SidebarProvider style={{}}>
         <AppSidebar />
-        <SidebarInset>{children}</SidebarInset>
+        {/* <SidebarInset> */}
+        {children}
+        {/* </SidebarInset> */}
       </SidebarProvider>
     </SubscriptionProvider>
   </UserProvider>
