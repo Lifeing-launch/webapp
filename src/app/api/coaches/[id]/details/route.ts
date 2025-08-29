@@ -23,8 +23,9 @@ export async function GET(
   }
 
   try {
-    // Make sure we're using the same structure as other API routes
-    const strapiUrl = `${getStrapiBaseUrl()}/api/coaches/${id}/details`;
+    // Build the Strapi URL - getStrapiBaseUrl already includes /api
+    // The staging Strapi has a custom /details endpoint for coaches
+    const strapiUrl = `${getStrapiBaseUrl()}/coaches/${id}/details`;
 
     const data = await strapiFetch(strapiUrl);
     return NextResponse.json(data);
