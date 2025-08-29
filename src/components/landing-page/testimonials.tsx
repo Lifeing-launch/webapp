@@ -9,51 +9,67 @@ import { motion } from "framer-motion";
 const testimonials = [
   {
     id: 1,
-    name: "Ross Alexgunder",
-    role: "Artist",
+    name: "Mary Jo aka MJ",
+    role: "",
     quote:
-      "Lifeing's coaching has transformed my approach to wellness. I feel empowered and supported every step of the way!",
-    avatar: "/images/landing/placeholder-reviewer.png",
+      "The Lifeing community is like nothing I've experienced in my 60+ years of life. The experiences and stories shared are so relatable and the coaches' reflections are gold. It's a space to be vulnerable without fear of judgment or criticism. We learn and grow together; the love, support, tears, and laughs are magical. It really is difficult to describe what this community provides and means to me. Thanks a million!",
+    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 2,
-    name: "Oliviya Gomage",
-    role: "Designer",
+    name: "Robenett",
+    role: "",
     quote:
-      "The community here is incredible. I've found genuine connections and support that I never thought possible online.The community here is incredible. I've found genuine connections and support that I never thought possible online.The community here is incredible. I've found genuine connections and support that I never thought possible online.The community here is incredible. I've found genuine connections and support that I never thought possible online.",
-    avatar: "/images/landing/placeholder-reviewer.png",
+      "Lifeing has been a platform that has done nothing but enhance my very life. Two years ago I made a major permanent lifestyle commitment that was centered around learning how to mindfully moderate my alcohol consumption. It has enabled me to carry this way of living into other parts of myself. Learning to live with intention, compassion, and self understanding while in community with others on the same path, has served as a motivator for me. Lifeing is a lifestyle community where each person presents from a place of vulnerability and truthfulness which makes for such an honest and enriching experience. It makes becoming a better version of yourself a natural outcome. One thing I have learned and will carry with me forever is that seeking self belief leads to acknowledgement, which leads to honesty, which leads to motivation, which leads to uncovering your true self. That my friend, is a WIN!",
+    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 3,
-    name: "Sarah Chen",
-    role: "Teacher",
+    name: "Yo so Vida",
+    role: "",
     quote:
-      "Lifeing has given me the tools and confidence to make lasting changes in my life. The coaches are truly amazing.",
-    avatar: "/images/landing/placeholder-reviewer.png",
+      "For a long, long time I didn't know how lost and misguided I was. When I discovered and was lead to the coaching and guidance of Heidi and Dr Lovey, I started my journey to freedom, liberation, and self discovery. Their compassion, support and encouragement was pivotal in my healing my inner most wounds and reclaiming my birthright; grow and move forward towards becoming the individual i was created to be. With the tools they offered and the ongoing support, I started on a trajectory that has truly changed my life for the better. I now have an expansive perspective on life. They helped me find my voice, feel my feels with a confidence and defiance I never knew possible. I am the risen phoenix and am eternally grateful to both of these amazing humans.",
+    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 4,
-    name: "Michael Rodriguez",
-    role: "Engineer",
+    name: "Lauren InTheNow",
+    role: "",
     quote:
-      "I was skeptical at first, but Lifeing has completely changed my perspective on personal growth and wellness.",
-    avatar: "/images/landing/placeholder-reviewer.png",
+      "Lifeing has been a game changer! Not because I've figured everything out, but because I've learned how to keep showing up for myself without getting stuck in shame or self-sabotage. It's given me tools, perspective, and a supportive space to keep doing the work, one step at a time. I'm still growing, still learning, but now I do it with compassion and clarity instead of fear. That shift has made all the difference.",
+    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 5,
-    name: "Emma Thompson",
-    role: "Nurse",
+    name: "Sunny",
+    role: "",
     quote:
-      "The daily meetings and resources have become an essential part of my routine. I'm so grateful for this community.",
-    avatar: "/images/landing/placeholder-reviewer.png",
+      "Lifeing has literally changed my life! I've been on other platforms before, and nothing has come close to the sincerity and thoughtfulness these coaches show us, not just as a group but as individuals. I've made some of my forever friends on this platform and will always be thankful that I found this group.",
+    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 6,
-    name: "David Kim",
-    role: "Entrepreneur",
+    name: "Susie S",
+    role: "",
     quote:
-      "Lifeing provides the perfect balance of structure and flexibility. It's exactly what I needed for my wellness journey.",
+      "LIFEING has helped me begin to like myself again. It's helped me step out of my insecurities of self doubt and regret. I'm learning that it's okay to 'feel the feels' —that I AM loved, especially when I learn to love myself. Lifeing has given me the tools to dig deep and explore my thoughts and emotions in a way I haven't before.",
+    avatar: "/images/landing/placeholder-women-reviewer.png",
+  },
+  {
+    id: 7,
+    name: "Anonymous",
+    role: "",
+    quote:
+      "While I respect what 12 step programs have done for some people, I never fully connected with the idea that total abstinence is the only path and I don't think that everyone who has had problem drinking is powerless to alcohol. I have power over the choices that I make and I've learned that my relationship with alcohol is complex. It's emotional, cultural, sometimes social… and I've found that the mindful moderation framework used by Lifeing gives me more agency and self-trust. For me, it's not about 'controlling' alcohol, but about being present, intentional, and honest with myself. This is 'Lifeing'",
     avatar: "/images/landing/placeholder-reviewer.png",
+  },
+  {
+    id: 8,
+    name: "Christina O.",
+    role: "",
+    quote:
+      "Lifeng has truly changed my life. With the support of their all-star team of compassionate coaches, I've been able to reduce my drinking, embrace genuine self-love and acceptance, and build healthy, lasting coping skills for all of life's ups and downs. The group sessions are welcoming, warm, and always uplifting. Every meeting feels like a safe haven where I can be myself, grow at my own pace, and know I'm not alone. I've learned so much about resilience, boundaries, and how to meet life with clarity and courage. This community has helped me heal in ways I never thought possible and I'm so grateful to be part of it. If you're ready for real transformation, this is the place to start. 💛",
+    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
 ];
 

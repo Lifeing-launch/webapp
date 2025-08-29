@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { MessageWithDetails } from "@/typing/forum";
 import { formatTimeAgo } from "@/utils/datetime";
+import { getAvatarBackgroundStyle } from "@/utils/forum-avatar-colors";
 
 interface DMMessageCardProps {
   message: MessageWithDetails;
@@ -24,7 +25,10 @@ export function DMMessageCard({ message }: DMMessageCardProps) {
     >
       {/* Avatar */}
       <Avatar className="h-10 w-10 flex-shrink-0">
-        <AvatarFallback className={cn("text-white bg-primary")}>
+        <AvatarFallback
+          className={cn("text-white")}
+          style={getAvatarBackgroundStyle(message.sender_anon_id)}
+        >
           {displayName.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>

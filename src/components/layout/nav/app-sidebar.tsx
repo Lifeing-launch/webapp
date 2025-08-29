@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Sidebar,
@@ -7,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "../../ui/sidebar";
 import {
   Book,
@@ -23,6 +26,7 @@ import Image from "next/image";
 import NavGroup from "./nav-group";
 import { NavUser } from "./nav-user";
 import Link from "next/link";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 export const sidebarIcons = {
   dashboard: <HeartHandshake />,
@@ -90,13 +94,30 @@ const data = {
 };
 
 const AppSidebar = () => {
+  const { colors } = useSectionColors();
+  const { setOpenMobile, isMobile } = useSidebar();
+
+  const handleItemClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  const sidebarStyle = {
+    "--sidebar": colors.sidebar,
+    "--sidebar-foreground": colors.sidebarForeground,
+    "--sidebar-primary": colors.primary,
+    "--sidebar-accent": colors.accent,
+    "--sidebar-ring": colors.ring,
+  } as React.CSSProperties;
+
   return (
-    <Sidebar>
+    <Sidebar style={sidebarStyle}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href="/dashboard" onClick={handleItemClick}>
                 <Image
                   src="/images/logo/lifeing-white.svg"
                   alt="Lifeing Logo"
@@ -109,10 +130,26 @@ const AppSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavGroup title="My Lifeing" items={data.navItems.myLifeing} />
-        <NavGroup title="Tools" items={data.navItems.tools} />
-        <NavGroup title="Resources" items={data.navItems.resources} />
-        <NavGroup title="Upcoming Events" items={data.navItems.events} />
+        <NavGroup
+          title="My Lifeing"
+          items={data.navItems.myLifeing}
+          onItemClick={handleItemClick}
+        />
+        <NavGroup
+          title="Tools"
+          items={data.navItems.tools}
+          onItemClick={handleItemClick}
+        />
+        <NavGroup
+          title="Resources"
+          items={data.navItems.resources}
+          onItemClick={handleItemClick}
+        />
+        <NavGroup
+          title="Upcoming Events"
+          items={data.navItems.events}
+          onItemClick={handleItemClick}
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

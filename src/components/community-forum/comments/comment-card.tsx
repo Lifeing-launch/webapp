@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getAvatarBackgroundStyle } from "@/utils/forum-avatar-colors";
 
 interface CommentCardProps {
   comment: CommentWithDetails;
@@ -38,7 +39,10 @@ export function CommentCard({ comment }: CommentCardProps) {
         )}
       >
         <Avatar className="h-10 w-10 flex-shrink-0">
-          <AvatarFallback className={cn("text-white", "bg-primary")}>
+          <AvatarFallback
+            className={cn("text-white")}
+            style={getAvatarBackgroundStyle(comment.author_anon_id)}
+          >
             <User className="h-6 w-6" />
             {/* {comment.author_profile?.nickname.slice(0, 2).toUpperCase() || "U"} */}
           </AvatarFallback>

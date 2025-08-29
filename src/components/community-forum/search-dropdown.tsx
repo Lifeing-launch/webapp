@@ -3,6 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnonymousProfile, MessageWithDetails } from "@/typing/forum";
 import { formatTimeAgo } from "@/utils/datetime";
+import { getAvatarBackgroundStyle } from "@/utils/forum-avatar-colors";
 
 interface SearchResult {
   people: AnonymousProfile[];
@@ -60,7 +61,10 @@ export function SearchDropdown({
                     onClick={() => onPersonSelect(person)}
                     className="w-full flex items-center gap-3 px-2 py-2 hover:bg-accent rounded-md transition-colors text-left"
                   >
-                    <div className="h-6 w-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium flex-shrink-0">
+                    <div
+                      className="h-6 w-6 rounded-full text-white flex items-center justify-center text-xs font-medium flex-shrink-0"
+                      style={getAvatarBackgroundStyle(person.id)}
+                    >
                       {person.nickname.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">

@@ -1,7 +1,10 @@
+"use client";
+
 import React from "react";
 import { FileText, MonitorPlay, ScrollText } from "lucide-react";
 import Image from "next/image";
 import { Resource } from "@/typing/strapi";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 export function PreviewImage({ resource }: { resource: Resource }) {
   if (
@@ -15,6 +18,7 @@ export function PreviewImage({ resource }: { resource: Resource }) {
 }
 
 function FallbackImage({ resource }: { resource: Resource }) {
+  const { colors } = useSectionColors();
   let Icon;
 
   if (resource.type === "video") {
@@ -26,8 +30,8 @@ function FallbackImage({ resource }: { resource: Resource }) {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-lime-100 text-primary h-35 rounded-xs">
-      <Icon className="size-12 font-bold" />
+    <div className="flex flex-1 items-center justify-center bg-lime-100 h-35 rounded-xs">
+      <Icon className="size-12 font-bold" style={{ color: colors.primary }} />
     </div>
   );
 }

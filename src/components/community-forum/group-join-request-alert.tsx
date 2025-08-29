@@ -1,7 +1,10 @@
+"use client";
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 const alertVariants = cva(
   "flex items-center gap-1 px-4 py-2.5 h-10 rounded-lg transition-all duration-200",
@@ -36,11 +39,16 @@ export function GroupJoinRequestAlert({
   className,
   ...props
 }: GroupJoinRequestAlertProps) {
+  const { colors } = useSectionColors();
+
   return (
     <div
       data-slot="group-join-request-alert"
       className={cn(alertVariants({ variant, className }))}
-      style={{ backgroundColor: "#DAC9DE" }}
+      style={{
+        backgroundColor: `${colors.primary}20`, // 20% opacity
+        borderColor: `${colors.primary}40`, // 40% opacity
+      }}
       {...props}
     >
       <Bell className="w-4 h-4" strokeWidth={1.33} />
@@ -51,7 +59,10 @@ export function GroupJoinRequestAlert({
         </p>
         <button
           onClick={onViewRequests}
-          className="text-sm leading-5 font-normal underline hover:opacity-80 transition-opacity text-primary hover:text-primary/80 cursor-pointer"
+          className="text-sm leading-5 font-normal underline hover:opacity-80 transition-opacity cursor-pointer"
+          style={{
+            color: colors.primary,
+          }}
         >
           View requests
         </button>

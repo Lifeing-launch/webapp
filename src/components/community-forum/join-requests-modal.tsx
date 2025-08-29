@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Clock, Check, X as XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { GroupMemberWithDetails } from "@/typing/forum";
 import { useGroupMemberActions } from "@/hooks/use-forum";
 import { formatTimeAgo } from "@/utils/datetime";
+import { getAvatarBackgroundStyle } from "@/utils/forum-avatar-colors";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 interface JoinRequestsModalProps {
   open: boolean;
@@ -47,8 +51,11 @@ function JoinRequestItem({
     <div className="flex-shrink-0 w-[280px] p-4 border border-gray-200 rounded-lg bg-white">
       <div className="flex items-start gap-3">
         {/* User Avatar */}
-        <Avatar className="w-10 h-10 bg-primary text-white flex-shrink-0">
-          <AvatarFallback className="bg-primary text-white font-semibold text-sm">
+        <Avatar className="w-10 h-10 text-white flex-shrink-0">
+          <AvatarFallback
+            className="text-white font-semibold text-sm"
+            style={getAvatarBackgroundStyle(request.anon_profile_id)}
+          >
             {initials}
           </AvatarFallback>
         </Avatar>
@@ -112,6 +119,7 @@ export function JoinRequestsModal({
   requests,
   onRequestProcessed,
 }: JoinRequestsModalProps) {
+  const { colors } = useSectionColors();
   const { approveGroupMember, removeGroupMember } = useGroupMemberActions();
   const [loadingRequests, setLoadingRequests] = React.useState<Set<string>>(
     new Set()
@@ -224,7 +232,23 @@ export function JoinRequestsModal({
           <Button
             onClick={handleApproveAll}
             disabled={isApproving || requests.length === 0}
-            className="px-6"
+            className="px-6 text-white"
+            style={{
+              backgroundColor: colors.primary,
+              borderColor: colors.primary,
+            }}
+            onMouseEnter={(e) => {
+              if (!isApproving && requests.length > 0) {
+                e.currentTarget.style.backgroundColor = colors.primary;
+                e.currentTarget.style.opacity = "0.9";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isApproving && requests.length > 0) {
+                e.currentTarget.style.backgroundColor = colors.primary;
+                e.currentTarget.style.opacity = "1";
+              }
+            }}
           >
             {isApproving ? "Approving..." : "Approve All"}
           </Button>

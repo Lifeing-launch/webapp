@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/browser";
 import { useUser } from "@/components/providers/user-provider";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useSectionColors } from "@/hooks/use-section-colors";
 
 interface BookmarkButtonProps {
   resourceId: number;
@@ -18,6 +19,7 @@ export default function BookmarkButton({
   hasBookmarked,
 }: BookmarkButtonProps) {
   const { user } = useUser();
+  const { colors } = useSectionColors();
   const [isBookmarked, setIsBookmarked] = useState(hasBookmarked);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -82,9 +84,13 @@ export default function BookmarkButton({
           className={cn(
             "size-6",
             isBookmarked
-              ? "text-primary fill-primary hover:text-primary"
-              : "text-muted-foreground hover:text-muted-foreground"
+              ? "hover:opacity-80"
+              : "text-muted-foreground hover:opacity-80"
           )}
+          style={{
+            color: isBookmarked ? colors.primary : undefined,
+            fill: isBookmarked ? colors.primary : undefined,
+          }}
         />
       )}
     </Button>

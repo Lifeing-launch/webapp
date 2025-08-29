@@ -16,6 +16,7 @@ import {
 import { profileService } from "@/services/forum";
 import { ChevronLeft, Plus } from "lucide-react";
 import { Button } from "../ui/button";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 /**
  * Props para o componente DMView
@@ -132,6 +133,7 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
   } | null>(null);
   const [showNewConversationPanel, setShowNewConversationPanel] =
     useState(false);
+  const [openMobileMenu, setOpenMobileMenu] = useState(false);
 
   const {
     contacts,
@@ -165,6 +167,11 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
     ? contacts.map((contact) => transformToDMContact(contact, currentProfileId))
     : [];
 
+  const handleContactSelectWithMenuClose = (contactId: string) => {
+    handleContactSelect(contactId);
+    setOpenMobileMenu(false);
+  };
+
   const handleUserSelect = async (userId: string, nickname: string) => {
     setIsSelectingNewContact(true);
     setSelectingUserId(userId);
@@ -173,14 +180,14 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
       const existingContact = transformedContacts.find((c) => c.id === userId);
       if (existingContact) {
         // Redirect to existing conversation
-        handleContactSelect(userId);
+        handleContactSelectWithMenuClose(userId);
         setShowNewConversationPanel(false);
         return;
       }
 
       // Store the new contact profile for new conversation
       setNewContactProfile({ id: userId, nickname });
-      handleContactSelect(userId);
+      handleContactSelectWithMenuClose(userId);
       setShowNewConversationPanel(false);
     } finally {
       setIsSelectingNewContact(false);
@@ -262,8 +269,33 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
     (c) => c.id === selectedContactId
   );
 
+  const sidebarContent = isContactsLoading ? (
+    <ContactsLoading />
+  ) : (
+    <>
+      <DMContactsList
+        contacts={uniqueContacts}
+        selectedContactId={selectedContactId || undefined}
+        onContactSelect={handleContactSelectWithMenuClose}
+      />
+    </>
+  );
+
   return (
     <>
+      <Sheet open={openMobileMenu} onOpenChange={setOpenMobileMenu}>
+        <SheetContent side="left" className="w-[300px] p-0">
+          <ForumSidebar
+            activePage={activePage}
+            setActivePage={setActivePage}
+            isFull={true}
+            onItemClick={() => setOpenMobileMenu(false)}
+          >
+            {sidebarContent}
+          </ForumSidebar>
+        </SheetContent>
+      </Sheet>
+
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background border-b border-border px-4 py-3">
         <ForumHeader
@@ -273,6 +305,8 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
           buttonIcon={<Plus className="h-4 w-4" />}
           buttonOnClick={handleNewConversationClick}
           setSearchQuery={setSearchQuery}
+          onMenuClick={() => setOpenMobileMenu(true)}
+          showMenuButton={true}
           searchDropdown={
             <SearchDropdown
               searchQuery={searchQuery}
@@ -288,17 +322,7 @@ export const DMView = ({ activePage, setActivePage }: IDMViewProps) => {
       {/* Main Content Area */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <ForumSidebar activePage={activePage} setActivePage={setActivePage}>
-          {isContactsLoading ? (
-            <ContactsLoading />
-          ) : (
-            <>
-              <DMContactsList
-                contacts={uniqueContacts}
-                selectedContactId={selectedContactId || undefined}
-                onContactSelect={handleContactSelect}
-              />
-            </>
-          )}
+          {sidebarContent}
         </ForumSidebar>
 
         {/* Messages Area */}
