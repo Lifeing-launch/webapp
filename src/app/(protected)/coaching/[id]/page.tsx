@@ -13,11 +13,11 @@ import { CalendarHeart, ChevronLeft, HeartHandshake } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 interface ICoachProfilePage {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function CoachProfilePage({ params }: ICoachProfilePage) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id) {
     notFound();
