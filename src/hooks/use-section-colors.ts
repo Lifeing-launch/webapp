@@ -7,6 +7,7 @@ export type SectionType =
   | "audio-resources"
   | "resources"
   | "community-forum"
+  | "book-club"
   | "default";
 
 export interface SectionColors {
@@ -46,6 +47,13 @@ export const SECTION_COLORS: Record<SectionType, SectionColors> = {
     accent: "var(--section-brown)",
     ring: "var(--section-brown-foreground)",
   },
+  "book-club": {
+    sidebar: "var(--section-brown)",
+    sidebarForeground: "var(--section-brown-foreground)",
+    primary: "var(--section-brown)",
+    accent: "var(--section-brown)",
+    ring: "var(--section-brown-foreground)",
+  },
   default: {
     sidebar: "var(--primary)",
     sidebarForeground: "var(--sidebar-foreground)",
@@ -66,6 +74,7 @@ export const useSectionColors = (): {
     if (pathname.startsWith("/audio-resources")) return "audio-resources";
     if (pathname.startsWith("/resources")) return "resources";
     if (pathname.startsWith("/community-forum")) return "community-forum";
+    if (pathname.startsWith("/book-club")) return "book-club";
     return "default";
   })();
 

@@ -21,7 +21,7 @@ const ResourcesPage = () => {
 
   return (
     <div
-      className="w-full h-screen flex flex-col"
+      className="w-full h-full flex flex-col"
       style={
         {
           "--section-bookmark-color": colors.primary,

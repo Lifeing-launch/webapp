@@ -12,6 +12,7 @@ import {
   useSidebar,
 } from "../../ui/sidebar";
 import {
+  Book,
   BookMarked,
   BookOpen,
   Calendar,
@@ -36,6 +37,7 @@ export const sidebarIcons = {
   resources: <BookMarked />,
   podcast: <Podcast />,
   account: <UserRoundCog />,
+  bookClub: <Book />,
 };
 
 const data = {
@@ -79,6 +81,13 @@ const data = {
         title: "Drink Log",
         url: "/drink-log",
         icon: sidebarIcons.drinkLog,
+      },
+    ],
+    events: [
+      {
+        title: "Book Club",
+        url: "/book-club",
+        icon: sidebarIcons.bookClub,
       },
     ],
   },
@@ -134,6 +143,11 @@ const AppSidebar = () => {
         <NavGroup
           title="Resources"
           items={data.navItems.resources}
+          onItemClick={handleItemClick}
+        />
+        <NavGroup
+          title="Upcoming Events"
+          items={data.navItems.events}
           onItemClick={handleItemClick}
         />
       </SidebarContent>

@@ -81,7 +81,7 @@ export default async function DashboardPage() {
   );
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-full flex flex-col flex-1">
       <DashboardBanner />
       <main className="flex-1 p-4 overflow-y-auto">
         <DashboardRow

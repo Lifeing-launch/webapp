@@ -20,13 +20,14 @@ const tabs: { key: TabKey; label: string }[] = [
 
 const currentMonthDateRange = generateDateRange("current-month");
 const nextMonthDateRange = generateDateRange("next-month");
+const calendarDateRange = generateDateRange("calendar");
 
 const MeetingsPage = () => {
   const [tab, setTab] = useState<TabKey>("current-month");
   const { colors } = useSectionColors();
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-full flex flex-col flex-1">
       <PageBanner
         title="My Meetings"
         className="mb-0 flex-shrink-0"
@@ -73,10 +74,7 @@ const MeetingsPage = () => {
             key={"calendar"}
             className="space-y-4"
           >
-            <MeetingsTab
-              initialDateRange={currentMonthDateRange}
-              showDatePicker
-            />
+            <MeetingsTab initialDateRange={calendarDateRange} showDatePicker />
           </TabsContent>
         </Tabs>{" "}
       </main>
@@ -103,10 +101,15 @@ function generateDateRange(preset?: TabKey): DateRange {
       targetMonth = currentMonth + 1;
     }
   }
-
   const startOfMonth = new Date(targetYear, targetMonth, 1, 0, 0, 0, 0);
-
   const endOfMonth = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
+
+  if (preset === "current-month") {
+    // From today to the end of the month
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return { from: today, to: endOfMonth };
+  }
 
   return { from: startOfMonth, to: endOfMonth };
 }
