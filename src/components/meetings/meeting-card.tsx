@@ -26,6 +26,7 @@ import {
 import RsvpButton from "./rsvp-button";
 import { Meeting, MeetingType } from "@/typing/strapi";
 import { useSectionColors } from "@/hooks/use-section-colors";
+import Link from "next/link";
 
 interface IMeetingCard {
   meeting: Meeting;
@@ -68,10 +69,12 @@ export function MeetingCard({
         {showRsvp && (
           <RsvpButton hasRsvped={hasRsvped} meetingId={meeting.id} />
         )}
-        {hasRsvped && isHighlighted && (
-          <Button className="flex-1">
-            <Check /> Join meeting
-          </Button>
+        {hasRsvped && isHighlighted && meeting.url && (
+          <Link href={meeting.url}>
+            <Button className="flex-1">
+              <Check /> Join meeting
+            </Button>
+          </Link>
         )}
       </CardFooter>
     </Card>
