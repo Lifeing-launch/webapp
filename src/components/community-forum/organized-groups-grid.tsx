@@ -19,7 +19,6 @@ export function OrganizedGroupsGrid({
 }: OrganizedGroupsGridProps) {
   const queryClient = getQueryClient();
   const { profile } = useAnonymousProfile();
-
   // Track loading states for each group
   const [loadingGroups, setLoadingGroups] = React.useState<Set<string>>(
     new Set()
@@ -38,11 +37,20 @@ export function OrganizedGroupsGrid({
 
   // Organize groups into categories
   const organizedGroups = React.useMemo(() => {
-    if (!groups || !profile) {
+    if (!groups || groups.length === 0) {
       return {
         createdByMe: [],
         joinedGroups: [],
         availableGroups: [],
+      };
+    }
+
+    // If no profile, show all groups as available
+    if (!profile) {
+      return {
+        createdByMe: [],
+        joinedGroups: [],
+        availableGroups: groups,
       };
     }
 
@@ -63,11 +71,13 @@ export function OrganizedGroupsGrid({
         (!group.is_member || group.member_status !== "approved")
     );
 
-    return {
+    const result = {
       createdByMe,
       joinedGroups,
       availableGroups,
     };
+
+    return result;
   }, [groups, profile]);
 
   const handleGroupClick = (group: GroupWithDetails) => {
@@ -97,8 +107,6 @@ export function OrganizedGroupsGrid({
       queryClient.invalidateQueries({
         queryKey: ["groups"],
       });
-
-      console.log("Successfully requested to join group:", groupId);
     } catch (error) {
       console.error("Error requesting to join group:", error);
     } finally {
@@ -115,8 +123,6 @@ export function OrganizedGroupsGrid({
       queryClient.invalidateQueries({
         queryKey: ["groups"],
       });
-
-      console.log("Successfully joined group:", groupId);
     } catch (error) {
       console.error("Error joining group:", error);
     } finally {
@@ -175,8 +181,8 @@ export function OrganizedGroupsGrid({
   };
 
   return (
-    <div className="bg-gray-50/50 h-full">
-      <div className="space-y-8 p-1 pb-4">
+    <div className="min-h-full">
+      <div className="space-y-8 p-6 pb-4">
         {/* Alert for join requests */}
         {shouldShowJoinRequestAlert && (
           <GroupJoinRequestAlert
@@ -195,6 +201,42 @@ export function OrganizedGroupsGrid({
         {renderGroupsSection(
           "Available Groups",
           organizedGroups.availableGroups
+        )}
+
+        {/* Show all groups if no sections have content */}
+        {(() => {
+          const shouldShowFallback =
+            organizedGroups.createdByMe.length === 0 &&
+            organizedGroups.joinedGroups.length === 0 &&
+            organizedGroups.availableGroups.length === 0 &&
+            groups.length > 0;
+
+          return shouldShowFallback;
+        })() && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-foreground">
+                All Groups
+              </h2>
+              <span className="text-sm text-muted-foreground">
+                ({groups.length})
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
+              {groups.map((group) => (
+                <div key={group.id} className="min-h-[180px] flex">
+                  <GroupCard
+                    group={group}
+                    onClick={() => handleGroupClick(group)}
+                    onJoin={() => handleJoin(group.id)}
+                    onRequestJoin={() => handleJoinRequest(group.id)}
+                    isJoinLoading={loadingGroups.has(group.id)}
+                    className="w-full"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Empty state when no groups */}

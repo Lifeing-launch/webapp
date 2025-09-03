@@ -24,8 +24,8 @@ export function ForumSidebar({
       className={cn(
         "flex flex-col border-r border-gray-300 px-4 pt-1.5 gap-4 overflow-y-auto",
         isFull
-          ? "w-full h-full min-h-0"
-          : "hidden lg:flex lg:flex-col lg:w-75 lg:flex-shrink-0"
+          ? "w-full h-full min-h-0 z-0"
+          : "hidden lg:flex lg:flex-col lg:w-75 lg:flex-shrink-0 z-0"
       )}
       style={{
         backgroundColor: "var(--forum-background)",

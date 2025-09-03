@@ -12,27 +12,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { format } from "date-fns";
-
-interface DrinkEntry {
-  id: string;
-  drank_at: string;
-  quantity: number;
-  notes?: string;
-  drink_type: { id: number; name: string };
-  drink_brand?: { id: number; name: string };
-  mood?: { id: number; name: string };
-  trigger?: { id: number; name: string };
-  location?: { id: number; name: string };
-}
+import { DrinkEntryWithRelations } from "@/typing/drink-log";
 
 interface DrinkCardProps {
-  entry: DrinkEntry;
+  entry: DrinkEntryWithRelations;
   onDelete: (id: string) => void;
 }
 
 export default function DrinkCard({ entry, onDelete }: DrinkCardProps) {
-  // const formattedTime = format(new Date(entry.drank_at), "h:mm a");
   const formattedDate = format(new Date(entry.drank_at), "MMMM d, yyyy");
+
+  const handleDelete = () => {
+    onDelete(entry.id);
+  };
 
   return (
     <Card className="p-4">
@@ -72,7 +64,7 @@ export default function DrinkCard({ entry, onDelete }: DrinkCardProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               className="text-destructive"
-              onClick={() => onDelete(entry.id)}
+              onClick={handleDelete}
             >
               Delete
             </DropdownMenuItem>
