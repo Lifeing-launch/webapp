@@ -185,11 +185,12 @@ export default function CalendarView({ onDelete }: CalendarViewProps) {
               </h3>
               {selectedDateEntries.length > 0 && (
                 <span className="text-xs sm:text-sm text-muted-foreground">
-                  {selectedDateEntries.length} drink{selectedDateEntries.length !== 1 ? 's' : ''} logged
+                  {selectedDateEntries.length} drink
+                  {selectedDateEntries.length !== 1 ? "s" : ""} logged
                 </span>
               )}
             </div>
-            
+
             {isLoadingDay ? (
               <Card className="p-4 sm:p-6">
                 <div className="h-20 sm:h-24 animate-pulse bg-muted rounded-lg" />
