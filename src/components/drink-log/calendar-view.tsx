@@ -155,7 +155,7 @@ export default function CalendarView({ onDelete }: CalendarViewProps) {
   return (
     <div className="flex flex-col xl:flex-row gap-4 md:gap-6">
       {/* Calendar Section */}
-      <div className="xl:w-[35%] xl:flex-shrink-0">
+      <div className="xl:w-[25%] xl:flex-shrink-0">
         <Card className="p-3 sm:p-4 w-full xl:sticky xl:top-4">
           <div className="flex justify-center">
             <Calendar
@@ -164,7 +164,7 @@ export default function CalendarView({ onDelete }: CalendarViewProps) {
               onSelect={setSelectedDate}
               month={currentMonth}
               onMonthChange={handleMonthChange}
-              className="rounded-md w-fit"
+              className="rounded-md w-fit xl:w-full"
               disabled={isLoadingMonth}
               components={{
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
