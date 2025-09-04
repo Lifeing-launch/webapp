@@ -258,7 +258,37 @@ export const GroupsView = ({
             </SidebarSection>
           </div>
         </>
-      ) : null}
+      ) : (
+        // Render groups list when no group is selected
+        <div className="h-full flex flex-col overflow-hidden">
+          {isLoadingAllGroups || !isAllGroupsFetched ? (
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 gap-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <GroupCardSkeleton key={i} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : allGroupsError ? (
+            <div className="flex-1 flex items-center justify-center">
+              <GroupsErrorState message="Failed to load groups" />
+            </div>
+          ) : allAvailableGroups?.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center">
+              <GroupsEmptyState />
+            </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto">
+              <OrganizedGroupsGrid
+                groups={allAvailableGroups || []}
+                onGroupSelect={setSelectedGroup}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 
@@ -297,44 +327,14 @@ export const GroupsView = ({
         >
           {sidebarContent}
         </ForumSidebar>
-        <div className="flex-1 overflow-hidden">
-          {selectedGroup ? (
+        {selectedGroup && (
+          <div className="flex-1 overflow-hidden">
             <GroupThreads
               groupId={selectedGroup.id}
               searchQuery={searchQuery}
             />
-          ) : (
-            <div className="h-full flex flex-col overflow-hidden">
-              {isLoadingAllGroups || !isAllGroupsFetched ? (
-                <div className="flex-1 overflow-y-auto p-6">
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <GroupCardSkeleton key={i} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : allGroupsError ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <GroupsErrorState message="Failed to load groups" />
-                </div>
-              ) : allAvailableGroups?.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <GroupsEmptyState />
-                </div>
-              ) : (
-                <div className="flex-1 overflow-y-auto">
-                  <OrganizedGroupsGrid
-                    groups={allAvailableGroups || []}
-                    onGroupSelect={setSelectedGroup}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        )
+          </div>
+        )}
       </div>
 
       <NewGroupModal

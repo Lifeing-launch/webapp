@@ -41,13 +41,15 @@ export function GroupJoinRequestAlert({
 }: GroupJoinRequestAlertProps) {
   const { colors } = useSectionColors();
 
+  console.log("colors.primary", colors.primary);
+
   return (
     <div
       data-slot="group-join-request-alert"
       className={cn(alertVariants({ variant, className }))}
       style={{
-        backgroundColor: `${colors.primary}20`, // 20% opacity
-        borderColor: `${colors.primary}40`, // 40% opacity
+        backgroundColor: `color-mix(in srgb, ${colors.primary} 12%, transparent)`,
+        borderColor: `color-mix(in srgb, ${colors.primary} 25%, transparent)`,
       }}
       {...props}
     >

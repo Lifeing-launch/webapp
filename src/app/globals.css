@@ -261,3 +261,23 @@
 button {
   cursor: pointer;
 }
+
+/* Sidebar active item indicator */
+[data-sidebar="menu-button"][data-active="true"] {
+  position: relative;
+}
+
+[data-sidebar="menu-button"][data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background-color: white;
+  opacity: 0.8;
+  border-radius: 0 2px 2px 0;
+  transition: all 0.2s ease-in-out;
+  z-index: 1;
+}
