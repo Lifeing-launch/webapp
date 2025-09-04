@@ -5,6 +5,7 @@ import DrinkCard from "./drink-card";
 import CalendarView from "./calendar-view";
 import { useRouter } from "next/navigation";
 import { DrinkEntryWithRelations } from "@/typing/drink-log";
+import { toast } from "sonner";
 
 interface DrinkLogListProps {
   userId: string;
@@ -44,12 +45,17 @@ export default function DrinkLogList({ view }: DrinkLogListProps) {
       const response = await fetch(`/api/drink-log/entries?id=${id}`, {
         method: "DELETE",
       });
+
       if (response.ok) {
         setEntries(entries.filter((entry) => entry.id !== id));
         router.refresh();
+        toast.success("Drink entry deleted");
+      } else {
+        toast.error("Failed to delete drink entry");
       }
     } catch (error) {
       console.error("Error deleting entry:", error);
+      toast.error("Failed to delete drink entry");
     }
   };
 

@@ -123,7 +123,7 @@ export default function CalendarView({ onDelete }: CalendarViewProps) {
         variant="ghost"
         size="icon"
         className={cn(
-          "relative h-9 w-9 p-0 font-normal hover:bg-accent hover:text-accent-foreground",
+          "relative h-8 w-8 sm:h-9 sm:w-9 p-0 font-normal text-xs sm:text-sm hover:bg-accent hover:text-accent-foreground",
           modifiers.today && "bg-accent text-accent-foreground",
           modifiers.selected &&
             "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
@@ -135,12 +135,12 @@ export default function CalendarView({ onDelete }: CalendarViewProps) {
       >
         <span>{day.date.getDate()}</span>
         {entryCount > 0 && (
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
+          <div className="absolute -bottom-0.5 sm:-bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
             {Array.from({ length: Math.min(entryCount, 1) }).map((_, i) => (
               <div
                 key={i}
                 className={cn(
-                  "h-1.5 w-1.5 rounded-full",
+                  "h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full",
                   isSelected ? "bg-primary-foreground" : "bg-primary"
                 )}
               />
@@ -153,49 +153,68 @@ export default function CalendarView({ onDelete }: CalendarViewProps) {
   CustomDayButton.displayName = "CustomDayButton";
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-5 gap-6">
-      <Card className="p-4 w-full lg:col-span-1">
-        <Calendar
-          mode="single"
-          selected={selectedDate}
-          onSelect={setSelectedDate}
-          month={currentMonth}
-          onMonthChange={handleMonthChange}
-          className="rounded-md w-full lg:w-auto"
-          disabled={isLoadingMonth}
-          components={{
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            DayButton: CustomDayButton as any,
-          }}
-        />
-      </Card>
+    <div className="flex flex-col xl:flex-row gap-4 md:gap-6">
+      {/* Calendar Section */}
+      <div className="xl:w-[35%] xl:flex-shrink-0">
+        <Card className="p-3 sm:p-4 w-full xl:sticky xl:top-4">
+          <div className="flex justify-center">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              month={currentMonth}
+              onMonthChange={handleMonthChange}
+              className="rounded-md w-fit"
+              disabled={isLoadingMonth}
+              components={{
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                DayButton: CustomDayButton as any,
+              }}
+            />
+          </div>
+        </Card>
+      </div>
 
-      <div className="space-y-4 w-full lg:col-span-4">
+      {/* Selected Date Entries Section */}
+      <div className="xl:flex-1 xl:min-w-0">
         {selectedDate && (
-          <>
-            <h3 className="text-lg font-semibold">
-              {format(selectedDate, "MMMM d, yyyy")}
-            </h3>
+          <div className="space-y-3 sm:space-y-4 w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <h3 className="text-base sm:text-lg font-semibold">
+                {format(selectedDate, "MMMM d, yyyy")}
+              </h3>
+              {selectedDateEntries.length > 0 && (
+                <span className="text-xs sm:text-sm text-muted-foreground">
+                  {selectedDateEntries.length} drink
+                  {selectedDateEntries.length !== 1 ? "s" : ""} logged
+                </span>
+              )}
+            </div>
+
             {isLoadingDay ? (
-              <Card className="p-6">
-                <div className="h-24 animate-pulse bg-muted rounded-lg" />
+              <Card className="p-4 sm:p-6">
+                <div className="h-20 sm:h-24 animate-pulse bg-muted rounded-lg" />
               </Card>
             ) : selectedDateEntries.length === 0 ? (
-              <Card className="p-6">
-                <p className="text-center text-muted-foreground">
-                  No drinks logged on this date
-                </p>
+              <Card className="p-4 sm:p-6">
+                <div className="text-center">
+                  <p className="text-sm sm:text-base text-muted-foreground">
+                    No drinks logged on this date
+                  </p>
+                </div>
               </Card>
             ) : (
-              selectedDateEntries.map((entry) => (
-                <DrinkCard
-                  key={entry.id}
-                  entry={entry}
-                  onDelete={handleDeleteEntry}
-                />
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4">
+                {selectedDateEntries.map((entry) => (
+                  <DrinkCard
+                    key={entry.id}
+                    entry={entry}
+                    onDelete={handleDeleteEntry}
+                  />
+                ))}
+              </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

@@ -30,19 +30,31 @@ export default function DrinkLogClient({
 
       <Tabs defaultValue={initialView} className="w-full">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center lg:justify-between">
-          <div className="overflow-x-auto lg:overflow-visible w-full lg:w-auto">
-            <TabsList className="flex w-max min-w-full lg:grid lg:w-full lg:max-w-lg lg:grid-cols-4 justify-start">
-              <TabsTrigger value="week" className="whitespace-nowrap">
-                This week
+          <div className="w-full lg:w-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:max-w-lg gap-1 h-auto p-1">
+              <TabsTrigger
+                value="week"
+                className="text-xs sm:text-sm px-2 py-3 sm:py-1 h-auto min-w-24"
+              >
+                Week
               </TabsTrigger>
-              <TabsTrigger value="month" className="whitespace-nowrap">
-                This month
+              <TabsTrigger
+                value="month"
+                className="text-xs sm:text-sm px-2 py-3 sm:py-1 h-auto min-w-24"
+              >
+                Month
               </TabsTrigger>
-              <TabsTrigger value="year" className="whitespace-nowrap">
-                This year
+              <TabsTrigger
+                value="year"
+                className="text-xs sm:text-sm px-2 py-3 sm:py-1 h-auto min-w-24"
+              >
+                Year
               </TabsTrigger>
-              <TabsTrigger value="calendar" className="whitespace-nowrap">
-                Calendar View
+              <TabsTrigger
+                value="calendar"
+                className="text-xs sm:text-sm px-2 py-3 sm:py-1 h-auto min-w-24"
+              >
+                Calendar
               </TabsTrigger>
             </TabsList>
           </div>
