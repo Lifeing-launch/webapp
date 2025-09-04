@@ -117,7 +117,7 @@ const AppSidebar = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard" onClick={handleItemClick}>
+              <Link href="/" onClick={handleItemClick}>
                 <Image
                   src="/images/logo/lifeing-white.svg"
                   alt="Lifeing Logo"

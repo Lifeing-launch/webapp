@@ -52,51 +52,51 @@ export default function DrinkStats({ view: _, refreshKey }: DrinkStatsProps) {
   }
 
   return (
-    <Card className="p-4 lg:p-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-0">
+    <Card className="p-4 md:p-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-0">
         {/* Drinks Logged */}
-        <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 px-2 py-3 lg:px-4 lg:py-2 text-center lg:text-left">
-          <Wine className="h-5 w-5 lg:h-6 lg:w-6 text-muted-foreground flex-shrink-0 mx-auto lg:mx-0" />
-          <div className="space-y-1 lg:space-y-0">
-            <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
+        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 px-2 py-3 md:px-4 md:py-2 text-center md:text-left">
+          <Wine className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground flex-shrink-0 mx-auto md:mx-0" />
+          <div className="space-y-1 md:space-y-0">
+            <p className="text-xs md:text-sm text-muted-foreground leading-tight">
               Drinks
-              <br className="lg:hidden" /> Logged
+              <br className="md:hidden" /> Logged
             </p>
-            <p className="text-xl lg:text-2xl font-bold">
+            <p className="text-xl md:text-2xl font-bold">
               {stats.drinksLogged}
             </p>
           </div>
         </div>
 
         {/* Standard Drinks Equivalent */}
-        <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 px-2 py-3 lg:px-4 lg:py-2 lg:border-l lg:border-border text-center lg:text-left">
-          <GlassWater className="h-5 w-5 lg:h-6 lg:w-6 text-muted-foreground flex-shrink-0 mx-auto lg:mx-0" />
-          <div className="space-y-1 lg:space-y-0">
-            <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
+        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 px-2 py-3 md:px-4 md:py-2 md:border-l md:border-border text-center md:text-left">
+          <GlassWater className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground flex-shrink-0 mx-auto md:mx-0" />
+          <div className="space-y-1 md:space-y-0">
+            <p className="text-xs md:text-sm text-muted-foreground leading-tight">
               Standard
-              <br className="lg:hidden" /> Drinks
-              <br className="lg:hidden" /> Equivalent
+              <br className="md:hidden" /> Drinks
+              <br className="md:hidden" /> Equivalent
             </p>
-            <p className="text-xl lg:text-2xl font-bold">
-              <span className="block lg:inline">
+            <p className="text-xl md:text-2xl font-bold">
+              <span className="block md:inline">
                 {stats.standardDrinks.toFixed(2)}
               </span>
-              <span className="text-sm lg:text-xl block lg:inline"> units</span>
+              <span className="text-sm md:text-xl block md:inline"> units</span>
             </p>
           </div>
         </div>
 
         {/* Remaining Drinks */}
-        <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 px-2 py-3 lg:px-4 lg:py-2 lg:border-l lg:border-border text-center lg:text-left border-t lg:border-t-0 border-border">
-          <Martini className="h-5 w-5 lg:h-6 lg:w-6 text-muted-foreground flex-shrink-0 mx-auto lg:mx-0" />
-          <div className="space-y-1 lg:space-y-0">
-            <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
+        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 px-2 py-3 md:px-4 md:py-2 md:border-l md:border-border text-center md:text-left border-t md:border-t-0 border-border">
+          <Martini className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground flex-shrink-0 mx-auto md:mx-0" />
+          <div className="space-y-1 md:space-y-0">
+            <p className="text-xs md:text-sm text-muted-foreground leading-tight">
               Remaining
-              <br className="lg:hidden" /> Drinks
+              <br className="md:hidden" /> Drinks
             </p>
-            <p className="text-xl lg:text-2xl font-bold">
-              <span className="block lg:inline">{stats.remainingDrinks}</span>
-              <span className="text-sm lg:text-xl block lg:inline">
+            <p className="text-xl md:text-2xl font-bold">
+              <span className="block md:inline">{stats.remainingDrinks}</span>
+              <span className="text-sm md:text-xl block md:inline">
                 {" "}
                 drinks
               </span>
@@ -105,16 +105,16 @@ export default function DrinkStats({ view: _, refreshKey }: DrinkStatsProps) {
         </div>
 
         {/* Current Streak */}
-        <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 px-2 py-3 lg:px-4 lg:py-2 lg:border-l lg:border-border text-center lg:text-left border-t lg:border-t-0 border-border">
-          <Goal className="h-5 w-5 lg:h-6 lg:w-6 text-muted-foreground flex-shrink-0 mx-auto lg:mx-0" />
-          <div className="space-y-1 lg:space-y-0">
-            <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
+        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 px-2 py-3 md:px-4 md:py-2 md:border-l md:border-border text-center md:text-left border-t md:border-t-0 border-border">
+          <Goal className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground flex-shrink-0 mx-auto md:mx-0" />
+          <div className="space-y-1 md:space-y-0">
+            <p className="text-xs md:text-sm text-muted-foreground leading-tight">
               Current
-              <br className="lg:hidden" /> Streak
+              <br className="md:hidden" /> Streak
             </p>
-            <p className="text-xl lg:text-2xl font-bold">
-              <span className="block lg:inline">{stats.currentStreak}</span>
-              <span className="text-sm lg:text-xl block lg:inline"> days</span>
+            <p className="text-xl md:text-2xl font-bold">
+              <span className="block md:inline">{stats.currentStreak}</span>
+              <span className="text-sm md:text-xl block md:inline"> days</span>
             </p>
           </div>
         </div>

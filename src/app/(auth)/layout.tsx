@@ -5,7 +5,7 @@ import Link from "next/link";
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex flex-col justify-center items-center gap-10 p-6 min-h-svh bg-lime-100">
-      <Link href="/login" className="w-[120]">
+      <Link href="/" className="w-[120]">
         <Image
           src="/images/logo/lifeing-green.svg"
           alt="Lifeing Logo"
