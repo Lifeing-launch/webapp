@@ -1,0 +1,299 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Convenções de Testes
+
+## Configuração de Testes
+
+### Jest Setup
+O projeto usa Jest com configuração específica para React e TypeScript:
+
+```typescript
+// jest.config.ts - Configuração principal
+{
+  testEnvironment: "jsdom",
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  moduleNameMapping: {
+    "^@/(.*)$": "<rootDir>/src/$1",
+  },
+}
+```
+
+### Testing Libraries
+- **Jest**: Framework de testes principal
+- **@testing-library/react**: Para testes de componentes React
+- **@testing-library/jest-dom**: Matchers customizados
+- **@testing-library/user-event**: Para simulação de interações
+
+## Padrões de Nomenclatura
+
+### 1. Arquivos de Teste
+```
+// ✅ Padrões aceitos
+component.test.tsx      // Para componentes React
+service.spec.ts         // Para funções/serviços
+utils.test.ts          // Para utilitários
+```
+
+### 2. Estrutura de Diretórios
+```
+src/
+  components/
+    ui/
+      button.tsx
+      __tests__/
+        button.test.tsx
+  utils/
+    helpers.ts
+    __tests__/
+      helpers.test.ts
+```
+
+## Padrões de Testes de Componentes
+
+### 1. Teste Básico de Componente
+```typescript
+import { render, screen } from "@testing-library/react";
+import { Button } from "../button";
+
+describe("Button", () => {
+  it("renders button with text", () => {
+    render(<Button>Click me</Button>);
+    
+    expect(screen.getByRole("button", { name: /click me/i })).toBeInTheDocument();
+  });
+
+  it("applies custom className", () => {
+    render(<Button className="custom-class">Button</Button>);
+    
+    expect(screen.getByRole("button")).toHaveClass("custom-class");
+  });
+});
+```
+
+### 2. Teste de Variantes
+```typescript
+import { render, screen } from "@testing-library/react";
+import { Button } from "../button";
+
+describe("Button Variants", () => {
+  it.each([
+    ["default", "bg-primary"],
+    ["destructive", "bg-destructive"],
+    ["outline", "border"],
+  ])("renders %s variant with correct classes", (variant, expectedClass) => {
+    render(<Button variant={variant as any}>Button</Button>);
+    
+    expect(screen.getByRole("button")).toHaveClass(expectedClass);
+  });
+});
+```
+
+### 3. Teste de Interações
+```typescript
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Button } from "../button";
+
+describe("Button Interactions", () => {
+  it("calls onClick when clicked", async () => {
+    const user = userEvent.setup();
+    const handleClick = jest.fn();
+    
+    render(<Button onClick={handleClick}>Click me</Button>);
+    
+    await user.click(screen.getByRole("button"));
+    
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+## Padrões de Testes de Hooks
+
+### 1. Custom Hooks
+```typescript
+import { renderHook, act } from "@testing-library/react";
+import { useAuth } from "../use-auth";
+
+describe("useAuth", () => {
+  it("initializes with no user", () => {
+    const { result } = renderHook(() => useAuth());
+    
+    expect(result.current.user).toBeNull();
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+  
+  it("updates user on login", async () => {
+    const { result } = renderHook(() => useAuth());
+    
+    await act(async () => {
+      await result.current.login({ email: "test@test.com", password: "123" });
+    });
+    
+    expect(result.current.isAuthenticated).toBe(true);
+  });
+});
+```
+
+## Padrões de Mocks
+
+### 1. Mock de Módulos
+```typescript
+// Mock de Next.js router
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => "/current-path",
+}));
+```
+
+### 2. Mock de Supabase
+```typescript
+// Mock de Supabase client
+jest.mock("@/lib/supabase", () => ({
+  supabase: {
+    auth: {
+      getUser: jest.fn(),
+      signIn: jest.fn(),
+      signOut: jest.fn(),
+    },
+    from: jest.fn(() => ({
+      select: jest.fn(),
+      insert: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    })),
+  },
+}));
+```
+
+## Padrões de Testes de Integração
+
+### 1. Testes de Fluxo
+```typescript
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { LoginForm } from "../login-form";
+
+describe("LoginForm Integration", () => {
+  it("submits form with valid data", async () => {
+    const user = userEvent.setup();
+    const mockLogin = jest.fn();
+    
+    render(<LoginForm onLogin={mockLogin} />);
+    
+    // Fill form
+    await user.type(
+      screen.getByLabelText(/email/i), 
+      "user@example.com"
+    );
+    await user.type(
+      screen.getByLabelText(/password/i), 
+      "password123"
+    );
+    
+    // Submit
+    await user.click(screen.getByRole("button", { name: /login/i }));
+    
+    expect(mockLogin).toHaveBeenCalledWith({
+      email: "user@example.com",
+      password: "password123",
+    });
+  });
+});
+```
+
+## Melhores Práticas
+
+### 1. Arrange, Act, Assert (AAA)
+```typescript
+describe("Component", () => {
+  it("should do something", () => {
+    // Arrange - Setup
+    const props = { title: "Test Title" };
+    
+    // Act - Execute
+    render(<Component {...props} />);
+    
+    // Assert - Verify
+    expect(screen.getByText("Test Title")).toBeInTheDocument();
+  });
+});
+```
+
+### 2. Queries Semânticas
+```typescript
+// ✅ Preferir queries semânticas
+screen.getByRole("button", { name: /submit/i })
+screen.getByLabelText(/email address/i)
+screen.getByText(/welcome/i)
+
+// ❌ Evitar queries por classes/ids
+screen.getByClassName("submit-button")
+screen.getElementById("email-input")
+```
+
+### 3. Async Testing
+```typescript
+// ✅ Para operações assíncronas
+await waitFor(() => {
+  expect(screen.getByText("Loading...")).not.toBeInTheDocument();
+});
+
+// ✅ Para eventos de usuário
+await user.click(button);
+await user.type(input, "text");
+```
+
+### 4. Test Data Builders
+```typescript
+// ✅ Builders para dados de teste
+const createUser = (overrides = {}) => ({
+  id: "1",
+  name: "John Doe",
+  email: "john@example.com",
+  ...overrides,
+});
+
+// Uso
+const user = createUser({ name: "Jane Doe" });
+```
+
+## Configuração ESLint para Testes
+
+### Regras Específicas
+```javascript
+// eslint.config.mjs
+{
+  files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+  rules: {
+    "@typescript-eslint/no-explicit-any": "off", // Para mocks
+  },
+}
+```
+
+## Scripts de Teste
+
+### Package.json Scripts
+```json
+{
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --watchAll=false"
+  }
+}
+```
+
+Referências:
+- [jest.config.ts](mdc:jest.config.ts) - Configuração do Jest
+- [jest.setup.ts](mdc:jest.setup.ts) - Setup dos testes
+- [eslint.config.mjs](mdc:eslint.config.mjs) - Regras ESLint para testes

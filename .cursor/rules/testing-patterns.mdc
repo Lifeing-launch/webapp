@@ -1,0 +1,251 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Padrões de Testing
+
+## Configuração de Testes
+
+### Setup Básico
+- **Framework**: Jest + React Testing Library
+- **Config**: [jest.config.ts](mdc:jest.config.ts)
+- **Setup**: [jest.setup.ts](mdc:jest.setup.ts)
+- **Utilities**: [Test Utils](mdc:src/utils/tests.tsx)
+
+### Environment
+- **Test Environment**: jsdom para componentes React
+- **Coverage**: Habilitado com provider v8
+- **Module Mapping**: `@/` mapped para `<rootDir>/src/`
+
+## Convenções de Nomenclatura
+
+### Estrutura de Arquivos
+- **Componentes**: `component-name.test.tsx`
+- **Utils/Services**: `util-name.test.ts`
+- **API Routes**: `route.test.ts`
+- **Pages**: `page.test.tsx`
+
+### Localização
+- Testes lado a lado com arquivos testados
+- Ex: `form.tsx` → `form.test.tsx`
+
+## Padrões de Testing
+
+### Template Base para Componentes
+```typescript
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import ComponentName from "./component-name";
+
+// Mock dependencies
+jest.mock("@/utils/some-dependency", () => ({
+  someMock: jest.fn(),
+}));
+
+describe("ComponentName", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("renders correctly", () => {
+    render(<ComponentName />);
+    expect(screen.getByText("Expected Text")).toBeInTheDocument();
+  });
+
+  it("handles user interaction", async () => {
+    render(<ComponentName />);
+    const button = screen.getByRole("button", { name: "Click me" });
+    
+    fireEvent.click(button);
+    
+    await waitFor(() => {
+      expect(screen.getByText("Result")).toBeInTheDocument();
+    });
+  });
+});
+```
+
+### Template para Utils/Services
+```typescript
+import { utilFunction } from "./util-name";
+
+describe("utilFunction", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns expected result for valid input", () => {
+    const result = utilFunction("valid-input");
+    expect(result).toBe("expected-output");
+  });
+
+  it("handles edge cases", () => {
+    expect(() => utilFunction(null)).toThrow("Expected error");
+  });
+});
+```
+
+## Mocking Patterns
+
+### Supabase Mocking
+```typescript
+jest.mock("@/utils/supabase/browser", () => ({
+  createClient: jest.fn(() => ({
+    auth: {
+      getUser: jest.fn(),
+      signInWithPassword: jest.fn(),
+    },
+    from: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+  })),
+}));
+```
+
+### Next.js Navigation Mocking
+```typescript
+jest.mock("next/navigation", () => ({
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+  })),
+  useSearchParams: jest.fn(() => ({
+    get: jest.fn(),
+  })),
+  redirect: jest.fn(),
+}));
+```
+
+### Fetch Mocking
+```typescript
+beforeEach(() => {
+  global.fetch = jest.fn();
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
+// In test
+(global.fetch as jest.Mock).mockResolvedValue({
+  ok: true,
+  json: jest.fn().mockResolvedValue({ data: mockData }),
+});
+```
+
+## Testing de Formulários
+
+### Form Interaction
+```typescript
+it("submits form with valid data", async () => {
+  render(<LoginForm />);
+  
+  const emailInput = screen.getByLabelText(/email/i);
+  const passwordInput = screen.getByLabelText(/password/i);
+  const submitButton = screen.getByRole("button", { name: /submit/i });
+
+  fireEvent.change(emailInput, { target: { value: "test@example.com" } });
+  fireEvent.change(passwordInput, { target: { value: "password123" } });
+  fireEvent.click(submitButton);
+
+  await waitFor(() => {
+    expect(mockLoginAction).toHaveBeenCalled();
+  });
+});
+```
+
+### Server Actions Mocking
+```typescript
+jest.mock("@/utils/supabase/actions", () => ({
+  loginAction: jest.fn(),
+  signUpAction: jest.fn(),
+}));
+```
+
+## Error Handling
+
+### Toast Testing
+```typescript
+import { toast } from "sonner";
+
+jest.mock("sonner", () => ({
+  toast: {
+    error: jest.fn(),
+    success: jest.fn(),
+  },
+}));
+
+// In test
+await waitFor(() => {
+  expect(toast.error).toHaveBeenCalledWith("Expected error message");
+});
+```
+
+### Loading States
+```typescript
+it("shows loading state", async () => {
+  render(<Component />);
+  
+  expect(screen.getByTestId("skeleton")).toBeInTheDocument();
+  
+  await waitFor(() => {
+    expect(screen.queryByTestId("skeleton")).not.toBeInTheDocument();
+    expect(screen.getByText("Loaded content")).toBeInTheDocument();
+  });
+});
+```
+
+## Async Testing
+
+### API Calls
+```typescript
+it("fetches and displays data", async () => {
+  const mockData = [{ id: 1, name: "Test" }];
+  
+  (global.fetch as jest.Mock).mockResolvedValue({
+    ok: true,
+    json: jest.fn().mockResolvedValue({ data: mockData }),
+  });
+
+  render(<DataComponent />);
+
+  await waitFor(() => {
+    expect(screen.getByText("Test")).toBeInTheDocument();
+  });
+});
+```
+
+### User Events
+```typescript
+import userEvent from "@testing-library/user-event";
+
+it("handles user interaction", async () => {
+  const user = userEvent.setup();
+  render(<InteractiveComponent />);
+  
+  const button = screen.getByRole("button");
+  await user.click(button);
+  
+  expect(screen.getByText("Clicked")).toBeInTheDocument();
+});
+```
+
+## Coverage e Best Practices
+
+### Coverage Targets
+- Minimum 80% coverage
+- Focus on critical business logic
+- Test error paths and edge cases
+
+### Best Practices
+- Test behavior, not implementation
+- Use semantic queries (getByRole, getByLabelText)
+- Mock external dependencies
+- Clean up after each test
+
+## Referencias
+- [Form Test Example](mdc:src/components/auth/login/form.test.tsx)
+- [Utils Test Example](mdc:src/utils/fetch.test.ts)
+- [Page Test Example](mdc:src/app/(protected)/dashboard/page.test.tsx)
+- [Jest Config](mdc:jest.config.ts)

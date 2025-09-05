@@ -4,6 +4,9 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx}", "./@/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      screens: {
+        xs: "475px",
+      },
       fontFamily: {
         gilda: ["var(--font-gilda)", "serif"],
       },

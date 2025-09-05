@@ -1,0 +1,225 @@
+---
+description: 
+globs: 
+<<<<<<< Updated upstream
+alwaysApply: false
+---
+# Padrões de Componentes
+
+## Convenções de Nomenclatura
+
+### Interfaces e Tipos
+- **Interfaces de Props**: Use prefixo `I` (ex: `IPageTemplate`, `IBanner`)
+- **Tipos Complexos**: Use sufixo `Types` (ex: `ResourceTypes`)
+- **Enums**: PascalCase (ex: `ResourceCategory`, `MeetingType`)
+
+### Arquivos e Componentes
+- **Componentes**: PascalCase (ex: `PageTemplate`, `UserProfile`)
+- **Arquivos**: kebab-case (ex: `page-template.tsx`, `user-profile.tsx`)
+- **Hooks**: camelCase com prefixo `use` (ex: `useMobile`, `useDebounce`)
+
+## Estrutura de Componentes
+
+### Template Padrão de Componente
+```typescript
+import { cn } from "@/lib/utils";
+
+export interface IComponentName {
+  children: React.ReactNode;
+  className?: string;
+  // outras props específicas
+}
+
+export const ComponentName = ({ 
+  children, 
+  className,
+  ...props 
+}: IComponentName) => {
+  return (
+    <div className={cn("default-classes", className)} {...props}>
+      {children}
+    </div>
+  );
+};
+
+export default ComponentName;
+```
+
+### Layout Components
+
+#### PageTemplate
+- Use `PageTemplate` para páginas consistentes
+- Props obrigatórias: `children`, `breadcrumbs`
+- Props opcionais: `title`, `headerIcon`, `searchProps`, `bannerProps`
+- Exemplo: [Page Template](mdc:src/components/layout/page-template.tsx)
+
+#### Breadcrumbs
+- Tipo: `Breadcrumb[]` com `label` e `href?`
+- Sempre inclua breadcrumbs para navegação
+- Exemplo: `[{ label: "Dashboard", href: "/dashboard" }, { label: "Resources" }]`
+
+## Design System
+
+### shadcn/ui Components
+- Base em [components.json](mdc:components.json)
+- Localização: `src/components/ui/`
+- Custom components em: `src/components/ui/custom/`
+
+### Customizações
+- Use `cn()` utility para merge de classes
+- Custom components estendem componentes base
+- Exemplo: [Custom Banner](mdc:src/components/ui/custom/banner.tsx)
+
+### Estilos Tailwind
+- CSS Variables definidas em [globals.css](mdc:src/app/globals.css)
+- Cores do design system como `primary`, `secondary`, etc.
+- Dark mode suportado via classes CSS
+
+## Estados de Loading
+
+### Skeleton Components
+- Crie skeleton específico para cada feature
+- Localização: `src/components/[feature]/skeleton.tsx`
+- Use durante carregamento de dados
+
+### Loading States
+```typescript
+const [isLoading, setIsLoading] = useState(true);
+
+// Durante fetch
+if (isLoading) {
+  return <FeatureSkeleton />;
+}
+```
+
+## Form Components
+
+### Message Component
+- Use `FormMessage` para feedback de formulários
+- Suporta `success`, `error`, e `error_description`
+- Implementação: [Form Message](mdc:src/components/form/message.tsx)
+
+### Submit Button
+- Use `SubmitButton` para ações de formulário
+- Handle loading state automaticamente
+- Implementação: [Submit Button](mdc:src/components/form/submit-button.tsx)
+
+## Client vs Server Components
+
+### Server Components (Default)
+- Para dados estáticos e SSR
+- Sem `"use client"` directive
+- Acesso a server utilities
+
+### Client Components
+- Use `"use client"` directive
+- Para interatividade e hooks
+- Estado local e event handlers
+
+## Referencias
+- [Page Template](mdc:src/components/layout/page-template.tsx)
+- [Banner Component](mdc:src/components/ui/custom/banner.tsx)
+- [Form Message](mdc:src/components/form/message.tsx)
+- [App Sidebar](mdc:src/components/layout/nav/app-sidebar.tsx)
+=======
+alwaysApply: true
+---
+# Padrões de Componentes
+
+## Estrutura de Componentes UI
+
+### Padrão Base
+Todos os componentes UI seguem um padrão consistente baseado em:
+- **Radix UI** como primitivos base
+- **Class Variance Authority (CVA)** para variantes
+- **Function components** com forwardRef quando necessário
+- **Data attributes** para identificação (`data-slot`)
+
+### Exemplo de Estrutura Padrão
+```typescript
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+
+const componentVariants = cva(
+  "base-classes",
+  {
+    variants: {
+      variant: {
+        default: "default-classes",
+        // outras variantes...
+      },
+      size: {
+        default: "default-size",
+        // outros tamanhos...
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+
+function Component({
+  className,
+  variant,
+  size,
+  ...props
+}: React.ComponentProps<"div"> & VariantProps<typeof componentVariants>) {
+  return (
+    <div
+      data-slot="component-name"
+      className={cn(componentVariants({ variant, size, className }))}
+      {...props}
+    />
+  );
+}
+
+export { Component, componentVariants };
+```
+
+## Padrões Específicos
+
+### 1. Componentes Compostos
+Componentes como Card seguem o padrão de composição:
+- Componente principal + subcomponentes
+- Data attributes para cada parte (`data-slot`)
+- Exports nomeados de todas as partes
+
+Exemplo: [src/components/ui/card.tsx](mdc:src/components/ui/card.tsx)
+
+### 2. Componentes com Variantes
+Usam CVA para definir variações de estilo:
+- Variantes por tipo (default, destructive, outline, etc.)
+- Variantes por tamanho (sm, default, lg, etc.)
+- DefaultVariants sempre definidos
+
+Exemplo: [src/components/ui/button.tsx](mdc:src/components/ui/button.tsx)
+
+### 3. Utilitário cn()
+Sempre usar a função `cn()` para merge de classes:
+```typescript
+import { cn } from "@/lib/utils";
+className={cn("base-classes", className)}
+```
+
+## Organização de Componentes
+
+### Componentes UI (`src/components/ui/`)
+- Componentes reutilizáveis e genéricos
+- Baseados em design system
+- Sem lógica de negócio específica
+
+### Componentes de Domínio
+- Organizados por funcionalidade (`auth/`, `dashboard/`, etc.)
+- Podem usar componentes UI como base
+- Contêm lógica específica da feature
+
+### Importações
+- Sempre usar path mapping: `@/`
+- Importar do entrypoint principal quando possível
+- Componentes UI sempre exportados individualmente
+
+Referência: [src/lib/utils.ts](mdc:src/lib/utils.ts) - Função cn()
+>>>>>>> Stashed changes

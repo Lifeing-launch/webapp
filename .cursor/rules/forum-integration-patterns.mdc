@@ -1,0 +1,268 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Padrões de Integração do Fórum
+
+## Tipagem do Fórum
+
+### Interfaces seguindo convenções do projeto
+```typescript
+// src/typing/forum.ts
+export interface IAnonymousProfile {
+  id: string;
+  user_id: string;
+  display_name: string;
+  created_at: string;
+  is_restricted: boolean;
+}
+
+export interface IForumGroup {
+  id: string;
+  name: string;
+  description: string;
+  creator_profile_id: string;
+  group_type: ForumGroupType;
+  created_at: string;
+}
+
+export interface IForumThread {
+  id: string;
+  author_profile_id: string;
+  group_id: string;
+  title: string;
+  created_at: string;
+  status: ForumContentStatus;
+}
+
+export interface IForumPost {
+  id: string;
+  thread_id: string;
+  author_profile_id: string;
+  content: string;
+  created_at: string;
+  status: ForumContentStatus;
+}
+
+export interface IDirectMessage {
+  id: string;
+  sender_profile_id: string;
+  receiver_profile_id: string;
+  content: string;
+  created_at: string;
+  is_read: boolean;
+}
+
+// Types seguindo convenção
+export type ForumGroupType = "public" | "private";
+export type ForumContentStatus = "pending" | "approved" | "rejected";
+export type GroupMemberRole = "owner" | "member" | "pending_request";
+```
+
+## Estrutura de Componentes
+
+### Organização seguindo padrões do projeto
+```
+src/components/forum/
+├── ui/                     # Componentes UI específicos do fórum
+│   ├── post-card.tsx
+│   ├── thread-item.tsx
+│   ├── group-card.tsx
+│   └── message-bubble.tsx
+├── forms/                  # Formulários do fórum
+│   ├── create-post-form.tsx
+│   ├── create-group-form.tsx
+│   └── nickname-modal.tsx
+├── layout/                 # Layout específico do fórum
+│   ├── forum-sidebar.tsx
+│   └── forum-header.tsx
+└── features/              # Features complexas
+    ├── post-moderation/
+    ├── realtime-chat/
+    └── group-management/
+```
+
+## API Routes seguindo padrões
+
+### Template para API routes do fórum
+```typescript
+// src/app/api/forum/posts/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+import { createClient } from "@/utils/supabase/server";
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  }
+
+  try {
+    const supabase = await createClient();
+    
+    // Lógica específica do fórum com RLS
+    const { data, error } = await supabase
+      .from("forum_posts")
+      .select(`
+        *,
+        author_profile:anonymous_profiles(display_name),
+        thread:forum_threads(title, group_id)
+      `)
+      .eq("status", "approved");
+
+    if (error) throw error;
+    return NextResponse.json({ data });
+  } catch (err) {
+    console.error("Error fetching forum posts:", err);
+    return NextResponse.json(
+      { error: "Failed to fetch posts" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Integração com Database Existente
+
+### Adaptação do schema para projeto atual
+- **Usar tipos UUID existentes** do Supabase
+- **Integrar com `auth.users`** já configurado
+- **Manter compatibilidade** com RLS existente
+- **Seguir convenções** de nomenclatura do projeto
+
+### Script de migração adaptado
+```sql
+-- Adaptado para integração com estrutura atual
+CREATE TABLE IF NOT EXISTS anonymous_profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  display_name TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  is_restricted BOOLEAN DEFAULT FALSE,
+  
+  CONSTRAINT unique_user_profile UNIQUE(user_id)
+);
+
+-- Seguir padrão de RLS do projeto
+ALTER TABLE anonymous_profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own profile"
+ON anonymous_profiles FOR SELECT
+USING (auth.uid() = user_id);
+```
+
+## Realtime seguindo padrões
+
+### Client-side subscription pattern
+```typescript
+// hooks/use-forum-realtime.ts
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/browser";
+import type { IForumPost } from "@/typing/forum";
+
+export function useForumRealtime(threadId: string) {
+  const [posts, setPosts] = useState<IForumPost[]>([]);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`forum_thread_${threadId}`)
+      .on(
+        'postgres_changes',
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'forum_posts',
+          filter: `thread_id=eq.${threadId}` 
+        },
+        (payload) => {
+          setPosts(prev => [...prev, payload.new as IForumPost]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [threadId, supabase]);
+
+  return { posts, setPosts };
+}
+```
+
+## Padrões de Página seguindo App Router
+
+### Template de página do fórum
+```typescript
+// src/app/(protected)/forum/page.tsx
+import { Breadcrumb } from "@/components/layout/header";
+import PageTemplate from "@/components/layout/page-template";
+import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
+import { ForumContent } from "@/components/forum/features/forum-content";
+
+const breadcrumbs: Breadcrumb[] = [
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Forum" }
+];
+
+export default function ForumPage() {
+  return (
+    <PageTemplate 
+      title="Lifeing Forum"
+      breadcrumbs={breadcrumbs}
+      headerIcon={sidebarIcons.communityForum}
+    >
+      <ForumContent />
+    </PageTemplate>
+  );
+}
+```
+
+## Integração com Design System
+
+### Componentes usando padrões existentes
+```typescript
+// components/forum/ui/post-card.tsx
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { IForumPost } from "@/typing/forum";
+
+export interface IPostCard {
+  post: IForumPost;
+  className?: string;
+  onFlag?: (postId: string) => void;
+}
+
+export function PostCard({ post, className, onFlag }: IPostCard) {
+  return (
+    <Card className={cn("forum-post", className)}>
+      <CardHeader>
+        <span className="text-sm text-muted-foreground">
+          {post.author_profile?.display_name || "Anonymous"}
+        </span>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm">{post.content}</p>
+        {onFlag && (
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => onFlag(post.id)}
+          >
+            Flag Content
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+## Referencias
+- [Component Patterns](mdc:.cursor/rules/component-patterns.mdc)
+- [API Patterns](mdc:.cursor/rules/api-patterns.mdc)
+- [TypeScript Patterns](mdc:.cursor/rules/typescript-patterns.mdc)
+- [Supabase Patterns](mdc:.cursor/rules/supabase-patterns.mdc)

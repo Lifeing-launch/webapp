@@ -1,0 +1,365 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Integração com Supabase
+
+## Configuração Base
+
+### Dependências Supabase
+O projeto utiliza o Supabase como backend completo:
+- `@supabase/supabase-js`: Cliente JavaScript principal
+- `@supabase/ssr`: Para Server-Side Rendering com Next.js
+- `supabase`: CLI para desenvolvimento local
+
+### Configuração do Cliente
+```typescript
+// Configuração típica do cliente Supabase
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+```
+
+## Padrões de Autenticação
+
+### Client-Side Auth
+```typescript
+// Hook personalizado para autenticação
+function useAuth() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Listener para mudanças de auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return { user, loading, isAuthenticated: !!user };
+}
+```
+
+### Server-Side Auth
+```typescript
+// Para Server Components e API Routes
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+export function createClient() {
+  const cookieStore = cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
+  );
+}
+```
+
+## Padrões de Database
+
+### Tipagem TypeScript
+```bash
+# Gerar tipos do banco de dados
+npm run supabase:types
+```
+
+```typescript
+// Usar tipos gerados
+import { Database } from '@/types/supabase';
+
+type Tables = Database['public']['Tables'];
+type User = Tables['users']['Row'];
+type UserInsert = Tables['users']['Insert'];
+type UserUpdate = Tables['users']['Update'];
+```
+
+### Queries Padrão
+```typescript
+// Select com tipagem
+const { data: users, error } = await supabase
+  .from('users')
+  .select('id, name, email')
+  .eq('active', true);
+
+// Insert com tipagem
+const { data, error } = await supabase
+  .from('users')
+  .insert({
+    name: 'John Doe',
+    email: 'john@example.com'
+  })
+  .select();
+
+// Update com tipagem
+const { data, error } = await supabase
+  .from('users')
+  .update({ name: 'Jane Doe' })
+  .eq('id', userId)
+  .select();
+```
+
+## Padrões de Real-time
+
+### Subscriptions
+```typescript
+// Subscription para mudanças em tabela
+useEffect(() => {
+  const subscription = supabase
+    .channel('users-changes')
+    .on('postgres_changes', 
+      { 
+        event: '*', 
+        schema: 'public', 
+        table: 'users' 
+      },
+      (payload) => {
+        console.log('Change received!', payload);
+        // Atualizar estado local
+      }
+    )
+    .subscribe();
+
+  return () => {
+    subscription.unsubscribe();
+  };
+}, []);
+```
+
+## Padrões de Storage
+
+### Upload de Arquivos
+```typescript
+// Upload com progress tracking
+async function uploadFile(file: File, bucket: string, path: string) {
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(path, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+  if (error) throw error;
+  return data;
+}
+
+// Get public URL
+function getPublicUrl(bucket: string, path: string) {
+  const { data } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(path);
+  
+  return data.publicUrl;
+}
+```
+
+## Error Handling
+
+### Padrão de Tratamento de Erros
+```typescript
+// Wrapper para queries com error handling
+async function safeQuery<T>(
+  queryFn: () => Promise<{ data: T | null; error: any }>
+): Promise<{ data: T | null; error: string | null }> {
+  try {
+    const { data, error } = await queryFn();
+    
+    if (error) {
+      console.error('Supabase error:', error);
+      return { data: null, error: error.message };
+    }
+    
+    return { data, error: null };
+  } catch (err) {
+    console.error('Query error:', err);
+    return { 
+      data: null, 
+      error: err instanceof Error ? err.message : 'Unknown error' 
+    };
+  }
+}
+```
+
+## Row Level Security (RLS)
+
+### Políticas de Segurança
+```sql
+-- Exemplo de política RLS
+CREATE POLICY "Users can view own profile" ON users
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile" ON users
+  FOR UPDATE USING (auth.uid() = id);
+```
+
+### Verificação de Permissões
+```typescript
+// Verificar se usuário tem acesso ao recurso
+async function checkAccess(resourceId: string, userId: string) {
+  const { data, error } = await supabase
+    .from('user_permissions')
+    .select('*')
+    .eq('resource_id', resourceId)
+    .eq('user_id', userId)
+    .single();
+
+  return { hasAccess: !!data && !error, error };
+}
+```
+
+## Edge Functions
+
+### Estrutura de Edge Function
+```typescript
+// Exemplo de Edge Function
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+serve(async (req) => {
+  const { method } = req;
+  
+  if (method === 'POST') {
+    // Process webhook
+    const payload = await req.json();
+    
+    // Interact with Supabase
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+    
+    // Your logic here
+    
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  
+  return new Response('Method not allowed', { status: 405 });
+});
+```
+
+## Middleware Integration
+
+### Middleware para Auth
+```typescript
+// middleware.ts
+import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
+
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: any) {
+          response.cookies.set(name, value, options);
+        },
+        remove(name: string, options: any) {
+          response.cookies.set(name, '', { ...options, maxAge: 0 });
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Redirect logic based on auth state
+  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/api/:path*']
+};
+```
+
+## Melhores Práticas
+
+### 1. Connection Management
+```typescript
+// Singleton para cliente Supabase
+let supabaseInstance: SupabaseClient | null = null;
+
+export function getSupabaseClient() {
+  if (!supabaseInstance) {
+    supabaseInstance = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
+  return supabaseInstance;
+}
+```
+
+### 2. Query Optimization
+```typescript
+// Usar select específico para performance
+const { data } = await supabase
+  .from('posts')
+  .select('id, title, author:users(name)')  // Join otimizado
+  .range(0, 10);  // Paginação
+```
+
+### 3. Cache Strategy
+```typescript
+// Cache de queries com SWR ou React Query
+import useSWR from 'swr';
+
+function useUser(userId: string) {
+  return useSWR(
+    userId ? `user-${userId}` : null,
+    () => supabase.from('users').select('*').eq('id', userId).single(),
+    { revalidateOnFocus: false }
+  );
+}
+```
+
+## Scripts Úteis
+
+### Package.json Scripts
+```json
+{
+  "scripts": {
+    "supabase": "supabase",
+    "supabase:types": "npm run supabase gen types typescript --local",
+    "supabase:reset": "supabase db reset",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop"
+  }
+}
+```
+
+Referências:
+- [package.json](mdc:package.json) - Dependências Supabase
+- [src/middleware.ts](mdc:src/middleware.ts) - Middleware de autenticação
+- Documentação oficial: https://supabase.com/docs
