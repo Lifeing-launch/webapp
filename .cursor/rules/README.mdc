@@ -1,0 +1,198 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Lifeing Webapp - Padrões de Desenvolvimento
+
+## Visão Geral do Projeto
+
+Este é um projeto **Next.js 15** com **App Router**, usando **TypeScript**, **Tailwind CSS**, **Supabase** para backend/auth, **Strapi** como CMS, **Stripe** para pagamentos, e **shadcn/ui** como design system base.
+
+### Stack Tecnológico
+- **Frontend**: Next.js 15, React 18, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui, CSS Variables
+- **Backend**: Supabase (Auth, Database, Storage)
+- **CMS**: Strapi Headless CMS
+- **Payments**: Stripe Integration
+- **Testing**: Jest, React Testing Library
+- **Icons**: Lucide React
+
+## Estrutura de Regras
+
+### 📁 [Arquitetura de Projeto](mdc:.cursor/rules/project-architecture.mdc)
+- Organização de pastas e estrutura Next.js App Router
+- Separação de responsabilidades entre pages, components, services
+- Padrões de layout e route groups
+- Referencias de arquivos principais
+
+### 🔐 [Padrões Supabase](mdc:.cursor/rules/supabase-patterns.mdc)
+- Tipos de clientes Supabase (browser, server, admin)
+- Autenticação e middleware patterns
+- Server actions para auth operations
+- Tratamento de erros e cookies seguros
+
+### 🎨 [Padrões de Componentes](mdc:.cursor/rules/component-patterns.mdc)
+- Convenções de nomenclatura (interfaces com `I`, kebab-case para arquivos)
+- Estrutura de componentes e props
+- Design system com shadcn/ui
+- Estados de loading e skeleton components
+
+### 🛠️ [Padrões de API](mdc:.cursor/rules/api-patterns.mdc)
+- Estrutura de API routes por feature
+- Integração com Strapi CMS e Stripe
+- Error handling e autenticação
+- Webhooks e edge functions
+
+### 🧪 [Padrões de Testing](mdc:.cursor/rules/testing-patterns.mdc)
+- Setup Jest + React Testing Library
+- Convenções de nomenclatura para testes
+- Mocking patterns para Supabase, Next.js, fetch
+- Testing de formulários e interações
+
+### 📝 [Padrões TypeScript](mdc:.cursor/rules/typescript-patterns.mdc)
+- Organização de tipos e interfaces
+- Patterns para APIs externas (Strapi, Supabase)
+- Generic types e utility types
+- Type guards e branded types
+
+### 🎨 [Padrões de Estilo](mdc:.cursor/rules/styling-patterns.mdc)
+- Design system com shadcn/ui e Tailwind
+- CSS variables e tema dark/light
+- Component styling patterns
+- Responsive design e accessibility
+
+## Convenções Principais
+
+### Nomenclatura
+- **Componentes**: PascalCase (`PageTemplate`, `UserProfile`)
+- **Arquivos**: kebab-case (`page-template.tsx`, `user-profile.tsx`)
+- **Interfaces**: Prefixo `I` (`IPageTemplate`, `IBanner`)
+- **Hooks**: camelCase com `use` (`useMobile`, `useDebounce`)
+
+### Estrutura de Arquivos
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Route group para autenticação
+│   ├── (protected)/       # Route group para páginas protegidas
+│   └── api/               # API routes organizadas por feature
+├── components/            # Componentes React
+│   ├── ui/               # Design system (shadcn/ui + custom)
+│   ├── layout/           # Componentes de layout
+│   └── [feature]/        # Componentes por feature
+├── hooks/                # Custom hooks
+├── services/             # Lógica de negócio e integrações
+├── typing/               # Tipos TypeScript
+├── utils/                # Utilidades e helpers
+└── middleware.ts         # Middleware de autenticação
+```
+
+### Fluxo de Desenvolvimento
+
+1. **Pages**: Composição e orquestração, sem lógica complexa
+2. **Components**: UI pura, recebe dados via props
+3. **Services**: Lógica de negócio e integrações externas
+4. **Utils**: Funções utilitárias puras
+5. **API Routes**: Endpoints organizados por feature com auth
+
+## Quick Start
+
+### Criando uma Nova Página
+```typescript
+// src/app/(protected)/new-feature/page.tsx
+import { Breadcrumb } from "@/components/layout/header";
+import PageTemplate from "@/components/layout/page-template";
+import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
+
+const breadcrumbs: Breadcrumb[] = [
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "New Feature" }
+];
+
+export default function NewFeaturePage() {
+  return (
+    <PageTemplate 
+      title="New Feature"
+      breadcrumbs={breadcrumbs}
+      headerIcon={sidebarIcons.feature}
+    >
+      {/* Page content */}
+    </PageTemplate>
+  );
+}
+```
+
+### Criando um Novo Componente
+```typescript
+// src/components/feature/new-component.tsx
+import { cn } from "@/lib/utils";
+
+export interface INewComponent {
+  children: React.ReactNode;
+  className?: string;
+  variant?: "default" | "primary";
+}
+
+export const NewComponent = ({ 
+  children, 
+  className,
+  variant = "default" 
+}: INewComponent) => {
+  return (
+    <div className={cn(
+      "base-styles",
+      {
+        "variant-primary": variant === "primary",
+        "variant-default": variant === "default",
+      },
+      className
+    )}>
+      {children}
+    </div>
+  );
+};
+
+export default NewComponent;
+```
+
+### Criando uma API Route
+```typescript
+// src/app/api/feature/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { checkUserIsAuthenticated } from "@/utils/supabase/auth";
+
+export async function GET(request: NextRequest) {
+  try {
+    await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  }
+
+  try {
+    // Lógica da API
+    const data = await fetchData();
+    return NextResponse.json(data);
+  } catch (err) {
+    console.error("Error in API route:", err);
+    return NextResponse.json(
+      { error: "Internal server error" }, 
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Próximos Passos
+
+Ao desenvolver novas features:
+
+1. **Leia as regras relevantes** para entender os padrões
+2. **Siga a estrutura estabelecida** para consistência
+3. **Escreva testes** para componentes e utils críticos
+4. **Use TypeScript rigorosamente** com interfaces tipadas
+5. **Mantenha acessibilidade** e responsividade em mente
+
+---
+
+**📚 Para detalhes específicos, consulte as regras individuais linkadas acima.**

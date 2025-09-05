@@ -1,0 +1,278 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Padrões TypeScript
+
+## Estrutura de Tipos
+
+### Organização de Arquivos
+```
+src/typing/
+├── generated/          # Tipos auto-gerados (Supabase)
+│   └── supabase.ts
+├── interfaces.tsx      # Interfaces de componentes React
+├── global.ts          # Tipos globais da aplicação
+├── strapi.ts          # Tipos do CMS Strapi
+└── supabase.ts        # Tipos customizados do Supabase
+```
+
+### Convenções de Nomenclatura
+- **Interfaces**: Prefixo `I` (ex: `IPageTemplate`, `IBanner`)
+- **Types**: PascalCase (ex: `ResourceType`, `MeetingType`)
+- **Enums**: PascalCase (ex: `ResourceCategory`)
+- **Generic Types**: Single uppercase letter (ex: `T`, `K`, `V`)
+
+## Padrões de Interfaces
+
+### Props de Componentes
+```typescript
+export interface IComponentName {
+  children: React.ReactNode;
+  className?: string;
+  title?: string;
+  onAction?: () => void;
+}
+
+// Extending HTML attributes
+export interface IButton extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary";
+  size?: "sm" | "md" | "lg";
+}
+```
+
+### Form Props
+```typescript
+export interface AuthFormProps extends React.ComponentPropsWithoutRef<"div"> {
+  searchParams?: Message;
+}
+
+export interface AuthPageProps {
+  searchParams: Promise<Message>;
+}
+```
+
+## Tipos de APIs Externas
+
+### Strapi Types
+```typescript
+export type ResourceCategory = "visual" | "audio";
+export type ResourceType = "article" | "document" | "video";
+
+export type Resource = {
+  id: number;
+  documentId: string;
+  title: string;
+  description: string;
+  category: ResourceCategory;
+  type: ResourceType;
+  // ... outras propriedades
+};
+```
+
+### Supabase Types
+- **Generated Types**: Use tipos auto-gerados do Supabase CLI
+- **Custom Types**: Extend ou modify conforme necessário
+- **Database**: Import `Database` type para tipagem do cliente
+
+```typescript
+import { Database } from "@/typing/generated/supabase";
+
+type SubscriptionRecord = Database["public"]["Tables"]["subscriptions"]["Row"];
+```
+
+## Union Types e Discriminated Unions
+
+### Status Types
+```typescript
+export type SubscriptionStatus = 
+  | "active" 
+  | "canceled" 
+  | "incomplete" 
+  | "trialing";
+
+export type PlanStatus = "DRAFT" | "ACTIVE" | "RETIRED";
+```
+
+### Discriminated Unions
+```typescript
+type ApiResponse<T> = 
+  | { success: true; data: T }
+  | { success: false; error: string };
+
+type MessageType = 
+  | { type: "success"; message: string }
+  | { type: "error"; message: string; code?: string };
+```
+
+## Generic Types
+
+### API Response Wrapper
+```typescript
+interface ApiResult<TData> {
+  data?: TData;
+  error?: string;
+  meta?: {
+    pagination?: Pagination;
+  };
+}
+```
+
+### Service Methods
+```typescript
+interface ServiceResponse<T> {
+  data: T | null;
+  error: Error | null;
+}
+
+class DataService {
+  static async fetch<T>(url: string): Promise<ServiceResponse<T>> {
+    // implementation
+  }
+}
+```
+
+## Utility Types
+
+### Partial e Required
+```typescript
+// Para updates parciais
+type UpdateUser = Partial<Pick<User, "name" | "email">>;
+
+// Para campos obrigatórios
+type CreateUser = Required<Pick<User, "email" | "password">>;
+```
+
+### Pick e Omit
+```typescript
+// Para seleções específicas
+type UserPublic = Pick<User, "id" | "name" | "email">;
+
+// Para exclusões
+type UserWithoutSensitive = Omit<User, "password" | "resetToken">;
+```
+
+## Type Guards
+
+### Runtime Type Checking
+```typescript
+function isResourceType(value: string): value is ResourceType {
+  return ["article", "document", "video", "meditation"].includes(value);
+}
+
+function hasError(response: ApiResponse): response is { error: string } {
+  return "error" in response;
+}
+```
+
+### User-defined Type Guards
+```typescript
+function isAuthenticated(user: User | null): user is User {
+  return user !== null && user.id !== undefined;
+}
+```
+
+## Branded Types
+
+### Strong Typing para IDs
+```typescript
+type UserId = string & { readonly brand: unique symbol };
+type ResourceId = number & { readonly brand: unique symbol };
+
+function createUserId(id: string): UserId {
+  return id as UserId;
+}
+```
+
+## Environment Variables
+
+### Type-safe Environment
+```typescript
+interface EnvironmentVariables {
+  NEXT_PUBLIC_SUPABASE_URL: string;
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
+  STRIPE_SECRET_KEY: string;
+}
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv extends EnvironmentVariables {}
+  }
+}
+```
+
+## JSDoc para Documentation
+
+### Function Documentation
+```typescript
+/**
+ * Fetches user data from the API
+ * @param userId - The unique identifier for the user
+ * @param includeMetadata - Whether to include additional metadata
+ * @returns Promise resolving to user data or null if not found
+ * @throws {AuthError} When user is not authenticated
+ * @example
+ * ```typescript
+ * const user = await fetchUser("123", true);
+ * if (user) {
+ *   console.log(user.name);
+ * }
+ * ```
+ */
+async function fetchUser(
+  userId: string, 
+  includeMetadata = false
+): Promise<User | null> {
+  // implementation
+}
+```
+
+### Interface Documentation
+```typescript
+/**
+ * Configuration for page template component
+ * @interface IPageTemplate
+ */
+export interface IPageTemplate {
+  /** Main content to be rendered */
+  children: React.ReactNode;
+  /** Navigation breadcrumbs */
+  breadcrumbs: Breadcrumb[];
+  /** Optional page title */
+  title?: string;
+  /** Icon to display in header */
+  headerIcon?: React.ReactNode;
+}
+```
+
+## Strict Type Checking
+
+### Compiler Options
+- `strict: true`
+- `noImplicitAny: true`
+- `strictNullChecks: true`
+- `noImplicitReturns: true`
+
+### Avoiding `any`
+```typescript
+// ❌ Avoid
+const data: any = await fetchData();
+
+// ✅ Better
+const data: unknown = await fetchData();
+if (isValidData(data)) {
+  // Now data is properly typed
+  console.log(data.name);
+}
+
+// ✅ Best
+const data: ApiResponse<User> = await fetchData();
+```
+
+## Referencias
+- [Interfaces](mdc:src/typing/interfaces.tsx)
+- [Strapi Types](mdc:src/typing/strapi.ts)
+- [Global Types](mdc:src/typing/global.ts)
+- [Supabase Types](mdc:src/typing/generated/supabase.ts)
