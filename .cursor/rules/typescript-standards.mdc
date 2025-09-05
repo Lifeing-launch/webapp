@@ -1,0 +1,244 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Padrões TypeScript
+
+## Configuração TypeScript
+
+### Configuração Strict
+O projeto usa TypeScript com configuração `strict: true` para máxima segurança de tipos:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "moduleResolution": "bundler",
+    "jsx": "preserve"
+  }
+}
+```
+
+### Path Mapping
+Usar sempre o alias `@/` para imports internos:
+```typescript
+// ✅ Correto
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
+// ❌ Evitar
+import { cn } from "../../lib/utils";
+import { Button } from "../ui/button";
+```
+
+## Padrões de Tipagem
+
+### 1. Componentes React
+```typescript
+// ✅ Padrão recomendado para componentes
+interface ComponentProps extends React.ComponentProps<"div"> {
+  variant?: "default" | "destructive";
+  size?: "sm" | "default" | "lg";
+}
+
+function Component({ className, variant, size, ...props }: ComponentProps) {
+  return <div className={cn("base", className)} {...props} />;
+}
+```
+
+### 2. Variantes com CVA
+```typescript
+import { cva, type VariantProps } from "class-variance-authority";
+
+const variants = cva("base", {
+  variants: {
+    variant: { default: "class1", destructive: "class2" },
+    size: { sm: "small", default: "medium", lg: "large" },
+  },
+  defaultVariants: { variant: "default", size: "default" },
+});
+
+// ✅ Usar VariantProps para tipagem automática
+type ComponentProps = React.ComponentProps<"button"> & 
+  VariantProps<typeof variants>;
+```
+
+### 3. Tipos para Props Compostas
+```typescript
+// ✅ Para componentes com asChild pattern
+interface ButtonProps extends React.ComponentProps<"button">, 
+  VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
+
+// ✅ Para componentes com slots
+interface CardProps extends React.ComponentProps<"div"> {
+  "data-slot"?: string;
+}
+```
+
+## Padrões de Import/Export
+
+### 1. Imports
+```typescript
+// ✅ Ordem recomendada de imports
+import * as React from "react";                    // React primeiro
+import { Slot } from "@radix-ui/react-slot";      // Bibliotecas externas
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";                  // Utilitários internos
+```
+
+### 2. Exports
+```typescript
+// ✅ Named exports para componentes
+export { Button, buttonVariants };
+
+// ✅ Default export apenas para pages/layouts
+export default function Page() {
+  return <div>Page content</div>;
+}
+```
+
+## Padrões de Hooks e Utilitários
+
+### 1. Custom Hooks
+```typescript
+// ✅ Hooks sempre começam com 'use'
+function useAuth() {
+  const [user, setUser] = React.useState<User | null>(null);
+  
+  return {
+    user,
+    isAuthenticated: !!user,
+    login: (credentials: LoginCredentials) => Promise<void>,
+    logout: () => void,
+  };
+}
+```
+
+### 2. Utilitários com Tipagem
+```typescript
+// ✅ Funções utilitárias bem tipadas
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
+
+## Padrões Next.js
+
+### 1. App Router
+```typescript
+// ✅ Metadata export para pages
+export const metadata: Metadata = {
+  title: "Page Title",
+  description: "Page description",
+};
+
+// ✅ Tipagem para params e searchParams
+interface PageProps {
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default function Page({ params, searchParams }: PageProps) {
+  return <div>Page content</div>;
+}
+```
+
+### 2. API Routes
+```typescript
+// ✅ Tipagem para API routes
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ data: "response" });
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const body = await request.json();
+  return NextResponse.json({ id: params.id, body });
+}
+```
+
+## Padrões de Erro e Validação
+
+### 1. Error Boundaries
+```typescript
+// ✅ Tipagem para error boundaries
+interface ErrorBoundaryProps {
+  error: Error & { digest?: string };
+  reset: () => void;
+}
+
+export default function Error({ error, reset }: ErrorBoundaryProps) {
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button onClick={reset}>Try again</button>
+    </div>
+  );
+}
+```
+
+### 2. Validação de Tipos
+```typescript
+// ✅ Guards para validação de tipos
+function isValidUser(user: unknown): user is User {
+  return typeof user === "object" && 
+         user !== null && 
+         "id" in user && 
+         "email" in user;
+}
+```
+
+## Melhores Práticas
+
+### 1. Evitar `any`
+```typescript
+// ❌ Evitar
+function handleData(data: any) { }
+
+// ✅ Usar tipos específicos
+function handleData(data: unknown) {
+  if (isValidData(data)) {
+    // data é agora tipada
+  }
+}
+```
+
+### 2. Usar `Readonly` para Props
+```typescript
+// ✅ Props devem ser readonly
+interface Props extends Readonly<{
+  children: React.ReactNode;
+  title: string;
+}> {}
+```
+
+### 3. Interfaces vs Types
+```typescript
+// ✅ Interfaces para objetos que podem ser estendidos
+interface User {
+  id: string;
+  name: string;
+}
+
+// ✅ Types para unions e computed types
+type Status = "loading" | "success" | "error";
+type UserWithStatus = User & { status: Status };
+```
+
+Referências:
+- [tsconfig.json](mdc:tsconfig.json) - Configuração TypeScript
+- [src/lib/utils.ts](mdc:src/lib/utils.ts) - Exemplo de utilitário tipado
+- [src/components/ui/button.tsx](mdc:src/components/ui/button.tsx) - Exemplo de componente tipado

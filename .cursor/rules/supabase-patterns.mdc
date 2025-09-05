@@ -1,0 +1,83 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Padrões Supabase
+
+## Clientes Supabase
+
+### Tipos de Cliente
+- **Browser Client** (`createClient` from `@/utils/supabase/browser`): Para componentes client-side
+- **Server Client** (`createClient` from `@/utils/supabase/server`): Para Server Components e API routes
+- **Admin Client** (`createAdminClient` from `@/utils/supabase/server`): Para operações privilegiadas
+
+### Quando Usar Cada Cliente
+```typescript
+// Client Components
+"use client";
+import { createClient } from "@/utils/supabase/browser";
+
+// Server Components e API Routes
+import { createClient } from "@/utils/supabase/server";
+
+// Operações administrativas (webhooks, cleanup)
+import { createAdminClient } from "@/utils/supabase/server";
+```
+
+## Autenticação
+
+### Server Actions
+- Sempre use server actions para operações de autenticação
+- Padrão de nomenclatura: `[action]Action` (ex: `loginAction`, `signUpAction`)
+- Localização: [Auth Actions](mdc:src/utils/supabase/actions.ts)
+
+### Middleware de Autenticação
+- Use `checkUserIsAuthenticated()` em API routes protegidas
+- Middleware principal em [middleware.ts](mdc:src/middleware.ts)
+- Implementação: [Auth Utils](mdc:src/utils/supabase/auth.ts)
+
+### Tratamento de Erros
+- Use `getAuthErrorMessage()` para mensagens de erro consistentes
+- Códigos de erro mapeados em [errors.ts](mdc:src/utils/supabase/errors.ts)
+
+## Padrões de Queries
+
+### API Routes Protegidas
+```typescript
+export async function GET(request: NextRequest) {
+  try {
+    const user = await checkUserIsAuthenticated();
+  } catch {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  }
+  
+  const supabase = await createClient();
+  // ... resto da lógica
+}
+```
+
+### Client-side Queries
+```typescript
+const { data, error } = await supabase
+  .from("table_name")
+  .select("*")
+  .eq("user_id", user.id);
+
+if (error) {
+  console.error("Error:", error);
+  toast.error("Error message");
+  return;
+}
+```
+
+## Cookies Seguros
+- Use `setSecureCookie`, `getSecureCookie`, `deleteSecureCookie` para dados sensíveis
+- Implementação: [Cookies Utils](mdc:src/utils/cookies.ts)
+- Exemplo de uso para verificação de email
+
+## Referencias
+- [Supabase Server Utils](mdc:src/utils/supabase/server.ts)
+- [Supabase Browser Utils](mdc:src/utils/supabase/browser.ts)
+- [Supabase Actions](mdc:src/utils/supabase/actions.ts)
+- [Middleware](mdc:src/utils/supabase/middleware.ts)

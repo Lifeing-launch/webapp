@@ -1,0 +1,184 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Overview do Projeto - Lifeing Launch WebApp
+
+## Resumo Executivo
+
+Este é um projeto **Next.js 15** com **App Router**, desenvolvido em **TypeScript**, utilizando **Tailwind CSS 4** para estilização e **Supabase** como backend. O projeto segue uma arquitetura moderna baseada em componentes reutilizáveis com design system consistente.
+
+## Stack Tecnológica Principal
+
+### Frontend
+- **Next.js 15**: Framework React com App Router
+- **React 19**: Biblioteca de UI
+- **TypeScript**: Linguagem principal com tipagem strict
+- **Tailwind CSS 4**: Framework de estilos utility-first
+- **Radix UI**: Primitivos de componentes acessíveis
+
+### Backend & Database
+- **Supabase**: Backend-as-a-Service completo
+- **PostgreSQL**: Database via Supabase
+- **Supabase Auth**: Sistema de autenticação
+- **Row Level Security**: Segurança a nível de linha
+
+### Ferramentas de Desenvolvimento
+- **Turbopack**: Bundler de desenvolvimento otimizado
+- **Jest**: Framework de testes
+- **ESLint + Prettier**: Qualidade e formatação de código
+- **Husky**: Git hooks para qualidade
+
+## Arquitetura do Projeto
+
+### Estrutura de Diretórios
+```
+src/
+├── app/                 # Next.js App Router
+│   ├── (auth)/         # Rotas de autenticação
+│   ├── (protected)/    # Rotas protegidas
+│   ├── api/           # API routes
+│   └── globals.css    # Estilos globais
+├── components/         # Componentes React
+│   ├── ui/            # Design system base
+│   ├── auth/          # Componentes de autenticação
+│   ├── dashboard/     # Componentes do dashboard
+│   └── ...           # Outros domínios
+├── lib/               # Utilitários e configurações
+├── hooks/             # Custom React hooks
+├── utils/             # Funções utilitárias
+└── typing/            # Tipos TypeScript
+```
+
+## Padrões de Desenvolvimento
+
+### 1. Componentes UI
+- Baseados em **Radix UI** primitives
+- Estilizados com **Tailwind CSS**
+- Variantes usando **Class Variance Authority (CVA)**
+- Data attributes (`data-slot`) para identificação
+- Tipagem forte com **TypeScript**
+
+### 2. Design System
+- **Design tokens** baseados em CSS custom properties
+- Suporte a **tema claro/escuro**
+- Cores em **oklch()** color space
+- Sistema de **spacing consistente**
+- **Mobile-first** responsive design
+
+### 3. Estado e Comunicação
+- **React hooks** para estado local
+- **Supabase** para estado global/persistente
+- **Real-time subscriptions** quando necessário
+- **Error boundaries** para tratamento de erros
+
+## Regras e Convenções
+
+### Regras Criadas
+1. **[project-architecture.mdc](mdc:.cursor/rules/project-architecture.mdc)** - Arquitetura geral
+2. **[component-patterns.mdc](mdc:.cursor/rules/component-patterns.mdc)** - Padrões de componentes
+3. **[styling-guidelines.mdc](mdc:.cursor/rules/styling-guidelines.mdc)** - Diretrizes de estilo
+4. **[typescript-standards.mdc](mdc:.cursor/rules/typescript-standards.mdc)** - Padrões TypeScript
+5. **[testing-conventions.mdc](mdc:.cursor/rules/testing-conventions.mdc)** - Convenções de teste
+6. **[development-workflow.mdc](mdc:.cursor/rules/development-workflow.mdc)** - Fluxo de desenvolvimento
+7. **[supabase-integration.mdc](mdc:.cursor/rules/supabase-integration.mdc)** - Integração Supabase
+
+### Principais Convenções
+- **Path mapping**: Usar `@/` para imports internos
+- **Nomenclatura**: PascalCase para componentes, kebab-case para arquivos
+- **Formatação**: Prettier com semi: true, singleQuote: false
+- **Linting**: ESLint com Next.js e Prettier integration
+- **Commits**: Conventional commits recomendados
+
+## Estrutura de Qualidade
+
+### Code Quality
+- **TypeScript strict mode** habilitado
+- **ESLint** com regras Next.js e Prettier
+- **Prettier** para formatação consistente
+- **Husky** para pre-commit hooks
+
+### Testing
+- **Jest** com jsdom environment
+- **Testing Library** para componentes React
+- **Arquivos .test.tsx** para componentes
+- **Arquivos .spec.ts** para utilitários
+
+### Performance
+- **Turbopack** para desenvolvimento rápido
+- **Next.js optimizations** (Image, Font, etc.)
+- **Bundle analysis** disponível
+- **Web Vitals** tracking configurado
+
+## Deployment e DevOps
+
+### Build Process
+```bash
+npm run build     # Build de produção
+npm run start     # Servidor de produção
+npm run dev       # Desenvolvimento com Turbopack
+```
+
+### Docker Support
+- **Dockerfile** configurado para produção
+- **docker-compose.yml** para desenvolvimento
+- **Multi-stage build** otimizado
+
+### CI/CD Pipeline
+```bash
+npm run ci        # Formato + lint + testes
+npm run format    # Prettier formatting
+npm run lint      # ESLint check
+npm run test      # Jest tests
+```
+
+## Configurações Importantes
+
+### Variáveis de Ambiente
+```bash
+NEXT_PUBLIC_SUPABASE_URL=          # URL do Supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=     # Chave anônima
+SUPABASE_SERVICE_ROLE_KEY=         # Chave service role
+```
+
+### Scripts Úteis
+```bash
+npm run supabase:types    # Gerar tipos do DB
+npm run format           # Formatar código
+npm run test:watch       # Testes em watch mode
+```
+
+## Próximos Passos
+
+### Para Novos Desenvolvedores
+1. Ler todas as regras em `.cursor/rules/`
+2. Configurar ambiente local seguindo README
+3. Executar `npm run ci` antes de commits
+4. Seguir padrões de componentes estabelecidos
+
+### Para Novas Features
+1. Analisar se encaixa na arquitetura atual
+2. Seguir padrões de componentes e estilo
+3. Adicionar testes quando apropriado
+4. Documentar mudanças significativas
+
+### Manutenção
+- Manter dependências atualizadas
+- Review periódico das regras
+- Monitorar performance metrics
+- Backup regular do banco Supabase
+
+## Contatos e Recursos
+
+### Documentação Externa
+- [Next.js 15 Docs](mdc:https:/nextjs.org/docs)
+- [Tailwind CSS 4 Docs](mdc:https:/tailwindcss.com/docs)
+- [Supabase Docs](mdc:https:/supabase.com/docs)
+- [Radix UI Docs](mdc:https:/www.radix-ui.com/docs)
+
+### Arquivos de Referência
+- [package.json](mdc:package.json) - Dependências
+- [tsconfig.json](mdc:tsconfig.json) - Config TypeScript
+- [tailwind.config.ts](mdc:tailwind.config.ts) - Config Tailwind
+- [jest.config.ts](mdc:jest.config.ts) - Config Jest

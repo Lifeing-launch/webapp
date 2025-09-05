@@ -1,0 +1,81 @@
+---
+description: 
+globs: 
+<<<<<<< Updated upstream
+alwaysApply: false
+---
+# Padrões de Arquitetura do Projeto
+
+## Estrutura de Pastas e Organização
+
+### App Router Structure
+- **Route Groups**: Use `(auth)` para páginas de autenticação e `(protected)` para páginas protegidas
+- **Layout Hierarchy**: Sempre definir layouts específicos para grupos de rotas que compartilham funcionalidades
+- **Loading/Error**: Implemente `loading.tsx` e `error.tsx` em cada nível apropriado
+- **Not Found**: Crie `not-found.tsx` customizado para seções específicas
+
+### Organização de Componentes
+```
+src/components/
+├── auth/          # Componentes específicos de autenticação
+├── ui/            # Design system components (shadcn/ui)
+│   └── custom/    # Componentes UI customizados
+├── layout/        # Componentes de layout global
+│   └── nav/       # Navegação específica
+├── [feature]/     # Componentes por feature (meetings, resources, etc.)
+└── form/          # Componentes de formulário reutilizáveis
+```
+
+### Separação de Responsabilidades
+- **Pages**: Apenas composição e orquestração de componentes
+- **Components**: UI e apresentação, recebem dados via props
+- **Services**: Lógica de negócio e integrações externas
+- **Utils**: Funções utilitárias puras e helpers
+- **Hooks**: Lógica de estado reutilizável
+
+## Referencias
+- [Page Template](mdc:.cursor/rules/src/components/layout/page-template.tsx)
+- [App Sidebar](mdc:.cursor/rules/src/components/layout/nav/app-sidebar.tsx)
+- [Protected Layout](mdc:.cursor/rules/src/app/(protected)/layout.tsx
+=======
+alwaysApply: true
+---
+# Arquitetura do Projeto - Lifeing Launch WebApp
+
+## Estrutura Geral
+Este é um projeto Next.js 15 com App Router usando TypeScript, Tailwind CSS e Supabase. A aplicação utiliza uma arquitetura de componentes modular e reutilizável.
+
+## Organização de Pastas
+
+### Estrutura Principal
+- **`src/app/`** - Pages usando App Router do Next.js
+  - `(auth)/` - Rotas de autenticação agrupadas
+  - `(protected)/` - Rotas protegidas por autenticação
+  - `api/` - API routes do Next.js
+- **`src/components/`** - Componentes organizados por domínio
+  - `ui/` - Componentes base do design system
+  - `auth/`, `dashboard/`, `meetings/`, etc. - Componentes específicos por funcionalidade
+- **`src/lib/`** - Utilitários e configurações
+- **`src/hooks/`** - Custom hooks React
+- **`src/utils/`** - Funções utilitárias
+- **`src/typing/`** - Definições de tipos TypeScript
+
+### Padrões de Organização
+1. **Componentes por Domínio**: Cada pasta em `components/` representa uma área funcional da aplicação
+2. **Componentes UI Reutilizáveis**: Todos os componentes base ficam em `ui/`
+3. **Separação Clara**: Layout, auth, dashboard, etc. são separados logicamente
+
+## Tecnologias Base
+- **Framework**: Next.js 15 com App Router
+- **Language**: TypeScript com configuração strict
+- **Styling**: Tailwind CSS 4 com sistema de design tokens
+- **Database**: Supabase
+- **UI Components**: Radix UI como base
+- **Authentication**: Supabase Auth
+
+Referências principais:
+- [package.json](mdc:package.json) - Dependências e scripts
+- [tsconfig.json](mdc:tsconfig.json) - Configuração TypeScript
+- [next.config.ts](mdc:next.config.ts) - Configuração Next.js
+- [src/app/layout.tsx](mdc:src/app/layout.tsx) - Layout principal
+>>>>>>> Stashed changes

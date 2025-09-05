@@ -1,0 +1,251 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Fluxo de Desenvolvimento
+
+## Scripts de Desenvolvimento
+
+### Comandos Principais
+```bash
+# Desenvolvimento
+npm run dev          # Inicia dev server com Turbopack
+npm run build        # Build de produção
+npm run start        # Inicia servidor de produção
+
+# Qualidade de Código
+npm run lint         # ESLint check
+npm run format       # Prettier formatting
+npm run format:check # Verificar formatação
+
+# Testes
+npm run test         # Executar testes
+npm run test:watch   # Testes em modo watch
+
+# CI/CD
+npm run ci           # Formato + lint + teste (pipeline)
+```
+
+### Ferramentas de Desenvolvimento
+- **Turbopack**: Bundler de desenvolvimento (Next.js 15)
+- **ESLint**: Linting com Next.js e Prettier
+- **Prettier**: Formatação de código
+- **Husky**: Git hooks para qualidade
+- **Jest**: Framework de testes
+
+## Configuração de Qualidade
+
+### ESLint + Prettier
+```javascript
+// eslint.config.mjs
+const eslintConfig = [
+  ...compat.extends(
+    "next/core-web-vitals",
+    "next/typescript", 
+    "plugin:prettier/recommended"
+  ),
+  {
+    rules: {
+      "prettier/prettier": "error",
+    },
+  },
+];
+```
+
+### Prettier Config
+```json
+{
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "es5",
+  "printWidth": 80,
+  "tabWidth": 2
+}
+```
+
+## Git Workflow
+
+### Branch Strategy
+- **main**: Código de produção
+- **staging**: Ambiente de staging
+- **feature/***: Features em desenvolvimento
+- **fix/***: Correções de bugs
+
+### Commit Convention
+```bash
+# Tipos de commit recomendados
+feat: nova funcionalidade
+fix: correção de bug
+docs: documentação
+style: formatação/estilo
+refactor: refatoração
+test: adição/modificação de testes
+chore: tarefas de manutenção
+```
+
+### Pre-commit Hooks
+```json
+// package.json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run format && npm run lint",
+      "pre-push": "npm run test"
+    }
+  }
+}
+```
+
+## Desenvolvimento Local
+
+### Configuração do Ambiente
+1. **Node.js**: Versão 18+ recomendada
+2. **Package Manager**: npm (lockfile presente)
+3. **Docker**: Disponível para containerização
+4. **Supabase**: Para desenvolvimento local usar CLI
+
+### Variáveis de Ambiente
+```bash
+# .env.local (não commitado)
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+### Docker Setup
+```dockerfile
+# Dockerfile disponível para containerização
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## Padrões de Desenvolvimento
+
+### 1. Feature Development
+```
+1. Criar branch feature/nome-da-feature
+2. Desenvolver seguindo padrões do projeto
+3. Adicionar testes quando necessário
+4. Executar npm run ci localmente
+5. Criar PR para review
+6. Merge após aprovação
+```
+
+### 2. Component Development
+```
+1. Criar componente em diretório apropriado
+2. Seguir padrões de tipagem TypeScript
+3. Aplicar estilos usando design tokens
+4. Adicionar data-slot attributes
+5. Criar testes se componente complexo
+6. Documentar props e uso
+```
+
+### 3. Page Development
+```
+1. Usar App Router (src/app/)
+2. Implementar metadata export
+3. Tipar params e searchParams
+4. Considerar loading e error states
+5. Otimizar para SEO quando relevante
+```
+
+## Debugging e Performance
+
+### Next.js DevTools
+- **React DevTools**: Para componentes
+- **Network tab**: Para API calls
+- **Performance tab**: Para render performance
+- **Lighthouse**: Para métricas web vitals
+
+### Supabase Debugging
+```typescript
+// Habilitar logs detalhados em desenvolvimento
+const supabase = createClient(url, key, {
+  auth: {
+    debug: process.env.NODE_ENV === 'development'
+  }
+});
+```
+
+### Performance Monitoring
+```typescript
+// Web Vitals tracking
+export function reportWebVitals(metric: NextWebVitalsMetric) {
+  if (process.env.NODE_ENV === 'production') {
+    // Send to analytics service
+    console.log(metric);
+  }
+}
+```
+
+## Build e Deploy
+
+### Build Process
+```bash
+# Build otimizado para produção
+npm run build
+
+# Verificar build localmente
+npm run start
+```
+
+### Docker Build
+```bash
+# Build da imagem Docker
+docker build -t webapp .
+
+# Run container
+docker run -p 3000:3000 webapp
+```
+
+### Verificações Pré-Deploy
+1. **Tests**: `npm run test`
+2. **Linting**: `npm run lint`
+3. **Build**: `npm run build`
+4. **Type Check**: `npx tsc --noEmit`
+
+## Monitoramento
+
+### Error Tracking
+- Implementar error boundaries
+- Log errors em produção
+- Monitor performance metrics
+
+### Analytics
+- Track user interactions
+- Monitor page performance
+- A/B test new features
+
+## Melhores Práticas
+
+### 1. Code Review
+- Review de código obrigatório
+- Verificar padrões de projeto
+- Testar funcionalidade localmente
+- Verificar performance impact
+
+### 2. Documentation
+- Comentários JSDoc para funções complexas
+- README atualizado
+- Changelog para releases
+- API documentation quando relevante
+
+### 3. Security
+- Nunca commitar secrets
+- Validar inputs do usuário
+- Usar HTTPS em produção
+- Regular dependency updates
+
+Referências:
+- [package.json](mdc:package.json) - Scripts e dependências
+- [eslint.config.mjs](mdc:eslint.config.mjs) - Configuração ESLint
+- [.prettierrc](mdc:.prettierrc) - Configuração Prettier
+- [Dockerfile](mdc:Dockerfile) - Configuração Docker
