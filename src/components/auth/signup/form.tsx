@@ -44,7 +44,6 @@ export function SignupForm({
                     id="firstname"
                     type="firstname"
                     name="firstname"
-                    placeholder="Lorem"
                     className="text-sm"
                     required
                   />
@@ -55,7 +54,6 @@ export function SignupForm({
                     id="lastname"
                     type="lastname"
                     name="lastname"
-                    placeholder="Ipsum"
                     className="text-sm"
                     required
                   />
@@ -67,7 +65,6 @@ export function SignupForm({
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="email@email.com"
                   className="text-sm"
                   required
                 />
@@ -78,7 +75,6 @@ export function SignupForm({
                   id="password"
                   type="password"
                   name="password"
-                  placeholder="********"
                   className="text-sm"
                   minLength={8}
                   required
@@ -90,7 +86,6 @@ export function SignupForm({
                   id="cPassword"
                   type="password"
                   name="cPassword"
-                  placeholder="********"
                   className="text-sm"
                   minLength={8}
                   required
