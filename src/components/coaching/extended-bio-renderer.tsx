@@ -10,41 +10,75 @@ export function ExtendedBioRenderer({ blocks }: IExtendedBioRenderer) {
     return null;
   }
 
+  const renderChildren = (children: ExtendedBioBlock["children"]) => {
+    if (!children || children.length === 0) return null;
+
+    return children.map((child, childIndex) => {
+      if (child.type === "text") {
+        return (
+          <span
+            key={childIndex}
+            className={`
+              ${child.bold ? "font-bold" : ""}
+              ${child.italic ? "italic" : ""}
+            `}
+          >
+            {child.text}
+          </span>
+        );
+      }
+      // Handle list-item type
+      if (child.type === "list-item" && child.children) {
+        return (
+          <li key={childIndex} className="ml-4">
+            {renderChildren(child.children)}
+          </li>
+        );
+      }
+      return null;
+    });
+  };
+
   const renderBlock = (block: ExtendedBioBlock, index: number) => {
     switch (block.type) {
       case "paragraph":
         return (
           <p key={index} className="mb-4">
-            {block.children.map((child, childIndex) => (
-              <span
-                key={childIndex}
-                className={`
-                  ${child.bold ? "font-bold" : ""}
-                  ${child.italic ? "italic" : ""}
-                `}
-              >
-                {child.text}
-              </span>
-            ))}
+            {renderChildren(block.children)}
           </p>
         );
 
       case "heading":
         const HeadingTag =
           `h${block.level || 2}` as keyof JSX.IntrinsicElements;
+        const headingClasses = {
+          1: "text-3xl font-bold mb-4 mt-8",
+          2: "text-2xl font-bold mb-3 mt-6",
+          3: "text-xl font-semibold mb-3 mt-5",
+          4: "text-lg font-semibold mb-2 mt-4",
+          5: "text-base font-semibold mb-2 mt-3",
+          6: "text-sm font-semibold mb-2 mt-3",
+        };
         return (
-          <HeadingTag key={index} className="font-bold mb-3 mt-6">
-            {block.children.map((child) => child.text).join("")}
+          <HeadingTag
+            key={index}
+            className={headingClasses[block.level || 2] || headingClasses[2]}
+          >
+            {renderChildren(block.children)}
           </HeadingTag>
         );
 
       case "list":
+        const ListTag = block.format === "ordered" ? "ol" : "ul";
+        const listClasses =
+          block.format === "ordered"
+            ? "list-decimal ml-6 mb-4"
+            : "list-disc ml-6 mb-4";
+
         return (
-          <ul key={index} className="list-disc list-inside mb-4">
-            {block.children.map((child, childIndex) => (
-              <li key={childIndex}>{child.text}</li>
-            ))}
-          </ul>
+          <ListTag key={index} className={listClasses}>
+            {renderChildren(block.children)}
+          </ListTag>
         );
 
       case "quote":
@@ -53,7 +87,7 @@ export function ExtendedBioRenderer({ blocks }: IExtendedBioRenderer) {
             key={index}
             className="border-l-4 border-gray-300 pl-4 italic mb-4"
           >
-            {block.children.map((child) => child.text).join("")}
+            {renderChildren(block.children)}
           </blockquote>
         );
 

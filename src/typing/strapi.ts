@@ -56,14 +56,21 @@ export type Article = {
 };
 
 export interface ExtendedBioBlock {
-  type: "paragraph" | "heading" | "list" | "quote";
+  type: "paragraph" | "heading" | "list" | "quote" | "list-item";
   children: Array<{
-    type: "text";
-    text: string;
+    type: "text" | "list-item";
+    text?: string;
     bold?: boolean;
     italic?: boolean;
+    children?: Array<{
+      type: "text";
+      text: string;
+      bold?: boolean;
+      italic?: boolean;
+    }>;
   }>;
-  level?: number; // For headings
+  level?: number; // For headings (1-6)
+  format?: "unordered" | "ordered"; // For lists
 }
 
 export type Coach = {
