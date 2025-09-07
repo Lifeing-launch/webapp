@@ -37,7 +37,7 @@ export default function MindfulModerationContent({
           </h2>
           <p className="mb-2">
             Group coaching support and empowerment to mindfully transform your
-            relationship with alcohol; whether you're exploring, reducing,
+            relationship with alcohol; whether you{"'"}re exploring, reducing,
             resetting, quitting, or fine-tuning mindful moderation strategies.
             Coaching in real-time, accountability, and evidence based tools to
             move confidently from where you are to where you want to be.
@@ -47,7 +47,7 @@ export default function MindfulModerationContent({
             $1 per group coaching session! 
           </p>
           <div className="mb-2">
-            <p className="font-bold">What you'll get:</p>
+            <p className="font-bold">What you{"'"}ll get:</p>
             <ul className="list-disc list-inside pl-4">
               <li>
                 Live Coaching & Real-Time Support – Led by expert coaches 
