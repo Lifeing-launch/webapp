@@ -5,7 +5,7 @@ import { sidebarIcons } from "@/components/layout/nav/app-sidebar";
 import { notFound } from "next/navigation";
 import { serverFetch } from "@/utils/fetch";
 import { Coach } from "@/typing/strapi";
-import { ExtendedBioRenderer } from "@/components/coaching/ExtendedBioRenderer";
+import { ExtendedBioRenderer } from "@/components/coaching/extended-bio-renderer";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
