@@ -6,39 +6,16 @@ import PageTemplate from "@/components/layout/page-template";
 import CurrentPlanCard from "@/components/subscription/current-plan-card";
 import { CreditCard } from "lucide-react";
 import Plans from "@/components/subscription/plans";
-import { SubscriptionPlan } from "@/typing/strapi";
 import { formatDate } from "@/utils/datetime";
 import { IBanner } from "@/components/ui/custom/banner";
 import { PlanService } from "@/services/plan";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
 
 const breadcrumbs: Breadcrumb[] = [{ label: "Manage Subscription" }];
 
 export default function ManageSubscription() {
-  const { subscription, loading, error } = useSubscription();
-  const {
-    data: plan,
-    isLoading: planLoading,
-    error: planError,
-  } = useQuery({
-    queryKey: ["subscription-plan", subscription?.plan_id],
-    queryFn: async () => {
-      if (!subscription?.plan_id) return null;
-
-      const response = await fetch(
-        `/api/payment/plans/${subscription.plan_id}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch plan");
-      }
-
-      const data: { data?: SubscriptionPlan[] } = await response.json();
-      return data.data?.[0] || null;
-    },
-    enabled: !!subscription?.plan_id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  const { subscription, loading, error, plan, planError, planLoading } =
+    useSubscription();
 
   const getBannerProps = (): IBanner | undefined => {
     if (!subscription || !plan) return undefined;
@@ -84,7 +61,7 @@ export default function ManageSubscription() {
       return (
         <div className="text-center py-8">
           <p className="text-red-500">
-            Error loading subscription: {error || planError?.message}
+            Error loading subscription: {error || planError}
           </p>
         </div>
       );

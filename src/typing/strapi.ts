@@ -78,6 +78,7 @@ export type Coach = {
 };
 
 export type SubscriptionPlanStatus = "DRAFT" | "ACTIVE" | "RETIRED";
+export type SubscriptionPlanSlug = "insight" | "benefactor" | "elevate";
 
 export type SubscriptionPlan = {
   id: number;
@@ -89,9 +90,16 @@ export type SubscriptionPlan = {
   price_monthly: number;
   price_yearly: number;
   features: { id: number; label: string }[];
+  slug?: SubscriptionPlanSlug;
 };
 
-export type MeetingType = "group" | "webinar" | "oneToOne" | "one-to-one";
+export type MeetingType =
+  | "group"
+  | "webinar"
+  | "oneToOne"
+  | "one-to-one"
+  | "event"
+  | "mindful-moderation";
 
 export type Meeting = {
   id: number;
@@ -117,5 +125,10 @@ export type Book = {
   id: number;
   title: string;
   cover_img?: Image;
+  meeting?: Meeting;
+};
+
+export type MindfulModerationSession = {
+  coach?: Coach;
   meeting?: Meeting;
 };

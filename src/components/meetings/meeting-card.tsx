@@ -2,6 +2,7 @@
 
 import React from "react";
 import {
+  Brain,
   Check,
   Clock,
   MonitorPlay,
@@ -84,7 +85,10 @@ export function MeetingCard({
 function MeetingStats({ meeting }: { meeting: Meeting }) {
   const { colors } = useSectionColors();
   const statsToDisplay: (keyof Meeting)[] = ["when", "meeting_type"];
-  const typeDisplayMapping = {
+  const typeDisplayMapping: Record<
+    MeetingType,
+    { label: string; Icon: React.ElementType }
+  > = {
     group: {
       label: "Group Session",
       Icon: Users,
@@ -105,9 +109,13 @@ function MeetingStats({ meeting }: { meeting: Meeting }) {
       label: "Event",
       Icon: Sparkle,
     },
+    "mindful-moderation": {
+      label: "Mindful Moderation",
+      Icon: Brain,
+    },
   };
 
-  const iconRenderer = (Icon: typeof Clock) => {
+  const iconRenderer = (Icon: React.ElementType) => {
     return (
       <div
         className="mr-3"
@@ -134,7 +142,12 @@ function MeetingStats({ meeting }: { meeting: Meeting }) {
       }
       case "meeting_type": {
         const { Icon, label } =
-          typeDisplayMapping[meeting[statKey] as MeetingType];
+          typeDisplayMapping[meeting[statKey] as MeetingType] || {};
+
+        if (!Icon || !label) {
+          return null;
+        }
+
         return (
           <>
             {iconRenderer(Icon)}
