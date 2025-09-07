@@ -49,9 +49,9 @@ export function ExtendedBioRenderer({ blocks }: IExtendedBioRenderer) {
         );
 
       case "heading":
-        const HeadingTag =
-          `h${block.level || 2}` as keyof JSX.IntrinsicElements;
-        const headingClasses = {
+        const blockLevel = block.level || 2;
+        const HeadingTag = `h${blockLevel}` as keyof JSX.IntrinsicElements;
+        const headingClasses: Record<number, string> = {
           1: "text-3xl font-bold mb-4 mt-8",
           2: "text-2xl font-bold mb-3 mt-6",
           3: "text-xl font-semibold mb-3 mt-5",
@@ -59,11 +59,9 @@ export function ExtendedBioRenderer({ blocks }: IExtendedBioRenderer) {
           5: "text-base font-semibold mb-2 mt-3",
           6: "text-sm font-semibold mb-2 mt-3",
         };
+        const headingClass = headingClasses[blockLevel] || headingClasses[2];
         return (
-          <HeadingTag
-            key={index}
-            className={headingClasses[block.level || 2] || headingClasses[2]}
-          >
+          <HeadingTag key={index} className={headingClass}>
             {renderChildren(block.children)}
           </HeadingTag>
         );
