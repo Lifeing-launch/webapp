@@ -15,6 +15,7 @@ import {
   Book,
   BookMarked,
   BookOpen,
+  Brain,
   Calendar,
   HeartHandshake,
   Podcast,
@@ -38,6 +39,7 @@ export const sidebarIcons = {
   podcast: <Podcast />,
   account: <UserRoundCog />,
   bookClub: <Book />,
+  mindfulModeration: <Brain />,
 };
 
 const data = {
@@ -83,11 +85,16 @@ const data = {
         icon: sidebarIcons.drinkLog,
       },
     ],
-    events: [
+    offerings: [
       {
         title: "Book Club",
         url: "/book-club",
         icon: sidebarIcons.bookClub,
+      },
+      {
+        title: "Mindful Moderation",
+        url: "/mindful-moderation",
+        icon: sidebarIcons.mindfulModeration,
       },
     ],
   },
@@ -146,8 +153,8 @@ const AppSidebar = () => {
           onItemClick={handleItemClick}
         />
         <NavGroup
-          title="Upcoming Events"
-          items={data.navItems.events}
+          title="Offerings"
+          items={data.navItems.offerings}
           onItemClick={handleItemClick}
         />
       </SidebarContent>

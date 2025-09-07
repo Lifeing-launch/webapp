@@ -5,11 +5,15 @@ import { createClient } from "@/utils/supabase/browser";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "./user-provider";
 import { SubscriptionRecord } from "@/typing/supabase";
+import { SubscriptionPlan } from "@/typing/strapi";
 
 interface SubscriptionContextType {
   subscription: SubscriptionRecord | null;
   loading: boolean;
   error: string | null;
+  plan: SubscriptionPlan | null;
+  planLoading: boolean;
+  planError: string | null;
   refetchSubscription: () => Promise<void>;
 }
 
@@ -64,6 +68,29 @@ export const SubscriptionProvider = ({
     },
   });
 
+  const {
+    data: plan,
+    isLoading: planLoading,
+    error: planError,
+  } = useQuery({
+    queryKey: ["subscription-plan", subscription?.plan_id],
+    queryFn: async () => {
+      if (!subscription?.plan_id) return null;
+
+      const response = await fetch(
+        `/api/payment/plans/${subscription.plan_id}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch plan");
+      }
+
+      const data: { data?: SubscriptionPlan[] } = await response.json();
+      return data.data?.[0] || null;
+    },
+    enabled: !!subscription?.plan_id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
   // Listen to user changes to refetch subscription
   React.useEffect(() => {
     if (user?.id) {
@@ -81,6 +108,9 @@ export const SubscriptionProvider = ({
     subscription: subscription ?? null,
     loading,
     error: error?.message || null,
+    plan: plan ?? null,
+    planLoading,
+    planError: planError?.message || null,
     refetchSubscription: async () => {
       await refetchSubscription();
     },

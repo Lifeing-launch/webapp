@@ -6,17 +6,28 @@ import { getStrapiBaseUrl } from "@/utils/urls";
 import { NextRequest, NextResponse } from "next/server";
 import qs from "qs";
 import { Meeting } from "@/typing/strapi";
+import { PlanService } from "@/services/plan";
 
 export async function GET(request: NextRequest) {
   try {
     const user = getAuthenticatedUser(request);
     const supabase = await createClient();
 
+    // Get the user's subscription plan
+    const { data: subscription } = await supabase
+      .from("active_subscriptions")
+      .select("plan_id, stripe_subscription_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
     const { searchParams } = new URL(request.url);
     const rsvpOnly = searchParams.get("rsvpOnly");
     const hydrateRsvp = searchParams.get("hydrateRsvp") === "true";
     const dateFrom = searchParams.get("dateFrom") || new Date().toISOString();
     const dateTo = searchParams.get("dateTo");
+
+    const meetingTypeExclusions =
+      await PlanService.getMeetingTypeExclusionsFromPlan(subscription);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const strapiQueryObj: any = {
@@ -26,6 +37,9 @@ export async function GET(request: NextRequest) {
         },
         id: {
           $in: [],
+        },
+        meeting_type: {
+          $notIn: meetingTypeExclusions,
         },
       },
       sort: "when:asc",
@@ -72,6 +86,10 @@ export async function GET(request: NextRequest) {
         .from("rsvps")
         .select("meeting_id")
         .eq("user_id", user.id)
+        .in(
+          "meeting_id",
+          data.data.map((meeting: Meeting) => meeting?.id).filter(Boolean)
+        )
         .throwOnError();
 
       // Create a Set of RSVP'd meeting IDs for efficient lookup
