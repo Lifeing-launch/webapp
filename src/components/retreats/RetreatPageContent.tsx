@@ -27,7 +27,7 @@ export default function RetreatPageContent({ data }: RetreatPageContentProps) {
   };
 
   return (
-    <div className="bg-white px-10">
+    <div className="bg-white px-10 pb-40">
       <AnnouncementSection
         data={data.announcement}
         onCtaClick={handleSeeRoomRates}

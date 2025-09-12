@@ -33,8 +33,9 @@ export default async function RetreatsPage() {
     <>
       <PageBanner
         title="Retreats"
-        backgroundImage="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1600&h=600&fit=crop"
-        height="md"
+        backgroundImage="/images/retreats/banner.png"
+        height="lg"
+        imagePosition="50% 70%"
       />
 
       <div className="w-full h-full flex flex-col flex-1">

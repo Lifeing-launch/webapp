@@ -17,9 +17,9 @@ const mockData: RetreatData = {
       description:
         "This Oasis Villa is your home for four nights, nestled against the stunning backdrop of the San Jacinto mountains.<br/><br/>It features a gorgeous pool, a cozy, sunken fire pit for evening connection, and an onsite spa with a steam room and sauna for deep, restorative relaxation.",
       images: [
-        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1444927714506-8492d94b4e3d?w=800&h=600&fit=crop",
+        "/images/retreats/ASanctuaryofSerenity.png",
+        "/images/retreats/ASanctuaryofSerenity1.png",
+        "/images/retreats/ASanctuaryofSerenity2.png",
       ],
       alignment: "left",
       imageSlideInterval: 10000,
@@ -30,11 +30,11 @@ const mockData: RetreatData = {
       description:
         "We will be cared for by our <strong>private chef, Deanna</strong> who will craft nightly gourmet meals, along with healthy breakfasts and lunches. This is a chance to nourish your body and connect with your fellow community members around a shared table, in a space of pure acceptance.",
       images: [
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&h=600&fit=crop",
+        "/images/retreats/Nourishment.png",
+        "/images/retreats/Nourishment1.png",
       ],
       alignment: "right",
-      imageSlideInterval: 10000,
+      imageSlideInterval: 12000,
     },
     {
       id: "food-meditation",
@@ -42,24 +42,24 @@ const mockData: RetreatData = {
       description:
         "Each day will be a gentle flow of intentional practice. We'll start with <strong>morning yoga and meditation</strong>, anchoring ourselves in breath and movement. Our journey will culminate in a profound and magical experience—a private sound bath at the renowned <strong>Integratron in Joshua Tree</strong>, designed to align and restore your energy.",
       images: [
-        "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=800&h=600&fit=crop",
+        "/images/retreats/PracticesforWholeness.png",
+        "/images/retreats/PracticesforWholeness1.png",
+        "/images/retreats/PracticesforWholeness2.png",
       ],
       alignment: "left",
-      imageSlideInterval: 10000,
+      imageSlideInterval: 13000,
     },
     {
-      id: "watershed-swimming",
+      id: "seamless-grounding",
       title: "Seamless Grounding",
       description:
         "All of your ground transportation, including airport transfers, will be taken care of so that you can simply arrive and immerse yourself in the experience.<br/><br/>This vintage 1953 Airstream is on property and you can come visit Heidi here during office hours.<br/><br/>And, in the Casita adjacent to the Spa and Outdoor Lounge, you will find Dr. Lovey in her suite where she will hold office hours, after hours, because she rolls that way.",
       images: [
-        "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1502933691298-84fc14542831?w=800&h=600&fit=crop",
+        "/images/retreats/SeamlessGrounding.png",
+        "/images/retreats/SeamlessGrounding1.png",
       ],
       alignment: "right",
-      imageSlideInterval: 10000,
+      imageSlideInterval: 14000,
     },
   ],
   retreatRooms: {
@@ -73,13 +73,12 @@ const mockData: RetreatData = {
   },
   carousel: {
     images: [
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?w=800&h=600&fit=crop",
+      "/images/retreats/carousel.png",
+      "/images/retreats/carousel-1.png",
+      "/images/retreats/carousel-2.png",
+      "/images/retreats/carousel-3.png",
     ],
-    interval: 4000,
+    interval: 9000,
   },
   pricing: [
     {
@@ -199,7 +198,7 @@ const mockData: RetreatData = {
 export async function GET() {
   try {
     return NextResponse.json(mockData);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch retreat data" },
       { status: 500 }

@@ -53,7 +53,9 @@ export default function PricingSection({
                   {/* Double Occupancy Card */}
                   <div className="w-48 p-3 bg-white rounded-2xl flex flex-col justify-center items-center gap-2.5">
                     <div className="self-stretch text-center font-schibsted font-normal text-sm text-gray-700 leading-tight">
-                      Double Occupancy<br/>(per person)
+                      Double Occupancy
+                      <br />
+                      (per person)
                     </div>
                     <div className="self-stretch text-center font-gilda font-normal text-3xl text-[#1C1C1C] leading-[48px]">
                       {item.price1.value}
@@ -63,7 +65,9 @@ export default function PricingSection({
                   {/* Single Occupancy Card */}
                   <div className="w-48 p-3 bg-white rounded-2xl flex flex-col justify-center items-center gap-2.5">
                     <div className="self-stretch text-center font-schibsted font-normal text-sm text-gray-700 leading-tight">
-                      Single Occupancy<br/>(Total)
+                      Single Occupancy
+                      <br />
+                      (Total)
                     </div>
                     <div className="self-stretch text-center font-gilda font-normal text-3xl text-[#1C1C1C] leading-[48px]">
                       {item.price2.value}
@@ -71,7 +75,7 @@ export default function PricingSection({
                   </div>
                 </div>
               </div>
-              
+
               {/* Divider line between rooms except for last item */}
               {index < data.length - 1 && (
                 <div className="self-stretch h-0 border-t border-gray-300"></div>
@@ -79,9 +83,9 @@ export default function PricingSection({
             </React.Fragment>
           ))}
         </div>
-        
+
         {/* Request to book button */}
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center mt-20">
           <button
             onClick={onBookingClick}
             className="px-6 py-4 bg-[#7C8E5A] hover:bg-[#6b7a4d] rounded-[10px] inline-flex justify-center items-center transition-colors"
