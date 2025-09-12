@@ -18,6 +18,7 @@ import {
   Brain,
   Calendar,
   HeartHandshake,
+  Palmtree,
   Podcast,
   UserRoundCog,
   UsersRound,
@@ -40,6 +41,7 @@ export const sidebarIcons = {
   account: <UserRoundCog />,
   bookClub: <Book />,
   mindfulModeration: <Brain />,
+  retreats: <Palmtree />,
 };
 
 const data = {
@@ -95,6 +97,11 @@ const data = {
         title: "Mindful Moderation",
         url: "/mindful-moderation",
         icon: sidebarIcons.mindfulModeration,
+      },
+      {
+        title: "Retreats",
+        url: "/retreats",
+        icon: sidebarIcons.retreats,
       },
     ],
   },
