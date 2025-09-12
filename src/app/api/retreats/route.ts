@@ -44,7 +44,6 @@ const mockData: RetreatData = {
       images: [
         "/images/retreats/PracticesforWholeness.png",
         "/images/retreats/PracticesforWholeness1.png",
-        "/images/retreats/PracticesforWholeness2.png",
       ],
       alignment: "left",
       imageSlideInterval: 13000,
