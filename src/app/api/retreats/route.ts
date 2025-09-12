@@ -66,7 +66,7 @@ const mockData: RetreatData = {
     title: "Retreat Rooms",
     paragraphs: [
       "This retreat is a sacred space for us to practice everything we believe in: letting go of shame, leaning into curiosity, and embracing a life of purpose. It's an opportunity to truly embody the Lifeing way and return home feeling unburdened, inspired, and aligned.",
-      "The availability is limited to 14. Room rates and configurations vary, average price based upon double occupancy is $3000 exclusive of airfare. For those wanting a private room, we will add a single supplement fee based upon the room of your choice."
+      "The availability is limited to 14. Room rates and configurations vary, average price based upon double occupancy is $3000 exclusive of airfare. For those wanting a private room, we will add a single supplement fee based upon the room of your choice.",
     ],
     footnote: "All Inclusive (Except Airfare and Massages)",
     ctaText: "Request to book",

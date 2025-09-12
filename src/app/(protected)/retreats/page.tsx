@@ -1,5 +1,5 @@
 import React from "react";
-import PageTemplate from "@/components/layout/page-template";
+// import PageTemplate from "@/components/layout/page-template";
 import PageBanner from "@/components/layout/page-banner";
 import RetreatPageContent from "@/components/retreats/RetreatPageContent";
 import { RetreatData } from "@/typing/retreats";

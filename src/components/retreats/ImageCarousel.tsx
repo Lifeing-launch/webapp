@@ -39,7 +39,7 @@ export default function ImageCarousel({ data }: ImageCarouselProps) {
         <div className="mx-auto">
           <div className="relative">
             {/* Main carousel container */}
-            <div 
+            <div
               className="w-full h-[440px] md:h-[500px] lg:h-[600px] xl:h-[700px] relative rounded-[20px] overflow-hidden cursor-zoom-in"
               onClick={() => setIsZoomed(true)}
             >
@@ -60,7 +60,7 @@ export default function ImageCarousel({ data }: ImageCarouselProps) {
                 ))}
               </div>
             </div>
-            
+
             {/* Navigation arrows - Outside the overflow container */}
             <button
               onClick={handlePrev}
@@ -87,7 +87,7 @@ export default function ImageCarousel({ data }: ImageCarouselProps) {
 
       {/* Zoom Modal */}
       {isZoomed && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
           onClick={() => setIsZoomed(false)}
         >
@@ -98,7 +98,7 @@ export default function ImageCarousel({ data }: ImageCarouselProps) {
           >
             <X className="w-6 h-6 text-white" />
           </button>
-          
+
           <div className="relative max-w-[90vw] max-h-[90vh]">
             <Image
               src={data.images[currentIndex]}
@@ -108,7 +108,7 @@ export default function ImageCarousel({ data }: ImageCarouselProps) {
               className="object-contain"
               priority
             />
-            
+
             {/* Navigation in zoom mode */}
             <button
               onClick={(e) => {
