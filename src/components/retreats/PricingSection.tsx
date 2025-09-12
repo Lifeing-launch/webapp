@@ -11,15 +11,15 @@ interface PricingSectionProps {
 const statusConfig = {
   available: {
     label: "Available",
-    className: "bg-[#8FBF4D] text-white text-xs px-3 py-1 rounded-full",
+    className: "px-2.5 py-0.5 bg-[#8FBF4D] text-white text-xs font-semibold font-schibsted leading-none rounded-md inline-flex justify-center items-center",
   },
   "coming-soon": {
     label: "Coming Soon",
-    className: "bg-[#FFA500] text-white text-xs px-3 py-1 rounded-full",
+    className: "px-2.5 py-0.5 bg-[#FFA500] text-white text-xs font-semibold font-schibsted leading-none rounded-md inline-flex justify-center items-center",
   },
   booked: {
     label: "Booked",
-    className: "bg-[#FF6B6B] text-white text-xs px-3 py-1 rounded-full",
+    className: "px-2.5 py-0.5 bg-[#FF6B6B] text-white text-xs font-semibold font-schibsted leading-none rounded-md inline-flex justify-center items-center",
   },
 };
 
@@ -88,7 +88,7 @@ export default function PricingSection({
         <div className="flex justify-center mt-20">
           <button
             onClick={onBookingClick}
-            className="px-6 py-4 bg-[#7C8E5A] hover:bg-[#6b7a4d] rounded-[10px] inline-flex justify-center items-center transition-colors"
+            className="px-6 py-4 bg-retreat-button hover:bg-retreat-button-hover rounded-[10px] inline-flex justify-center items-center transition-colors"
           >
             <span className="text-white font-schibsted font-bold text-base leading-normal">
               Request to book

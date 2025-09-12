@@ -61,7 +61,7 @@ export default function AnnouncementSection({
             {/* CTA Button */}
             <button
               onClick={onCtaClick}
-              className="bg-[#7C8E5A] hover:bg-[#6b7a4d] text-white px-10 py-4 font-schibsted font-medium text-lg rounded-[10px] transition-colors"
+              className="bg-retreat-button hover:bg-retreat-button-hover text-white px-10 py-4 font-schibsted font-medium text-lg rounded-[10px] transition-colors"
             >
               {data.ctaText}
             </button>
