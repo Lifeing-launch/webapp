@@ -11,15 +11,18 @@ interface PricingSectionProps {
 const statusConfig = {
   available: {
     label: "Available",
-    className: "px-2.5 py-0.5 bg-[#8FBF4D] text-white text-xs font-semibold font-schibsted leading-none rounded-md inline-flex justify-center items-center",
+    className:
+      "px-2.5 py-0.5 bg-[#8FBF4D] text-white text-xs font-semibold font-schibsted leading-none rounded-md inline-flex justify-center items-center",
   },
   "coming-soon": {
     label: "Coming Soon",
-    className: "px-2.5 py-0.5 bg-[#FFA500] text-white text-xs font-semibold font-schibsted leading-none rounded-md inline-flex justify-center items-center",
+    className:
+      "px-2.5 py-0.5 bg-[#FFA500] text-white text-xs font-semibold font-schibsted leading-none rounded-md inline-flex justify-center items-center",
   },
   booked: {
     label: "Booked",
-    className: "px-2.5 py-0.5 bg-[#FF6B6B] text-white text-xs font-semibold font-schibsted leading-none rounded-md inline-flex justify-center items-center",
+    className:
+      "px-2.5 py-0.5 bg-[#FF6B6B] text-white text-xs font-semibold font-schibsted leading-none rounded-md inline-flex justify-center items-center",
   },
 };
 
