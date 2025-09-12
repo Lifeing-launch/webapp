@@ -35,12 +35,12 @@ export default function ImageCarousel({ data }: ImageCarouselProps) {
 
   return (
     <>
-      <section className="py-16 px-4">
+      <section className="py-16 px-8">
         <div className="mx-auto">
           <div className="relative">
             {/* Main carousel container */}
             <div 
-              className="w-full h-[440px] relative rounded-[20px] overflow-hidden cursor-zoom-in"
+              className="w-full h-[440px] md:h-[500px] lg:h-[600px] xl:h-[700px] relative rounded-[20px] overflow-hidden cursor-zoom-in"
               onClick={() => setIsZoomed(true)}
             >
               <div className="relative w-full h-full bg-gray-100">
@@ -59,34 +59,28 @@ export default function ImageCarousel({ data }: ImageCarouselProps) {
                   />
                 ))}
               </div>
-              
-              {/* Navigation arrows */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePrev();
-                }}
-                className="absolute left-7 top-1/2 -translate-y-1/2 size-14 bg-stone-400 rounded-[30px] hover:bg-stone-500 transition-colors overflow-hidden"
-                aria-label="Previous image"
-              >
-                <div className="relative w-full h-full flex justify-center items-center">
-                  <ChevronLeft className="w-6 h-6 text-zinc-900" />
-                </div>
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNext();
-                }}
-                className="absolute right-7 top-1/2 -translate-y-1/2 size-14 bg-stone-400 rounded-[30px] hover:bg-stone-500 transition-colors overflow-hidden"
-                aria-label="Next image"
-              >
-                <div className="relative w-full h-full flex justify-center items-center">
-                  <ChevronRight className="w-6 h-6 text-zinc-900" />
-                </div>
-              </button>
             </div>
+            
+            {/* Navigation arrows - Outside the overflow container */}
+            <button
+              onClick={handlePrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 size-14 bg-primary/90 hover:bg-primary rounded-[30px] transition-all shadow-lg z-10"
+              aria-label="Previous image"
+            >
+              <div className="relative w-full h-full flex justify-center items-center">
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </div>
+            </button>
+
+            <button
+              onClick={handleNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 size-14 bg-primary/90 hover:bg-primary rounded-[30px] transition-all shadow-lg z-10"
+              aria-label="Next image"
+            >
+              <div className="relative w-full h-full flex justify-center items-center">
+                <ChevronRight className="w-6 h-6 text-white" />
+              </div>
+            </button>
           </div>
         </div>
       </section>
@@ -121,7 +115,7 @@ export default function ImageCarousel({ data }: ImageCarouselProps) {
                 e.stopPropagation();
                 handlePrev();
               }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 size-14 bg-white/10 hover:bg-white/20 rounded-[30px] transition-colors flex items-center justify-center"
+              className="absolute left-4 top-1/2 -translate-y-1/2 size-14 bg-primary/90 hover:bg-primary rounded-[30px] transition-all shadow-lg flex items-center justify-center"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-6 h-6 text-white" />
@@ -132,7 +126,7 @@ export default function ImageCarousel({ data }: ImageCarouselProps) {
                 e.stopPropagation();
                 handleNext();
               }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 size-14 bg-white/10 hover:bg-white/20 rounded-[30px] transition-colors flex items-center justify-center"
+              className="absolute right-4 top-1/2 -translate-y-1/2 size-14 bg-primary/90 hover:bg-primary rounded-[30px] transition-all shadow-lg flex items-center justify-center"
               aria-label="Next image"
             >
               <ChevronRight className="w-6 h-6 text-white" />
