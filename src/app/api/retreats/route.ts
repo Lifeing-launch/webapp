@@ -186,8 +186,7 @@ const mockData: RetreatData = {
       },
     },
   ],
-  bookingUrl:
-    "https://docs.google.com/forms/d/13MVqyxfX5BuZfB36hpPIHPUk_3TdXrwVGUS07EXv9qA/viewform?ts=68bf9a00&edit_requested=true",
+  bookingUrl: "https://forms.gle/mTgQp837qrhTP5JE6",
   seo: {
     title: "Lifeing Retreats - Rewilding the Soul in Palm Springs",
     description:
