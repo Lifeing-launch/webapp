@@ -11,6 +11,18 @@ interface PageBannerProps {
   backgroundImage?: string;
   height?: "sm" | "md" | "lg";
   className?: string;
+  imagePosition?:
+    | "top"
+    | "center"
+    | "bottom"
+    | "left"
+    | "right"
+    | "top-left"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-right"
+    | "center-20"
+    | string;
 }
 
 const BASE_HEIGHTS = {
@@ -33,6 +45,7 @@ export default function PageBanner({
   backgroundImage = DEFAULT_BANNER,
   height = "md",
   className = "",
+  imagePosition = "center",
 }: PageBannerProps) {
   const { state, isMobile } = useSidebar();
   const [bannerHeight, setBannerHeight] = useState<number | null>(null);
@@ -100,7 +113,10 @@ export default function PageBanner({
         src={backgroundImage}
         alt="Page Banner"
         fill
-        className="absolute inset-0 w-full h-full object-cover object-center"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          objectPosition: imagePosition || "center",
+        }}
       />
 
       <div className="absolute inset-0 bg-black/30" />

@@ -1,7 +1,32 @@
-import { SubscriptionPlan } from "@/typing/strapi";
+import {
+  MeetingType,
+  SubscriptionPlan,
+  SubscriptionPlanSlug,
+} from "@/typing/strapi";
+import { SubscriptionRecord } from "@/typing/supabase";
 import { strapiFetch } from "@/utils/fetch";
 import { getStrapiBaseUrl } from "@/utils/urls";
 import qs from "qs";
+
+const PLAN_PROTECTED_PAGES_TO_PLANS: Record<
+  string,
+  Set<SubscriptionPlanSlug>
+> = {
+  "/mindful-moderation": new Set(["elevate", "benefactor"]),
+};
+
+const PLAN_PROTECTED_PAGES = Object.keys(PLAN_PROTECTED_PAGES_TO_PLANS);
+
+const PROTECTED_MEETING_TYPES = new Set<MeetingType>(["mindful-moderation"]);
+
+const PLANS_TO_PROTECTED_MEETING_TYPE: Record<
+  SubscriptionPlanSlug,
+  Set<MeetingType>
+> = {
+  insight: new Set([]),
+  elevate: new Set(["mindful-moderation"]),
+  benefactor: new Set(["mindful-moderation"]),
+};
 
 /**
  * Service for handling subscription plan operations
@@ -42,7 +67,34 @@ export class PlanService {
       );
       return null;
     } catch (err) {
-      console.error("Error fetching plan by price ID:", err);
+      console.error("Error fetching plan by price ID:", priceId, err);
+      return null;
+    }
+  }
+
+  static async getPlanSlugFromId(
+    planId: number
+  ): Promise<SubscriptionPlanSlug | null> {
+    const queryObj = { filters: { id: { $eq: planId } } };
+
+    const strapiQuery = qs.stringify(queryObj, { encodeValuesOnly: true });
+    const strapiUrl = `${getStrapiBaseUrl()}/subscription-plans?${strapiQuery}`;
+
+    try {
+      const response = await strapiFetch(strapiUrl);
+      const plans = response?.data;
+
+      if (plans && plans.length === 1) {
+        return plans[0]?.slug;
+      }
+
+      console.warn(
+        "No plan found or multiple plans returned for plan ID:",
+        planId
+      );
+      return null;
+    } catch (err) {
+      console.error("Error fetching plan by plan ID:", planId, err);
       return null;
     }
   }
@@ -85,5 +137,58 @@ export class PlanService {
    */
   static isPlanRetired(plan: SubscriptionPlan): boolean {
     return plan.plan_status === "RETIRED";
+  }
+
+  static isSubscriptionProtectedPage(path: string): boolean {
+    return PLAN_PROTECTED_PAGES.some((page) => path.startsWith(page));
+  }
+
+  static isWhitelistedSubscription(
+    subscription?: Partial<SubscriptionRecord> | null
+  ) {
+    return (
+      subscription?.stripe_subscription_id?.startsWith("whitelist_") ||
+      subscription?.stripe_subscription_id?.startsWith("internal_")
+    );
+  }
+
+  static async canAccessPlanProtectedPage(
+    path: string,
+    subscription?: Partial<SubscriptionRecord> | null
+  ): Promise<boolean> {
+    if (this.isWhitelistedSubscription(subscription)) return true;
+
+    const planId = subscription?.plan_id;
+    if (!planId) return false;
+
+    const matched = PLAN_PROTECTED_PAGES.find((page) => path.startsWith(page));
+
+    if (!matched) return true;
+
+    // TODO: Maintain a cache of planSlug to planId
+    const planSlug = await this.getPlanSlugFromId(planId);
+
+    if (!planSlug) return false;
+
+    const plans = PLAN_PROTECTED_PAGES_TO_PLANS[matched];
+    return plans.has(planSlug);
+  }
+
+  static async getMeetingTypeExclusionsFromPlan(
+    subscription?: Partial<SubscriptionRecord> | null
+  ): Promise<MeetingType[]> {
+    if (this.isWhitelistedSubscription(subscription)) return [];
+
+    const planId = subscription?.plan_id;
+    if (!planId) return Array.from(PROTECTED_MEETING_TYPES);
+
+    const planSlug = await this.getPlanSlugFromId(planId);
+    if (!planSlug) return Array.from(PROTECTED_MEETING_TYPES);
+
+    const excludedMeetingTypes = PROTECTED_MEETING_TYPES.difference(
+      PLANS_TO_PROTECTED_MEETING_TYPE[planSlug] || new Set()
+    );
+
+    return Array.from(excludedMeetingTypes);
   }
 }

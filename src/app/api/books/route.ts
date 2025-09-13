@@ -44,6 +44,10 @@ export async function GET(request: NextRequest) {
         .from("rsvps")
         .select("meeting_id")
         .eq("user_id", user.id)
+        .in(
+          "meeting_id",
+          data.data.map((book: Book) => book?.meeting?.id).filter(Boolean)
+        )
         .throwOnError();
 
       // Create a Set of RSVP'd meeting IDs for efficient lookup
