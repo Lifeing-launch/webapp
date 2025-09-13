@@ -100,7 +100,7 @@ const mockData: RetreatData = {
       title: "Primary Suite 2",
       subtitle: "",
       description: "Deluxe King bed, private patio",
-      status: "available",
+      status: "booked",
       price1: {
         label: "Double Occupancy",
         value: "$3,295",
@@ -115,7 +115,7 @@ const mockData: RetreatData = {
       title: "Room 1",
       subtitle: "",
       description: "King bed, private bath, outdoor patio access",
-      status: "available",
+      status: "booked",
       price1: {
         label: "Double Occupancy",
         value: "$3,095",
@@ -130,7 +130,7 @@ const mockData: RetreatData = {
       title: "Room 2",
       subtitle: "",
       description: "Queen bed, shared bath w/ private door",
-      status: "available",
+      status: "booked",
       price1: {
         label: "Double Occupancy",
         value: "$2,795",
@@ -175,7 +175,7 @@ const mockData: RetreatData = {
       title: "Room 5",
       subtitle: "",
       description: "King bed, outdoor patio access, shared bath",
-      status: "available",
+      status: "booked",
       price1: {
         label: "Double Occupancy",
         value: "$2,895",
