@@ -72,6 +72,7 @@ const mockData: RetreatData = {
   },
   carousel: {
     images: [
+      "/images/retreats/carousel-0.png",
       "/images/retreats/carousel.png",
       "/images/retreats/carousel-1.png",
       "/images/retreats/carousel-2.png",
@@ -175,7 +176,7 @@ const mockData: RetreatData = {
       title: "Room 5",
       subtitle: "",
       description: "King bed, outdoor patio access, shared bath",
-      status: "booked",
+      status: "available",
       price1: {
         label: "Double Occupancy",
         value: "$2,895",

@@ -1,4 +1,5 @@
 import { CoachCard } from "@/components/coaching/coach-card";
+import CoachingProgramSection from "@/components/coaching/coaching-program-section";
 import { Coach } from "@/typing/strapi";
 import { serverFetch } from "@/utils/fetch";
 import PageBanner from "@/components/layout/page-banner";
@@ -40,7 +41,10 @@ export default async function CoachingPage() {
         className="mb-0 flex-shrink-0"
         backgroundImage={BANNER_IMAGE}
       />
-      <main className="flex-1 p-4 overflow-y-auto">{content}</main>
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-4">{content}</div>
+        <CoachingProgramSection />
+      </main>
     </div>
   );
 }

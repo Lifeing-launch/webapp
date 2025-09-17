@@ -4,7 +4,7 @@ import { Clock } from "lucide-react";
 import Image from "next/image";
 import RsvpButton from "../meetings/rsvp-button";
 import { Meeting, MindfulModerationSession } from "@/typing/strapi";
-import { formatDate, formatTime } from "@/utils/datetime";
+import ClientDateTime from "@/components/ui/client-datetime";
 
 export type HydratedSession = MindfulModerationSession & {
   meeting: Meeting & { hasRsvped?: boolean };
@@ -29,11 +29,11 @@ function MeetingItem({ session }: { session: HydratedSession }) {
     <li className="flex justify-between items-center border-b last:border-b-0 py-4">
       <div className="flex items-center gap-2">
         <Clock className="size-4 text-primary" />
-        {}
-        <span>
-          {formatDate(new Date(session.meeting.when))} -{" "}
-          {formatTime(new Date(session.meeting.when))}
-        </span>
+        <ClientDateTime
+          date={session.meeting.when}
+          format="datetime"
+          fallback="Loading time..."
+        />
         <RsvpButton meetingId={session.meeting.id} />
       </div>
       <div className="flex items-center gap-2">

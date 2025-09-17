@@ -19,14 +19,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import {
-  datetimeIsWithinInterval,
-  formatDate,
-  formatTime,
-} from "@/utils/datetime";
+import { datetimeIsWithinInterval } from "@/utils/datetime";
 import RsvpButton from "./rsvp-button";
 import { Meeting, MeetingType } from "@/typing/strapi";
 import { useSectionColors } from "@/hooks/use-section-colors";
+import ClientDateTime from "@/components/ui/client-datetime";
 import Link from "next/link";
 
 interface IMeetingCard {
@@ -130,13 +127,14 @@ function MeetingStats({ meeting }: { meeting: Meeting }) {
   const statRenderer = (statKey: keyof Meeting) => {
     switch (statKey) {
       case "when": {
-        const when = new Date(meeting[statKey]);
         return (
           <>
             {iconRenderer(Clock)}
-            <span>
-              {formatDate(when)} - {formatTime(when)}
-            </span>
+            <ClientDateTime
+              date={meeting[statKey]}
+              format="datetime"
+              fallback="Loading time..."
+            />
           </>
         );
       }
