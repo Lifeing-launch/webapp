@@ -19,10 +19,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { datetimeIsWithinInterval, formatDateTime } from "@/utils/datetime";
+import { datetimeIsWithinInterval } from "@/utils/datetime";
 import RsvpButton from "./rsvp-button";
 import { Meeting, MeetingType } from "@/typing/strapi";
 import { useSectionColors } from "@/hooks/use-section-colors";
+import ClientDateTime from "@/components/ui/client-datetime";
 import Link from "next/link";
 
 interface IMeetingCard {
@@ -129,7 +130,11 @@ function MeetingStats({ meeting }: { meeting: Meeting }) {
         return (
           <>
             {iconRenderer(Clock)}
-            <span>{formatDateTime(meeting[statKey])}</span>
+            <ClientDateTime
+              date={meeting[statKey]}
+              format="datetime"
+              fallback="Loading time..."
+            />
           </>
         );
       }
