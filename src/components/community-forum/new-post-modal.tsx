@@ -56,7 +56,7 @@ export const NewPostModal = ({
   const [tagFilter, setTagFilter] = useState("");
   const [showFilteredTags, setShowFilteredTags] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const maxLength = 350;
+  const maxLength = 1000;
 
   const {
     mutate: createPost,

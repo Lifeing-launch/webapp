@@ -72,6 +72,7 @@ const mockData: RetreatData = {
   },
   carousel: {
     images: [
+      "/images/retreats/carousel-0.png",
       "/images/retreats/carousel.png",
       "/images/retreats/carousel-1.png",
       "/images/retreats/carousel-2.png",
