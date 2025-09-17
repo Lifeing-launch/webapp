@@ -100,7 +100,7 @@ export default function CoachingProgramSection() {
                 </p>
                 <Button
                   className="bg-[#4e6f1c] hover:bg-[#4e6f1c]/90 text-neutral-50 font-medium text-sm leading-5 h-9 px-4 py-2 rounded-md shadow-sm w-fit"
-                  onClick={() => window.open(pkg.stripeUrl, '_blank')}
+                  onClick={() => window.open(pkg.stripeUrl, "_blank")}
                 >
                   Buy Package
                 </Button>
