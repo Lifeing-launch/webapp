@@ -146,7 +146,7 @@ const mockData: RetreatData = {
       title: "Room 3",
       subtitle: "",
       description: "King bed, outdoor patio access, shared bath",
-      status: "available",
+      status: "booked",
       price1: {
         label: "Double Occupancy",
         value: "$2,895",
@@ -176,7 +176,7 @@ const mockData: RetreatData = {
       title: "Room 5",
       subtitle: "",
       description: "King bed, outdoor patio access, shared bath",
-      status: "booked",
+      status: "available",
       price1: {
         label: "Double Occupancy",
         value: "$2,895",
