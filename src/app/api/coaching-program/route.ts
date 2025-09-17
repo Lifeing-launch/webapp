@@ -18,6 +18,7 @@ export interface CoachingProgramData {
   packages: CoachingPackage[];
   footer: {
     bullets: string[];
+    message: string;
     note: string;
   };
 }
@@ -63,7 +64,9 @@ const mockData: CoachingProgramData = {
       "After purchasing, you'll receive scheduling links for the coaches.",
       "Sessions roll over month-to-month and can be used whenever you're ready.",
     ],
-    note: "Note: Coaching packages may be payable or reimbursable through your FSA or HSA account. Coverage varies with insurance providers. If you'd like more information or documentation (LON) to support your request for coverage, please email or consult.",
+    message:
+      "Take your next step toward transformation and aligned living with the presence of compassionate supports to walk beside you.",
+    note: "Coaching packages may be payable or reimbursable through your FSA or HSA account. Coverage varies with insurance providers. If you'd like more information or documentation (LON) to support your request for coverage, please email or consult.",
   },
 };
 

@@ -119,6 +119,9 @@ export default function CoachingProgramSection() {
                 </li>
               ))}
             </ul>
+            <p className="text-xs sm:text-sm font-normal leading-4 sm:leading-5 text-zinc-950 mt-4 sm:mt-6 text-center">
+              {data.footer.message}
+            </p>
             <p className="text-xs font-normal leading-4 text-zinc-950 italic mt-4 sm:mt-6">
               <span className="font-medium">Note:</span> {data.footer.note}
             </p>
