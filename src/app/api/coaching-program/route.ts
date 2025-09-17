@@ -26,7 +26,7 @@ const mockData: CoachingProgramData = {
   intro: {
     title: "Collaborative Coaching Program",
     description:
-      "Step Into a season of intentional self-discovery and growth with our Collaborative Coaching Program. Our customizable packages honor your unique path while offering the insight and support of distinct yet complementary coaching styles.\n\nDesign your experience your way: choose a trusted advisor from any of our Lifeing Coaches based on your needs, goals, and rhythm. Work closely with one coach or blend sessions across our team - the choice is yours to make.",
+      "Step Into a season of intentional self-discovery and growth with our Collaborative Coaching Program. Our customizable packages honor your unique path while offering the insight and support of distinct yet complementary coaching styles.\n\nDesign your experience your way: choose 1:1 sessions with any of our Lifeing Coaches based on your needs, goals, and rhythm. Work closely with one coach or blend sessions across our team - the choice is yours to make.",
   },
   packages: [
     {
