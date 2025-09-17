@@ -1,3 +1,5 @@
+import { formatInTimeZone } from "date-fns-tz";
+
 export function datetimeIsWithinInterval(
   dateTime: string,
   intervalInMinutes: number
@@ -11,7 +13,89 @@ export function datetimeIsWithinInterval(
   return differenceInMinutes <= intervalInMinutes;
 }
 
-export const formatDate = (date: Date) => {
+/**
+ * Get user's timezone using browser API
+ * Falls back to UTC if detection fails
+ */
+export const getUserTimeZone = (): string => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return "UTC";
+  }
+};
+
+/**
+ * Format date in user's timezone with preferred format
+ * @param date - Date object or ISO string
+ * @param timeZone - IANA timezone string (optional, defaults to user's timezone)
+ * @returns Formatted date string (e.g., "Wed, September 17, 2025")
+ */
+export const formatDate = (date: Date | string, timeZone?: string): string => {
+  const targetTimeZone = timeZone || getUserTimeZone();
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  return formatInTimeZone(dateObj, targetTimeZone, "EEE, MMMM d, yyyy");
+};
+
+/**
+ * Format time in user's timezone with 12-hour format
+ * @param date - Date object or ISO string
+ * @param timeZone - IANA timezone string (optional, defaults to user's timezone)
+ * @returns Formatted time string (e.g., "3:00 PM")
+ */
+export const formatTime = (date: Date | string, timeZone?: string): string => {
+  const targetTimeZone = timeZone || getUserTimeZone();
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  return formatInTimeZone(dateObj, targetTimeZone, "h:mm a");
+};
+
+/**
+ * Format date and time in user's timezone
+ * @param date - Date object or ISO string
+ * @param timeZone - IANA timezone string (optional, defaults to user's timezone)
+ * @returns Formatted datetime string (e.g., "Wed, September 17, 2025 at 3:00 PM")
+ */
+export const formatDateTime = (
+  date: Date | string,
+  timeZone?: string
+): string => {
+  const targetTimeZone = timeZone || getUserTimeZone();
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  return formatInTimeZone(
+    dateObj,
+    targetTimeZone,
+    "EEE, MMMM d, yyyy 'at' h:mm a"
+  );
+};
+
+/**
+ * Format date and time with timezone abbreviation
+ * @param date - Date object or ISO string
+ * @param timeZone - IANA timezone string (optional, defaults to user's timezone)
+ * @returns Formatted datetime with timezone (e.g., "Wed, September 17, 2025 at 3:00 PM EDT")
+ */
+export const formatDateTimeWithZone = (
+  date: Date | string,
+  timeZone?: string
+): string => {
+  const targetTimeZone = timeZone || getUserTimeZone();
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  return formatInTimeZone(
+    dateObj,
+    targetTimeZone,
+    "EEE, MMMM d, yyyy 'at' h:mm a zzz"
+  );
+};
+
+/**
+ * Legacy formatDate function for backward compatibility
+ * @deprecated Use formatDate with timezone support instead
+ */
+export const formatDateLegacy = (date: Date) => {
   return date.toLocaleDateString("en-US", {
     weekday: "short",
     year: "numeric",
@@ -20,7 +104,11 @@ export const formatDate = (date: Date) => {
   });
 };
 
-export const formatTime = (date: Date): string => {
+/**
+ * Legacy formatTime function for backward compatibility
+ * @deprecated Use formatTime with timezone support instead
+ */
+export const formatTimeLegacy = (date: Date): string => {
   return date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
