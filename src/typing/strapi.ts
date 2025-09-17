@@ -55,24 +55,6 @@ export type Article = {
   body: BlocksContent;
 };
 
-export interface ExtendedBioBlock {
-  type: "paragraph" | "heading" | "list" | "quote" | "list-item";
-  children: Array<{
-    type: "text" | "list-item";
-    text?: string;
-    bold?: boolean;
-    italic?: boolean;
-    children?: Array<{
-      type: "text";
-      text: string;
-      bold?: boolean;
-      italic?: boolean;
-    }>;
-  }>;
-  level?: number; // For headings (1-6)
-  format?: "unordered" | "ordered"; // For lists
-}
-
 export type Coach = {
   id: number;
   name: string;
@@ -81,7 +63,7 @@ export type Coach = {
   booking_url: string;
   experience_in_years: number;
   avatar?: Image;
-  extended_bio?: ExtendedBioBlock[];
+  extended_bio?: BlocksContent;
 };
 
 export type SubscriptionPlanStatus = "DRAFT" | "ACTIVE" | "RETIRED";

@@ -100,7 +100,7 @@ export default async function CoachProfilePage({ params }: ICoachProfilePage) {
               <h2 className="text-2xl font-semibold mb-4">
                 About {coach.name.split(" ")[0]}
               </h2>
-              <ExtendedBioRenderer blocks={coach.extended_bio} />
+              <ExtendedBioRenderer content={coach.extended_bio} />
             </div>
           )}
         </div>
