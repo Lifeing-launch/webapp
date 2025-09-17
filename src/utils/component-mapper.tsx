@@ -55,12 +55,14 @@ export function transformSectionData(section: PageSection) {
 
     case 'page.content-image-section':
       return {
-        id: section.section_id || '',
-        title: section.title,
-        description: section.description,
-        images: section.images?.map(img => img.url) || [],
-        alignment: section.alignment || 'left',
-        imageSlideInterval: section.slide_interval || 10000,
+        data: {
+          id: section.section_id || '',
+          title: section.title || '',
+          description: section.description || '',
+          images: section.images?.map((img: { url: string }) => img.url) || [],
+          alignment: section.alignment || 'left',
+          imageSlideInterval: section.slide_interval || 10000,
+        }
       };
 
     case 'page.image-carousel':

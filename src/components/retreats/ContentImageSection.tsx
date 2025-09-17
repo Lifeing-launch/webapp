@@ -16,7 +16,7 @@ export default function ContentImageSection({
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    if (data.images.length <= 1) return;
+    if (!data.images || data.images.length <= 1) return;
 
     const interval = setInterval(() => {
       setIsTransitioning(true);
@@ -28,7 +28,7 @@ export default function ContentImageSection({
     }, data.imageSlideInterval || 5000);
 
     return () => clearInterval(interval);
-  }, [data.images.length, data.imageSlideInterval]);
+  }, [data.images, data.imageSlideInterval]);
 
   const isLeftAligned = data.alignment === "left";
 
@@ -67,22 +67,28 @@ export default function ContentImageSection({
             )}
           >
             <div className="relative w-full h-full bg-gray-100">
-              {data.images.map((image, index) => (
-                <Image
-                  key={image}
-                  src={image}
-                  alt={`${data.title} - Image ${index + 1}`}
-                  fill
-                  className={cn(
-                    "object-cover transition-opacity duration-700",
-                    index === currentImageIndex ? "opacity-100" : "opacity-0",
-                    isTransitioning &&
-                      index === currentImageIndex &&
-                      "opacity-0"
-                  )}
-                  priority={index === 0}
-                />
-              ))}
+              {data.images && data.images.length > 0 ? (
+                data.images.map((image, index) => (
+                  <Image
+                    key={image}
+                    src={image}
+                    alt={`${data.title} - Image ${index + 1}`}
+                    fill
+                    className={cn(
+                      "object-cover transition-opacity duration-700",
+                      index === currentImageIndex ? "opacity-100" : "opacity-0",
+                      isTransitioning &&
+                        index === currentImageIndex &&
+                        "opacity-0"
+                    )}
+                    priority={index === 0}
+                  />
+                ))
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <span className="text-gray-400">No images available</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,77 +1,50 @@
-import { DynamicPageResponse, NavigationResponse } from '@/typing/dynamic-page';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_CMS_URL || 'http://localhost:1337';
+import { DynamicPageResponse, NavigationResponse } from "@/typing/dynamic-page";
+import { getStrapiBaseUrl } from "@/utils/urls";
+import { strapiFetch } from "@/utils/fetch";
 
 export class DynamicPageService {
-  static async getPageBySlug(slug: string): Promise<DynamicPageResponse | null> {
+  static async getPageBySlug(
+    slug: string
+  ): Promise<DynamicPageResponse | null> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/dynamic-pages/slug/${slug}`,
-        {
-          next: { revalidate: 60 }, // ISR - revalidate every 60 seconds
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          return null;
-        }
-        throw new Error(`Failed to fetch page: ${response.statusText}`);
-      }
-
-      return await response.json();
+      // Call Strapi directly from server-side
+      // For now, we'll just fetch public pages
+      // Protected pages will be handled by middleware
+      const strapiUrl = `${getStrapiBaseUrl()}/dynamic-pages/slug/${slug}`;
+      const data = await strapiFetch(strapiUrl);
+      return data;
     } catch (error) {
-      console.error('Error fetching dynamic page:', error);
+      // If it's an authentication error, the page is protected
+      // Return null and let middleware handle the redirect
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes("Esta página requer autenticação")) {
+        console.log(`Page ${slug} is protected, returning null`);
+        return null;
+      }
+      console.error("Error fetching dynamic page:", error);
       return null;
     }
   }
 
   static async getNavigationPages(): Promise<NavigationResponse | null> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/dynamic-pages/navigation`,
-        {
-          next: { revalidate: 60 },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch navigation: ${response.statusText}`);
-      }
-
-      return await response.json();
+      const strapiUrl = `${getStrapiBaseUrl()}/dynamic-pages/navigation`;
+      const data = await strapiFetch(strapiUrl);
+      return data;
     } catch (error) {
-      console.error('Error fetching navigation pages:', error);
+      console.error("Error fetching navigation pages:", error);
       return null;
     }
   }
 
   static async getAllPageSlugs(): Promise<string[]> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/dynamic-pages?fields[0]=slug&pagination[limit]=100`,
-        {
-          next: { revalidate: 3600 }, // Revalidate every hour
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch page slugs: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.data.map((page: any) => page.slug);
+      const strapiUrl = `${getStrapiBaseUrl()}/dynamic-pages?fields[0]=slug&pagination[limit]=100`;
+      const data = await strapiFetch(strapiUrl);
+      return data.data.map((page: { slug: string }) => page.slug);
     } catch (error) {
-      console.error('Error fetching page slugs:', error);
+      console.error("Error fetching page slugs:", error);
       return [];
     }
   }

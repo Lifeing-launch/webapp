@@ -1,9 +1,9 @@
-import React from 'react';
-import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
-import PageBanner from '@/components/layout/page-banner';
-import PageRenderer from '@/components/page-builder/PageRenderer';
-import { DynamicPageService } from '@/services/dynamic-page.service';
+import React from "react";
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import PageBanner from "@/components/layout/page-banner";
+import PageRenderer from "@/components/page-builder/PageRenderer";
+import { DynamicPageService } from "@/services/dynamic-page.service";
 
 interface DynamicPageProps {
   params: {
@@ -20,13 +20,15 @@ export async function generateStaticParams() {
 }
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: DynamicPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: DynamicPageProps): Promise<Metadata> {
   const pageData = await DynamicPageService.getPageBySlug(params.slug);
 
   if (!pageData) {
     return {
-      title: 'Page Not Found',
-      description: 'The requested page could not be found.',
+      title: "Page Not Found",
+      description: "The requested page could not be found.",
     };
   }
 
@@ -53,15 +55,15 @@ export default async function DynamicPage({ params }: DynamicPageProps) {
 
   const { data, meta } = pageData;
 
-  // Check if page is protected (this should be handled by middleware as well)
-  if (meta.visibility === 'protected') {
-    // This will be handled by middleware, but adding as fallback
-    return notFound();
-  }
+  // // Check if page is protected (this should be handled by middleware as well)
+  // if (meta.visibility === "protected") {
+  //   // This will be handled by middleware, but adding as fallback
+  //   return notFound();
+  // }
 
   // Find hero banner section for page banner
   const heroBanner = data.page_sections?.find(
-    section => section.__component === 'page.hero-banner'
+    (section) => section.__component === "page.hero-banner"
   );
 
   return (
@@ -70,8 +72,8 @@ export default async function DynamicPage({ params }: DynamicPageProps) {
         <PageBanner
           title={heroBanner.title}
           backgroundImage={heroBanner.background_image?.url}
-          height={heroBanner.height || 'lg'}
-          imagePosition={heroBanner.image_position || '50% 50%'}
+          height={heroBanner.height || "lg"}
+          imagePosition={heroBanner.image_position || "50% 50%"}
         />
       )}
 
