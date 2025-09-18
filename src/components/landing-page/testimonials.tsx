@@ -13,7 +13,6 @@ const testimonials = [
     role: "",
     quote:
       "The Lifeing community is like nothing I've experienced in my 60+ years of life. The experiences and stories shared are so relatable and the coaches' reflections are gold. It's a space to be vulnerable without fear of judgment or criticism. We learn and grow together; the love, support, tears, and laughs are magical. It really is difficult to describe what this community provides and means to me. Thanks a million!",
-    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 2,
@@ -21,7 +20,6 @@ const testimonials = [
     role: "",
     quote:
       "Lifeing has been a platform that has done nothing but enhance my very life. Two years ago I made a major permanent lifestyle commitment that was centered around learning how to mindfully moderate my alcohol consumption. It has enabled me to carry this way of living into other parts of myself. Learning to live with intention, compassion, and self understanding while in community with others on the same path, has served as a motivator for me. Lifeing is a lifestyle community where each person presents from a place of vulnerability and truthfulness which makes for such an honest and enriching experience. It makes becoming a better version of yourself a natural outcome. One thing I have learned and will carry with me forever is that seeking self belief leads to acknowledgement, which leads to honesty, which leads to motivation, which leads to uncovering your true self. That my friend, is a WIN!",
-    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 3,
@@ -29,7 +27,6 @@ const testimonials = [
     role: "",
     quote:
       "For a long, long time I didn't know how lost and misguided I was. When I discovered and was lead to the coaching and guidance of Heidi and Dr Lovey, I started my journey to freedom, liberation, and self discovery. Their compassion, support and encouragement was pivotal in my healing my inner most wounds and reclaiming my birthright; grow and move forward towards becoming the individual i was created to be. With the tools they offered and the ongoing support, I started on a trajectory that has truly changed my life for the better. I now have an expansive perspective on life. They helped me find my voice, feel my feels with a confidence and defiance I never knew possible. I am the risen phoenix and am eternally grateful to both of these amazing humans.",
-    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 4,
@@ -37,7 +34,6 @@ const testimonials = [
     role: "",
     quote:
       "Lifeing has been a game changer! Not because I've figured everything out, but because I've learned how to keep showing up for myself without getting stuck in shame or self-sabotage. It's given me tools, perspective, and a supportive space to keep doing the work, one step at a time. I'm still growing, still learning, but now I do it with compassion and clarity instead of fear. That shift has made all the difference.",
-    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 5,
@@ -45,7 +41,6 @@ const testimonials = [
     role: "",
     quote:
       "Lifeing has literally changed my life! I've been on other platforms before, and nothing has come close to the sincerity and thoughtfulness these coaches show us, not just as a group but as individuals. I've made some of my forever friends on this platform and will always be thankful that I found this group.",
-    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 6,
@@ -53,7 +48,6 @@ const testimonials = [
     role: "",
     quote:
       "LIFEING has helped me begin to like myself again. It's helped me step out of my insecurities of self doubt and regret. I'm learning that it's okay to 'feel the feels' —that I AM loved, especially when I learn to love myself. Lifeing has given me the tools to dig deep and explore my thoughts and emotions in a way I haven't before.",
-    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
   {
     id: 7,
@@ -61,7 +55,6 @@ const testimonials = [
     role: "",
     quote:
       "While I respect what 12 step programs have done for some people, I never fully connected with the idea that total abstinence is the only path and I don't think that everyone who has had problem drinking is powerless to alcohol. I have power over the choices that I make and I've learned that my relationship with alcohol is complex. It's emotional, cultural, sometimes social… and I've found that the mindful moderation framework used by Lifeing gives me more agency and self-trust. For me, it's not about 'controlling' alcohol, but about being present, intentional, and honest with myself. This is 'Lifeing'",
-    avatar: "/images/landing/placeholder-reviewer.png",
   },
   {
     id: 8,
@@ -69,7 +62,6 @@ const testimonials = [
     role: "",
     quote:
       "Lifeng has truly changed my life. With the support of their all-star team of compassionate coaches, I've been able to reduce my drinking, embrace genuine self-love and acceptance, and build healthy, lasting coping skills for all of life's ups and downs. The group sessions are welcoming, warm, and always uplifting. Every meeting feels like a safe haven where I can be myself, grow at my own pace, and know I'm not alone. I've learned so much about resilience, boundaries, and how to meet life with clarity and courage. This community has helped me heal in ways I never thought possible and I'm so grateful to be part of it. If you're ready for real transformation, this is the place to start. 💛",
-    avatar: "/images/landing/placeholder-women-reviewer.png",
   },
 ];
 
@@ -167,25 +159,16 @@ const Testimonials = () => {
 
                   {/* Content */}
                   <div className="relative z-10 flex flex-col h-full gap-5">
-                    {/* Avatar and Info */}
-                    <div className="flex items-center gap-6 mb-6">
-                      <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
-                        <Image
-                          src={testimonial.avatar}
-                          alt={testimonial.name}
-                          width={96}
-                          height={96}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-gilda text-[#18181B] mb-2">
-                          {testimonial.name}
-                        </h3>
+                    {/* Name and Info */}
+                    <div className="mb-6">
+                      <h3 className="text-2xl font-gilda text-[#18181B] mb-2">
+                        {testimonial.name}
+                      </h3>
+                      {testimonial.role && (
                         <p className="text-lg text-[#3F3F46]">
                           {testimonial.role}
                         </p>
-                      </div>
+                      )}
                     </div>
 
                     {/* Quote */}
