@@ -67,7 +67,7 @@ export function MeetingCard({
         {showRsvp && (
           <RsvpButton hasRsvped={hasRsvped} meetingId={meeting.id} />
         )}
-        {hasRsvped && meeting.url && (
+        {meeting.url && (
           <Link href={meeting.url}>
             <Button className="flex-1">
               <Check /> Join meeting
